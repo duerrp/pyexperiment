@@ -23,3 +23,10 @@ class Singleton(object):
                 if not cls.__singleton_instance:
                     cls.__singleton_instance = cls()
         return cls.__singleton_instance
+
+    @classmethod
+    def reset_instance(cls):
+        if cls.__singleton_instance:
+            with cls.__singleton_lock:
+                if cls.__singleton_instance:
+                    cls.__singleton_instance = None
