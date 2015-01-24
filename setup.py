@@ -21,7 +21,7 @@ def read(fname):
 
 setup(
     name="pyexperiment",
-    version="0.1",
+    version="0.1.1",
     author="Peter Duerr",
     author_email="duerrp@gmail.com",
     description="Framework for easy and clean experiments with python.",
