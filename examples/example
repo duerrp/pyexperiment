@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+"""A simple example on how to use pyexperiment.
+
+Written by Peter Duerr
+"""
+import unittest
+
+from pyexperiment import experiment
+from pyexperiment.log import log
+from pyexperiment.utils.printers import print_red
+from pyexperiment.utils.printers import print_blue
+
+
+def example_function(argument):
+    """An example function
+    """
+    log.debug("Call example function with argument: %s",
+                           argument)
+    return argument**2
+
+
+def ex_1():
+    """Example experiment that squares a number
+    """
+    print_red("Experiment 1 started")
+    log.debug("Trying to square 42 ten times...")
+    for _ in xrange(10):
+        with log.timed("Squaring number"):
+            result = example_function(42)
+
+    print_red("The incredible result is %d", result)
+
+
+def ex_2(*args):
+    """Example experiment that prints a number. Enter one!
+    """
+    number, = args
+    number = int(number)
+    print_blue("Welcome to experiment 2")
+    log.info("Experiment 2 started")
+    print_red("You entered the incredible number %d", number)
+
+
+class ExampleTest(unittest.TestCase):
+    """Test case for the example experiment
+    """
+    def test_foo(self):
+        """Test something
+        """
+        self.assertEqual(example_function(2), 4)
+
+    def test_bar(self):
+        """Test something else
+        """
+        self.assertEqual(example_function(3), 9)
+
+if __name__ == '__main__':
+    experiment.main(commands=[ex_1, ex_2],
+                    tests=[ExampleTest])
