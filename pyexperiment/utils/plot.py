@@ -13,7 +13,8 @@ from matplotlib import pyplot as plt
 
 def setup_matplotlib(font_size=14,
                      label_size=14,
-                     use_tex=True):
+                     use_tex=True,
+                     linewidth=2):
     """Setup basic style for matplotlib figures
     """
     font_size = int(font_size)
@@ -24,6 +25,7 @@ def setup_matplotlib(font_size=14,
     matplotlib.rc('font', **font)  # pylint:disable=W0142
 
     matplotlib.rc('text', usetex=use_tex)
+    matplotlib.rc('lines', linewidth=linewidth)
 
     label_size = int(label_size)
     matplotlib.rc('xtick', labelsize=label_size)
