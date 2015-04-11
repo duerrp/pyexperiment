@@ -64,7 +64,7 @@ def init_log():
     else:
         log_filename = None
     log_file_verbosity = conf.get_value('basic.log_file_verbosity')
-    rotate_n_logs = conf.get_value('basic.rotate_n_logs')
+    rotate_n_logs = int(conf.get_value('basic.rotate_n_logs'))
 
     # Setup the logger for the configuration
     log.init_main(console_level=verbosity,
