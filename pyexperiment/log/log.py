@@ -443,5 +443,5 @@ def init_main(console_level=logging.INFO,
 def close():
     """Close the logger
     """
-    Logger.get_instance().close()
+    Logger.get_instance().get_logger().close()
     Logger.reset_instance()

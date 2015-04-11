@@ -2,6 +2,8 @@
 pyexperiment
 ============
 
+[![Development Status](https://pypip.in/status/pyexperiment/badge.svg)](https://pypi.python.org/pypi/pyexperiment/)
+
 When writing small python scripts for quick experiments, it's often
 too much effort to add a good command line argument parser, a
 configuration system or a logger.
