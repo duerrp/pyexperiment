@@ -438,3 +438,10 @@ def init_main(console_level=logging.INFO,
                                     filename=filename,
                                     file_level=file_level,
                                     no_backups=no_backups)
+
+
+def close():
+    """Close the logger
+    """
+    Logger.get_instance().close()
+    Logger.reset_instance()
