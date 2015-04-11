@@ -277,3 +277,5 @@ def main(commands=[], config_spec="", tests=None):
           and conf.get_value('basic.print_timings'))
          or conf.get_value('basic.print_timings') == 'True')):
         log.print_timings()
+    else:
+        log.close()

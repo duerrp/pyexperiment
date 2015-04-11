@@ -284,6 +284,11 @@ class TimingLogger(logging.Logger):
         else:
             self.timings[msg].append(elapsed_time)
 
+    def close(self):
+        """Make sure the delegated calls are all done...
+        """
+        self._delegate_process_timings.join()
+
 
 def init(console_level=logging.INFO,
          filename=None,
