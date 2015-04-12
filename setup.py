@@ -17,25 +17,31 @@ from setuptools import setup
 
 
 def read(fname):
+    """Reads a file
+    """
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+LONG_DESCRIPTION = 'Framework for easy and clean experiments with python.'
+if os.path.exists('README.md'):
+    LONG_DESCRIPTION = read('README.md')
 
 setup(
     name="pyexperiment",
-    version="0.1.9",
+    version="0.1.10",
     author="Peter Duerr",
     author_email="duerrp@gmail.com",
     description="Framework for easy and clean experiments with python.",
     license="MIT",
     keywords="science experiment",
     url="https://github.com/duerrp/pyexperiment",
-    download_url="https://github.com/duerrp/pyexperiment/tarball/0.1.9",
+    download_url="https://github.com/duerrp/pyexperiment/tarball/0.1.10",
     packages=['pyexperiment',
               'pyexperiment.conf',
               'pyexperiment.state',
               'pyexperiment.utils',
               'pyexperiment.log',
           ],
-    long_description=read('README.md'),
+    long_description=LONG_DESCRIPTION,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
