@@ -55,3 +55,4 @@ def setup_figure(name):
     fig = plt.figure()
     fig.canvas.set_window_title(name)
     quit_figure_on_key('q', fig)
+    return fig
