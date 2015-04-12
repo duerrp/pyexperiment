@@ -21,14 +21,14 @@ def read(fname):
 
 setup(
     name="pyexperiment",
-    version="0.1.7",
+    version="0.1.8",
     author="Peter Duerr",
     author_email="duerrp@gmail.com",
     description="Framework for easy and clean experiments with python.",
     license="MIT",
     keywords="science experiment",
     url="https://github.com/duerrp/pyexperiment",
-    download_url="https://github.com/duerrp/pyexperiment/tarball/0.1.7",
+    download_url="https://github.com/duerrp/pyexperiment/tarball/0.1.8",
     packages=['pyexperiment',
               'pyexperiment.conf',
               'pyexperiment.state',
