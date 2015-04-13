@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+"""Illustrates pyexperiment's way to run unit tests from the command line.
+
+Running `test_cli test` will execute the unittests.
+
+Written by Peter Duerr
+"""
+
+# Sensible imports from the future (optional)
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+
+# Import Python's unittest module
+import unittest
+
+# Import the experiment module for its main function
+from pyexperiment import experiment
+
+
+# A function to test
+def example_function(x):
+    """Squares a number
+    """
+    return x**2
+
+
+class ExampleTest(unittest.TestCase):
+    """Test cases for the example function
+    """
+    def test_foo(self):
+        """Test 2*2 == 4
+        """
+        self.assertEqual(example_function(2), 4)
+
+    def test_bar(self):
+        """Test 3*3 == 9
+        """
+        self.assertEqual(example_function(3), 9)
+
+if __name__ == '__main__':
+    # Passing the `ExampleTest` to experiment.main will allow running
+    # the test cases from the prompt with the `test` command.
+    experiment.main(tests=[ExampleTest])
