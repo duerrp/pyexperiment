@@ -4,6 +4,8 @@
 Running `minmal_cli` will print a short usage message, `minimal_cli
 -h` will show more help, `minimal_cli hello` will print 'Hello', and
 `minmal_cli world` will print 'World'.
+
+Written by Peter Duerr
 """
 
 # Sensible imports from the future (optional)
