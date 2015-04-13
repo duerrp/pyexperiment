@@ -183,7 +183,7 @@ def format_command_help(commands):
     return string
 
 
-def configure(commands, config_specs):
+def configure(commands, config_specs, description):
     """Load configuration from command line arguments and optionally, a
     configuration file. Possible command line arguments depend on the
     list of supplied commands, the configuration depends on the
@@ -193,7 +193,7 @@ def configure(commands, config_specs):
 
     arg_parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="Thanks for using %(prog)s.",
+        description=description,
         epilog=(command_help))
 
     arg_parser.add_argument('command',
@@ -239,7 +239,10 @@ def configure(commands, config_specs):
     return actual_command, args.argument
 
 
-def main(commands=[], config_spec="", tests=None):
+def main(commands=[],
+         config_spec="",
+         tests=None,
+         description=None):
     """Parses command line arguments and configuration, then runs the
     appropriate command.
     """
@@ -250,7 +253,10 @@ def main(commands=[], config_spec="", tests=None):
 
     # Configure the application from the command line and get the
     # command to be run
-    run_command, arguments = configure(commands, config_spec)
+    run_command, arguments = configure(commands,
+                                       config_spec,
+                                       "Thanks for using %(prog)s."
+                                       if description is None else description)
 
     # Store the commands and tests globally
     # I believe global is justified here for simplicity

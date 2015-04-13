@@ -30,6 +30,8 @@ def world():
     print("World")
 
 if __name__ == '__main__':
-    # Passing the functions to the main function will set up the functions'
-    # names as first level commands and set up the help text.
-    experiment.main(commands=[hello, world])
+    # Passing the functions to the main function will set up the
+    # functions' names as first level commands. The (optional)
+    # description text will appear in the help text.
+    experiment.main(commands=[hello, world],
+                    description="Welcome to the world of pyexperiment...")
