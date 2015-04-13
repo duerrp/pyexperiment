@@ -144,6 +144,7 @@ class MPRotLogHandler(logging.Handler):
         self._file_handler.setFormatter(formatter)
 
     def close(self):
+        self._delegate_emit.join()
         self._file_handler.close()
         super(MPRotLogHandler, self).close()
 
@@ -382,6 +383,13 @@ class Logger(Singleton):
             # temp_logger = logging.getLogger('pre_init_logger')
             return self.logger
 
+    def close(self):
+        """Close the logger and finish all outstanding jobs.
+        """
+        for handler in self.logger.handlers:
+            handler.close()
+        self.get_logger().close()
+
 
 # If this file is executed directly
 def debug(*args):
@@ -423,6 +431,13 @@ def timed(*args):
     return Logger.get_instance().get_logger().timed(*args)
 
 
+def close():
+    """Close the logger
+    """
+    Logger.get_instance().close()
+    Logger.reset_instance()
+
+
 def print_timings(*_args):
     """Prints a summary of the timings collected with 'timed'.
     """
@@ -438,10 +453,3 @@ def init_main(console_level=logging.INFO,
                                     filename=filename,
                                     file_level=file_level,
                                     no_backups=no_backups)
-
-
-def close():
-    """Close the logger
-    """
-    Logger.get_instance().get_logger().close()
-    Logger.reset_instance()
