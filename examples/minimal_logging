@@ -37,6 +37,7 @@ def run():
     log.error("Error Message")
     log.fatal("Fatal Message")
 
+
 def timed():
     """Time the execution of a for loop
     """
