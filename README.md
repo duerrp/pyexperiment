@@ -49,6 +49,15 @@ see in the [requirements.txt](https://github.com/duerrp/pyexperiment/blob/master
 If you install the dependencies from pypi, you may need to install
 libhdf5 first, e.g., by running `sudo apt-get install libhdf5-dev`.
 
+## Reproducible experiments
+
+To keep your experiments reproducible and avoid dependency problems,
+it is a good idea to automate the setup of your development
+environment, e.g., using a Vagrant box, or a Docker image. To get
+started with pyexperiment using Vagrant, you can use the Vagrantfile
+and setup script
+[here](https://github.com/duerrp/pyexperiment/blob/master/vagrant).
+
 ## License
 
 The pyexperiment package is licensed under an MIT licence (see the
