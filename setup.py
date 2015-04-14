@@ -8,33 +8,28 @@ from __future__ import absolute_import
 import os
 from setuptools import setup
 
-# Utility function to read the README file.
-# Used for the long_description.  It's nice, because now 1) we have a
-# top level
-# README file and 2) it's easier to type in the README file than to
-# put a raw
-# string in below ...
-
-
-def read(fname):
-    """Reads a file
-    """
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+try:
+    from pypandoc import convert
+    read_md = lambda fname: convert(fname, 'rst')
+except ImportError:
+    print("Warning: pypandoc module not found")
+    read_md = lambda fname: open(
+        os.path.join(os.path.dirname(__file__), fname), 'r').read()
 
 LONG_DESCRIPTION = 'Framework for easy and clean experiments with python.'
 if os.path.exists('README.md'):
-    LONG_DESCRIPTION = read('README.md')
+    LONG_DESCRIPTION = read_md('README.md')
 
 setup(
     name="pyexperiment",
-    version="0.1.13",
+    version="0.1.14",
     author="Peter Duerr",
     author_email="duerrp@gmail.com",
-    description="Framework for easy and clean experiments with python.",
+    description="Framework for quick and clean experiments with python.",
     license="MIT",
     keywords="science experiment",
     url="https://github.com/duerrp/pyexperiment",
-    download_url="https://github.com/duerrp/pyexperiment/tarball/0.1.13",
+    download_url="https://github.com/duerrp/pyexperiment/tarball/0.1.14",
     packages=['pyexperiment',
               'pyexperiment.conf',
               'pyexperiment.state',
