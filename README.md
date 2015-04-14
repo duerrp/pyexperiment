@@ -2,7 +2,7 @@
 pyexperiment
 ============
 
-[![Development Status](https://pypip.in/status/pyexperiment/badge.svg)](https://pypi.python.org/pypi/pyexperiment/) [![Version](https://pypip.in/version/pyexperiment/badge.svg)](https://pypi.python.org/pypi/pyexperiment/) [![Python Version](https://pypip.in/py_version/pyexperiment/badge.svg)](https://pypi.python.org/pypi/pyexperiment/) [![Build Status](https://travis-ci.org/duerrp/pyexperiment.svg?branch=master)](https://travis-ci.org/duerrp/pyexperiment) [![Coverage Status](https://coveralls.io/repos/duerrp/pyexperiment/badge.svg)](https://coveralls.io/r/duerrp/pyexperiment)
+[![Development Status](https://pypip.in/status/pyexperiment/badge.svg)](https://pypi.python.org/pypi/pyexperiment/) [![Version](https://pypip.in/version/pyexperiment/badge.svg)](https://pypi.python.org/pypi/pyexperiment/) [![Python Version](https://pypip.in/py_versions/pyexperiment/badge.svg)](https://pypi.python.org/pypi/pyexperiment/) [![Build Status](https://travis-ci.org/duerrp/pyexperiment.svg?branch=master)](https://travis-ci.org/duerrp/pyexperiment) [![Coverage Status](https://coveralls.io/repos/duerrp/pyexperiment/badge.svg)](https://coveralls.io/r/duerrp/pyexperiment)
 
 There is no shortage of great Python libraries for command line
 interfaces, logging, configuration file management, persistent state,
