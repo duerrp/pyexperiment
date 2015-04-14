@@ -33,7 +33,7 @@ without any further configuration. Inevitably then, the choices made
 in this setup are opinionated and may or may not fit your personal
 taste. Feel free to start a discussion on the [issues](https://github.com/duerrp/pyexperiment/issues) page.
 
-For usage examples, check the examples folder.
+For usage examples, check the [examples](https://github.com/duerrp/pyexperiment/tree/master/examples) folder.
 
 ## Dependencies
 
@@ -43,6 +43,7 @@ see in the [requirements.txt](https://github.com/duerrp/pyexperiment/blob/master
 * configobj
 * numpy
 * h5py
+* matplotlib
 
 If you install the dependencies from pypi, you may need to install
 libhdf5 first, e.g., by running `sudo apt-get install libhdf5-dev`.
@@ -50,4 +51,4 @@ libhdf5 first, e.g., by running `sudo apt-get install libhdf5-dev`.
 ## License
 
 The pyexperiment package is licensed under an MIT licence (see the
-[LICENSE](https://github.com/duerrp/pyexperiment/blob/master/LICENCSE)).
+[LICENSE](https://github.com/duerrp/pyexperiment/blob/master/LICENSE)).
