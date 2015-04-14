@@ -22,14 +22,14 @@ if os.path.exists('README.md'):
 
 setup(
     name="pyexperiment",
-    version="0.1.14",
+    version="0.1.15",
     author="Peter Duerr",
     author_email="duerrp@gmail.com",
-    description="Framework for quick and clean experiments with python.",
+    description="Run experiments with Python - quick and clean.",
     license="MIT",
     keywords="science experiment",
     url="https://github.com/duerrp/pyexperiment",
-    download_url="https://github.com/duerrp/pyexperiment/tarball/0.1.14",
+    download_url="https://github.com/duerrp/pyexperiment/tarball/0.1.15",
     packages=['pyexperiment',
               'pyexperiment.conf',
               'pyexperiment.state',
