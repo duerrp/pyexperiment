@@ -1,8 +1,8 @@
 # Getting started
 
-After installing vagrant on your system, you can get up and running
-with a reproducible environment for pyexperiment with the following
-commands:
+After installing Vagrant on your system, you can get up and running
+with a reproducible environment for pyexperiment by issuing the
+following commands:
 
 ```
 git clone https://github.com/duerrp/pyexperiment.git
