@@ -12,4 +12,4 @@ sudo apt-get install -y \
 sudo pip install Cython
 sudo pip install -r /home/vagrant/pyexperiment/requirements.txt
 
-echo "export PYTONPATH='.'" >> .bashrc
+echo "export PYTHONPATH='.'" >> /home/vagrant/.bashrc
