@@ -11,8 +11,9 @@ install:
   - pip install coverage
 
 # command to run tests
-script: coverage run --source=pyexperiment ./run_tests
-
+script:
+  - coverage run --source=pyexperiment ./run_tests
+  - coverage report -m
 # collect coverage statistics
 after_success:
-  - coveralls
+  - coveralls --verbose
