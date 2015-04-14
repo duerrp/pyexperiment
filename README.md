@@ -1,6 +1,4 @@
-============
-pyexperiment
-============
+# pyexperiment
 
 [![Development Status](https://pypip.in/status/pyexperiment/badge.svg)](https://pypi.python.org/pypi/pyexperiment/) [![Version](https://pypip.in/version/pyexperiment/badge.svg)](https://pypi.python.org/pypi/pyexperiment/) [![Python Version](https://pypip.in/py_versions/pyexperiment/badge.svg)](https://pypi.python.org/pypi/pyexperiment/) [![Build Status](https://travis-ci.org/duerrp/pyexperiment.svg?branch=master)](https://travis-ci.org/duerrp/pyexperiment) [![Coverage Status](https://coveralls.io/repos/duerrp/pyexperiment/badge.svg)](https://coveralls.io/r/duerrp/pyexperiment)
 
@@ -14,43 +12,42 @@ Pyexperiment fixes this by providing a very simple way to jump start a
 short experiment, adding many features of a full-blown framework.
 
 Importing one or several modules from pyexperiment will give you:
-- A basic command line interface that allows calling arbitrary
+
+* A basic command line interface that allows calling arbitrary
   functions (and passing arguments) from the command prompt, providing
   help text derived from the functions' docstrings (based on the
   standard library's argparse).
-- A simple configuration management with an easy way to provide
+* A simple configuration management with an easy way to provide
   default values (based on the excellent configobj library).
-- A thread-safe logger with configurable logging levels and rotating
+* A thread-safe logger with configurable logging levels and rotating
   log files (based on the standard library's logging module).
-- Persistent state with platform independent, configurable,
+* Persistent state with platform independent, configurable,
   (optionally rotating) state files that are compatible with many
   other programs (based on h5py).
-- A sensible setup for plotting with configurable defaults (based on
+* A sensible setup for plotting with configurable defaults (based on
   matplotlib).
-- Many other bits and pieces that might come in handy...
+* Many other bits and pieces that might come in handy...
 
 As a design principle, pyexperiment's components come ready to use
 without any further configuration. Inevitably then, the choices made
 in this setup are opinionated and may or may not fit your personal
-taste. Feel free to start a discussion on github
-(https://github.com/duerrp/pyexperiment/issues).
+taste. Feel free to start a discussion on the [issues](https://github.com/duerrp/pyexperiment/issues) page.
 
 For usage examples, check the examples folder.
 
-Dependencies
-============
+## Dependencies
 
-The pyexperiment package has a few external dependencies:
+The pyexperiment package has a few external dependencies (as you can
+see in the [requirements.txt](https://github.com/duerrp/pyexperiment/blob/master/requirements.txt)):
 
-* configobj >= 5.0.5
-* numpy >= 1.8.1
-* h5py >= 2.3.1
+* configobj
+* numpy
+* h5py
 
-If you install the dependencies with pip, you may need to install
+If you install the dependencies from pypi, you may need to install
 libhdf5 first, e.g., by running `sudo apt-get install libhdf5-dev`.
 
-License
-=======
+## License
 
 The pyexperiment package is licensed under an MIT licence (see the
-LICENSE file).
+[LICENSE](https://github.com/duerrp/pyexperiment/blob/master/LICENCSE)).
