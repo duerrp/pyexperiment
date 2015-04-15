@@ -30,3 +30,17 @@ class Singleton(object):
             with cls.__singleton_lock:
                 if cls.__singleton_instance:
                     cls.__singleton_instance = None
+
+
+class SingletonIndirector(object):
+    """Creates a class that mimics the Singleton lazily
+
+    This avoids calling obj.get_instance().attribute too often
+    """
+    def __init__(self, singleton):
+        """Initializer
+        """
+        self.singleton = singleton
+
+    def __getattr__(self, attr):
+        return getattr(self.singleton.get_instance(), attr)
