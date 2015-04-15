@@ -1,0 +1,42 @@
+FROM ubuntu:14.04
+
+MAINTAINER Peter Duerr
+
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y \
+    libhdf5-dev \
+    pkg-config \
+    libfreetype6-dev \
+    libpng12-dev \
+    python-dev \
+    python-pip
+
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ADD requirements.txt /tmp/requirements.txt
+
+RUN pip install Cython
+RUN pip install -r /tmp/requirements.txt
+
+# Generate UTF-8 locale
+RUN locale-gen en_US.UTF-8
+
+# Create user
+# USERID, GROUPID and USERNAME will be replaced
+RUN export uid=USERID gid=GROUPID && \
+    mkdir -p /home/USERNAME && \
+    echo "USERNAME:x:${uid}:${gid}:USERNAME,,,:/home/USERNAME:/bin/bash" >> /etc/passwd && \
+    echo "USERNAME:x:${uid}:" >> /etc/group && \
+    echo "USERNAME ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/USERNAME && \
+    chmod 0440 /etc/sudoers.d/USERNAME && \
+    chown ${uid}:${gid} -R /home/USERNAME
+
+# Pythonpath
+RUN echo "export PYTHONPATH='.'" >> /home/USERNAME/.bashrc
+
+USER USERNAME
+ENV HOME /home/USERNAME
+
+CMD /bin/bash -i
