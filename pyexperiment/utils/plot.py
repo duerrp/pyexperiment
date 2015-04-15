@@ -48,7 +48,7 @@ def quit_figure_on_key(key, figure=None):
     figure.canvas.mpl_connect('key_press_event', quit_on_keypress)
 
 
-def setup_figure(name):
+def setup_figure(name='pyexperiment'):
     """Setup a figure that can be closed by pressing 'q' and saved by
     pressing 's'.
     """
