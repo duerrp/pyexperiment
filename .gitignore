@@ -1,1 +1,4 @@
 *.pyc
+/examples/cpp-example/build/
+/dist/
+/pyexperiment.egg-info/
