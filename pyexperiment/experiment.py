@@ -16,7 +16,7 @@ import sys
 from datetime import datetime
 import argparse
 
-from pyexperiment.conf import conf
+from pyexperiment import conf
 from pyexperiment.log import log
 from pyexperiment.state import state
 from pyexperiment.utils.printers import print_bold
@@ -56,15 +56,15 @@ def init_log():
     """Initialize the logger based on the configuration
     """
     # Get options related to logging
-    verbosity = conf.get_value('basic.verbosity')
-    log_to_file = conf.get_value('basic.log_to_file')
+    verbosity = conf['basic.verbosity']
+    log_to_file = conf['basic.log_to_file']
     if (((type(log_to_file) == str and log_to_file == 'True')
          or (type(log_to_file) == bool and log_to_file))):
-        log_filename = conf.get_value('basic.log_filename')
+        log_filename = conf['basic.log_filename']
     else:
         log_filename = None
-    log_file_verbosity = conf.get_value('basic.log_file_verbosity')
-    rotate_n_logs = int(conf.get_value('basic.rotate_n_logs'))
+    log_file_verbosity = conf['basic.log_file_verbosity']
+    rotate_n_logs = int(conf['basic.rotate_n_logs'])
 
     # Setup the logger for the configuration
     log.init_main(console_level=verbosity,
@@ -92,7 +92,7 @@ def help(*args):  # pylint:disable=W0622
 def show_config():
     """Print the configuration
     """
-    conf.pretty_print()
+    print(conf)
 
 
 def save_config(filename=None):
@@ -138,7 +138,7 @@ def show_state(*arguments):
     the file specified as an argument.
     """
     if len(arguments) == 0:
-        state_file = conf.get_value('basic.state_filename')
+        state_file = conf['basic.state_filename']
     else:
         state_file = arguments[0]
     print_bold("Load state from file %s",
@@ -274,14 +274,14 @@ def main(commands=[],
     run_command(*arguments)  # pylint:disable=W0142
 
     # If necessary, save the state
-    if conf.get_value('basic.save_state'):
-        state.save(conf.get_value('basic.state_filename'),
-                   int(conf.get_value('basic.rotate_n_state_files')))
+    if conf['basic.save_state']:
+        state.save(conf['basic.state_filename'],
+                   int(conf['basic.rotate_n_state_files']))
 
     # After everything is done, print timings if necessary
-    if (((type(conf.get_value('basic.print_timings')) == bool
-          and conf.get_value('basic.print_timings'))
-         or conf.get_value('basic.print_timings') == 'True')):
+    if (((type(conf['basic.print_timings']) == bool
+          and conf['basic.print_timings'])
+         or conf['basic.print_timings'] == 'True')):
         log.print_timings()
     else:
         log.close()

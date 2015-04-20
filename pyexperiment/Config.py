@@ -1,9 +1,8 @@
 """Provides an easy way to configure a python application. Basically
 implements a singleton configuration at module level.
 
-Basic usage:
-Load the (singleton) configuration with load, access the values with
-get_value and set_value.
+Basic usage: Load the (singleton) configuration with load, access the
+values like you would in a dictionary.
 
 Written by Peter Duerr.
 """
@@ -15,6 +14,8 @@ from __future__ import absolute_import
 import os
 import configobj
 import validate
+
+from collections import MutableMapping
 
 from pyexperiment.utils.Singleton import Singleton
 from pyexperiment.utils.printers import print_bold
@@ -38,6 +39,8 @@ class Config(Singleton):
         # Members will be initialized by load
         self.config = None
         self.read_from_file = None
+        self.filename = None
+        super(Config, self).__init__()
 
     def override_with_args(self, config, options=None):
         """Override configuration with command line arguments and validate
@@ -96,6 +99,8 @@ class Config(Singleton):
         """
         # Check if config file exists
         read_from_file = os.path.isfile(filename)
+        if read_from_file:
+            self.filename = filename
 
         # Create the configuration (overriding the default with user
         # specs if necessary)
@@ -126,7 +131,20 @@ class Config(Singleton):
             with open(filename, 'wb') as outfile:
                 self.config.write(outfile)
 
-    def get_value(self, name):
+    def b__len__(self):
+        """Get the number of configuration items
+        """
+        if self.config is not None:
+            return len(self.config)
+        else:
+            return 0
+
+    def __iter__(self):
+        """Returns an iterator over the configuration
+        """
+        return iter(self.config)
+
+    def __getitem__(self, name):
         """Get configuration item. The name should be of the form
         section.subsection...item
         """
@@ -156,36 +174,42 @@ class Config(Singleton):
                     err)
             return value
 
-    def set_value(self, name, value):
+    def __setitem__(self, name, value):
         """Set configuration item
         """
         raise NotImplementedError("Not implemented yet. Cannot set %s -> %s",
                                   name,
                                   value)
 
-    def pretty_print(self):
-        """Print the configuration
+    def __delitem__(self, name):
+        """Delete configuration item
         """
-        if self.read_from_file:
-            print_bold("Configuration read from '%s':\n" % self.filename)
-        else:
-            print_bold("Configuration created from specs:\n")
+        raise NotImplementedError("Not implemented yet. Cannot delete %s -> %s",
+                                  name)
 
-        def print_section(dictionary, prefix=""):
+    def __repr__(self):
+        """Pretty print the configuration
+        """
+        repr_str = ''
+        if self.read_from_file:
+            repr_str += "Configuration read from '%s':\n" % self.filename
+        else:
+            repr_str += "Configuration created from specs:\n"
+
+        def repr_section(dictionary, prefix=""):
             """Print a section of the configuration
             """
+            repr_str = ''
             for key in dictionary.keys():
                 if type(dictionary[key]) == configobj.Section:
-                    print_bold(prefix + key)
-                    print_section(dictionary[key], prefix + "  ")
+                    repr_str += prefix + key + '\n'
+                    repr_str += repr_section(dictionary[key],
+                                             prefix + '  ')
                 else:
-                    print(prefix + key + " = " + str(dictionary[key]))
+                    repr_str += (prefix + key + ' = ' +
+                                 repr(dictionary[key]) + '\n')
 
-        print_section(self.config)
+            return repr_str
 
-# Module level access to singleton's methods
-load = Config.get_instance().load
-save = Config.get_instance().save
-get_value = Config.get_instance().get_value
-set_value = Config.get_instance().set_value
-pretty_print = Config.get_instance().pretty_print
+        repr_str += repr_section(self.config)
+        return repr_str

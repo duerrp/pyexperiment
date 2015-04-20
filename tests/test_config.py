@@ -6,7 +6,7 @@ Written by Peter Duerr
 import unittest
 import tempfile
 import os
-from pyexperiment.conf import conf
+from pyexperiment import conf
 
 
 class TestConf(unittest.TestCase):
@@ -33,18 +33,18 @@ class TestConf(unittest.TestCase):
     def test_uninitialized_conf(self):
         """Test uninitialized config throws Exception
         """
-        conf.Config().get_instance().config = None
-        self.assertRaises(RuntimeError, conf.get_value, 'a')
+        conf.reset_instance()
+        self.assertRaises(RuntimeError, conf.__getitem__, 'a')
 
     def test_load_conf(self):
         """Test loading a configuration
         """
         conf.load(self.filename, spec_filename="")
-        a = conf.get_value('section_1.a')
+        a = conf['section_1.a']
         self.assertEqual(a, '12')
-        b = conf.get_value('section_1.b')
+        b = conf['section_1.b']
         self.assertEqual(b, '13')
-        c = conf.get_value('section_2.c')
+        c = conf['section_2.c']
         self.assertEqual(c, 'True')
 
     def test_save_conf_creates_file(self):
@@ -68,17 +68,17 @@ class TestConf(unittest.TestCase):
         conf.save(filename)
 
         # Destroy configuration
-        conf.Config.get_instance().config = None
+        conf.reset_instance()
         self.assertRaises(RuntimeError,
-                          conf.get_value,
+                          conf.__getitem__,
                           'section_1.a')
 
         conf.load(filename, spec_filename="")
-        a = conf.get_value('section_1.a')
+        a = conf['section_1.a']
         self.assertEqual(a, '12')
-        b = conf.get_value('section_1.b')
+        b = conf['section_1.b']
         self.assertEqual(b, '13')
-        c = conf.get_value('section_2.c')
+        c = conf['section_2.c']
         self.assertEqual(c, 'True')
 
         self.assertTrue(os.path.isfile(filename))
