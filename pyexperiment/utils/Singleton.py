@@ -18,6 +18,8 @@ class Singleton(object):
 
     @classmethod
     def get_instance(cls):
+        """Get the singleton instance
+        """
         if not cls.__singleton_instance:
             with cls.__singleton_lock:
                 if not cls.__singleton_instance:
@@ -26,6 +28,8 @@ class Singleton(object):
 
     @classmethod
     def reset_instance(cls):
+        """Reset the singleton
+        """
         if cls.__singleton_instance:
             with cls.__singleton_lock:
                 if cls.__singleton_instance:
