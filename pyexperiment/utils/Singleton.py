@@ -43,4 +43,16 @@ class SingletonIndirector(object):
         self.singleton = singleton
 
     def __getattr__(self, attr):
+        """Call __getattr__ on the singleton instance
+        """
         return getattr(self.singleton.get_instance(), attr)
+
+    def __repr__(self):
+        """Call __repr__ on the singleton instance
+        """
+        return repr(self.singleton.get_instance())
+
+    def __getitem__(self, *args):
+        """Call __getitem__ on the singleton instance
+        """
+        return self.singleton.get_instance().__getitem__(*args)
