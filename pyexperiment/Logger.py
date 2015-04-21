@@ -64,6 +64,9 @@ FILE_FORMAT = ("[%(relativeCreated)0.5fs] [%(levelname)-1s]"
 """The format used for logging to file
 """  # pylint:disable=W0105
 
+CONSOLE_STREAM_HANDLER = logging.StreamHandler()
+"""The stream handler for the console (can be mocked for testing)
+"""  # pylint:disable=W0105
 
 class ColorFormatter(logging.Formatter):
     """Formats logged messages with optional added color for the log level
@@ -224,7 +227,7 @@ class Logger(logging.Logger, InitializeableSingleton):
         color_formatter = ColorFormatter(
             expand_format_tags(CONSOLE_FORMAT, True))
 
-        console_handler = logging.StreamHandler()
+        console_handler = CONSOLE_STREAM_HANDLER
         console_handler.setLevel(console_level)
         console_handler.setFormatter(color_formatter)
         self.addHandler(console_handler)
@@ -254,12 +257,15 @@ class Logger(logging.Logger, InitializeableSingleton):
         """Return logger that stores the logged messages for later use
         """
         temp_logger = logging.getLogger('pre_init_logger')
-        if temp_logger.handlers == []:
-            temp_logger.addHandler(PreInitLogHandler.get_instance())
-            temp_logger.setLevel(1)
-            # temp_logger.debug(
-            #     "Using temporary pre-init logger")
-            temp_logger.reset_instance = Logger.reset_instance
+        for handler in temp_logger.handlers:
+            temp_logger.removeHandler(handler)
+
+        temp_logger.addHandler(PreInitLogHandler.get_instance())
+        temp_logger.setLevel(1)
+        # temp_logger.debug(
+        #     "Using temporary pre-init logger")
+        temp_logger.reset_instance = Logger.reset_instance
+        temp_logger.close = lambda: None
 
         return temp_logger
 
