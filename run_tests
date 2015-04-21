@@ -10,7 +10,18 @@ from __future__ import division
 from __future__ import absolute_import
 
 import unittest
+import sys
+
+
+def main(argv):
+    """Runs all the tests
+    """
+    verbosity = 1
+    if '-v' in argv:
+        verbosity = 2
+
+    suite = unittest.TestLoader().discover('tests')
+    unittest.TextTestRunner(verbosity=verbosity).run(suite)
 
 if __name__ == "__main__":
-    suite = unittest.TestLoader().discover('tests')
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    main(sys.argv)
