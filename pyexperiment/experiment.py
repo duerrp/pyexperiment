@@ -239,7 +239,7 @@ def configure(commands, config_specs, description):
     return actual_command, args.argument
 
 
-def main(commands=[],
+def main(commands=None,
          config_spec="",
          tests=None,
          description=None):
@@ -249,7 +249,7 @@ def main(commands=[],
     log.debug("Start: '%s'", " ".join(sys.argv))
     log.debug("Time: '%s'", datetime.now())
 
-    commands = collect_commands(commands)
+    commands = collect_commands(commands or [])
 
     # Configure the application from the command line and get the
     # command to be run
