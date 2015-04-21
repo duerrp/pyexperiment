@@ -32,8 +32,8 @@ from collections import OrderedDict
 from datetime import datetime
 from contextlib import contextmanager
 
-from pyexperiment.utils.Singleton import Singleton
-from pyexperiment.log.DelegateCall import DelegateCall
+from pyexperiment.utils.Singleton import InitializeableSingleton
+from pyexperiment.utils.DelegateCall import DelegateCall
 
 from pyexperiment.utils.printers import print_blue
 
@@ -175,7 +175,19 @@ class MPRotLogHandler(logging.Handler):
             self.handleError(record)
 
 
-class TimingLogger(logging.Logger):
+class PreInitLogHandler(logging.Handler):
+    """Handles messages before the main logger is initialized.
+    """
+    PRE_INIT_LOGS = []
+
+    def emit(self, msg):
+        """Catch logs and store them for later
+        """
+        #print msg
+        self.PRE_INIT_LOGS.append(msg)
+
+
+class Logger(logging.Logger, InitializeableSingleton):
     """Implements a multiprocessing-safe logger with timing and colored console
     output.
     """
@@ -188,13 +200,9 @@ class TimingLogger(logging.Logger):
         """
         # Initialize the base class, the minimal level makes sure no
         # logs are missed
-        super(TimingLogger, self).__init__(
+        super(Logger, self).__init__(
             self,
             level=min(console_level, file_level))
-
-        # Container and aggregator for the timings
-        self.timings = OrderedDict()
-        self._delegate_process_timings = DelegateCall(self._process_timings)
 
         # Setup console logging
         def expand_format_tags(message, use_color=True):
@@ -221,6 +229,55 @@ class TimingLogger(logging.Logger):
             self.addHandler(MPRotLogHandler(filename=filename,
                                             level=file_level,
                                             no_backups=no_backups))
+
+    def close(self):
+        """Close the logger
+        """
+        for handler in self.handlers:
+            handler.close()
+        Logger.reset_instance()
+
+    @classmethod
+    def _get_pseudo_instance(cls):
+        """Return logger that stores the logged messages for later use
+        """
+        temp_logger = logging.getLogger('pre_init_logger')
+        if temp_logger.handlers == []:
+            temp_logger.addHandler(PreInitLogHandler())
+            temp_logger.setLevel(1)
+            # temp_logger.debug(
+            #     "Using temporary pre-init logger")
+
+        return temp_logger
+
+
+class TimingLogger(Logger):
+    """Provides a logger with a `timed` context.
+
+    Calling code in the `timed` context will collect execution timing
+    statistics.
+
+    """
+    def __init__(self,
+                 console_level=logging.INFO,
+                 filename=None,
+                 file_level=logging.DEBUG,
+                 no_backups=5):
+        """Initializer
+
+        Creates a logger that logs messages at or above the console_level
+        (by default logging.INFO) to stderr. If a filename is given,
+        messages at or above the file level (by default logging.DEBUG)
+        will be logged to the file with the specified name. If no_backups
+        is larger than 0, the file will be rotated at every call of init.
+        """
+        # Container and aggregator for the timings
+        self.timings = OrderedDict()
+        self._delegate_process_timings = DelegateCall(self._process_timings)
+        super(TimingLogger, self).__init__(console_level,
+                                           filename,
+                                           file_level,
+                                           no_backups)
 
     @contextmanager
     def timed(self, msg='', level=logging.DEBUG, save_result=True):
@@ -289,167 +346,4 @@ class TimingLogger(logging.Logger):
         """Make sure the delegated calls are all done...
         """
         self._delegate_process_timings.join()
-
-
-def init(console_level=logging.INFO,
-         filename=None,
-         file_level=logging.DEBUG,
-         no_backups=0):
-    """Creates a logger
-
-    Creates a logger that logs messages at or above the console_level
-    (by default logging.INFO) to stderr. If a filename is given,
-    messages at or above the file level (by default logging.DEBUG)
-    will be logged to the file with the specified name. If no_backups
-    is larger than 0, the file will be rotated at every call of init.
-    """
-    # Create a logger, the level does not need to be higher than
-    # the lowest we log anywhere
-    logger = TimingLogger(console_level=console_level,
-                          filename=filename,
-                          file_level=file_level,
-                          no_backups=no_backups)
-
-    return logger
-
-
-class PreInitLogHandler(logging.Handler):
-    """Handles messages before the main logger is initialized.
-    """
-    PRE_INIT_LOGS = []
-
-    def emit(self, msg):
-        """Catch logs and store them for later
-        """
-        #print msg
-        self.PRE_INIT_LOGS.append(msg)
-
-
-class Logger(Singleton):
-    """Singleton with the main logger.
-    """
-    def __init__(self):
-        """Initializer
-        """
-        # Will be initialized later
-        self.logger = None
-
-    def init_main(self,
-                  console_level=logging.INFO,
-                  filename=None,
-                  file_level=logging.DEBUG,
-                  no_backups=0):
-        """Initialize the main logger
-
-        Creates a logger that logs messages at or above the console_level
-        (by default logging.INFO) to stderr. If a filename is given,
-        messages at or above the file level (by default logging.DEBUG)
-        will be logged to the file with the specified name. If no_backups
-        is larger than 0, the file will be rotated at every call of init.
-        """
-
-        if self.logger is not None:
-            return self.logger
-
-        # Create the logger, the level does not need to be higher than
-        # the lowest we log anywhere
-        self.logger = init(console_level,
-                           filename,
-                           file_level,
-                           no_backups)
-
-        # Emit the messages saved by the pre-init logger
-        for logg in PreInitLogHandler.PRE_INIT_LOGS:
-            for handler in self.logger.handlers:
-                if logg.levelno >= handler.level:
-                    handler.emit(logg)
-
-        return self.logger
-
-    def get_logger(self):
-        """Get the main logger if already available, otherwise store logs
-        until it is initialized.
-        """
-        if self.logger is None:
-            temp_logger = logging.getLogger('pre_init_logger')
-            if temp_logger.handlers == []:
-                temp_logger.addHandler(PreInitLogHandler())
-                temp_logger.setLevel(1)
-                # temp_logger.debug(
-                #     "Using temporary pre-init logger")
-
-            return temp_logger
-        else:
-            # temp_logger = logging.getLogger('pre_init_logger')
-            return self.logger
-
-    def close(self):
-        """Close the logger and finish all outstanding jobs.
-        """
-        for handler in self.logger.handlers:
-            handler.close()
-        self.get_logger().close()
-
-
-# If this file is executed directly
-def debug(*args):
-    """Log a debug message"""
-    Logger.get_instance().get_logger().debug(*args)
-
-
-def info(*args):
-    """Log an info message"""
-    Logger.get_instance().get_logger().info(*args)
-
-
-def warning(*args):
-    """Log a warning message"""
-    Logger.get_instance().get_logger().warning(*args)
-
-
-def error(*args):
-    """Log an error message"""
-    Logger.get_instance().get_logger().error(*args)
-
-
-def fatal(*args):
-    """Log a fatal message"""
-    Logger.get_instance().get_logger().fatal(*args)
-
-
-# Redefining log should be ok here
-def log(*args):  # pylint:disable=W0621
-    """Log a message"""
-    Logger.get_instance().get_logger().log(*args)
-
-
-def timed(*args):
-    """Timer to be used in a with block. If the level is not None, logs
-    the timing at the specified level. If save_result is True,
-    captures the result in the timings dictionary.
-    """
-    return Logger.get_instance().get_logger().timed(*args)
-
-
-def close():
-    """Close the logger
-    """
-    Logger.get_instance().close()
-    Logger.reset_instance()
-
-
-def print_timings(*_args):
-    """Prints a summary of the timings collected with 'timed'.
-    """
-    Logger.get_instance().get_logger().print_timings()
-
-
-def init_main(console_level=logging.INFO,
-              filename=None,
-              file_level=logging.DEBUG,
-              no_backups=0):
-    """Initializes the main logger"""
-    Logger.get_instance().init_main(console_level=console_level,
-                                    filename=filename,
-                                    file_level=file_level,
-                                    no_backups=no_backups)
+        super(TimingLogger, self).close()

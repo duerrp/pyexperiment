@@ -17,7 +17,7 @@ from datetime import datetime
 import argparse
 
 from pyexperiment import conf
-from pyexperiment.log import log
+from pyexperiment import log
 from pyexperiment.state import state
 from pyexperiment.utils.printers import print_bold
 
@@ -67,10 +67,10 @@ def init_log():
     rotate_n_logs = int(conf['basic.rotate_n_logs'])
 
     # Setup the logger for the configuration
-    log.init_main(console_level=verbosity,
-                  filename=log_filename,
-                  file_level=log_file_verbosity,
-                  no_backups=rotate_n_logs)
+    log.initialize(console_level=verbosity,
+                   filename=log_filename,
+                   file_level=log_file_verbosity,
+                   no_backups=rotate_n_logs)
 
 
 # Redefining help should be ok here

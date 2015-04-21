@@ -25,7 +25,7 @@ from __future__ import absolute_import
 from pyexperiment import experiment
 
 # Import pyexperiment's logging module
-from pyexperiment.log import log
+from pyexperiment import log
 
 
 def run():

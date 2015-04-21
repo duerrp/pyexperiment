@@ -24,7 +24,7 @@ import shutil
 from collections import OrderedDict
 
 from pyexperiment.utils.Singleton import Singleton
-from pyexperiment.log import log
+from pyexperiment import log
 from pyexperiment.utils.printers import print_bold
 
 

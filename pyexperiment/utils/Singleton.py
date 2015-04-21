@@ -14,7 +14,12 @@ class Singleton(object):
     """Singleton base-class (or mixin)
     """
     __singleton_lock = threading.Lock()
+    """Lock to prevent conflicts on the singleton instance
+    """
+
     __singleton_instance = None
+    """The singleton instance
+    """
 
     @classmethod
     def get_instance(cls):
@@ -34,6 +39,43 @@ class Singleton(object):
             with cls.__singleton_lock:
                 if cls.__singleton_instance:
                     cls.__singleton_instance = None
+
+
+class InitializeableSingleton(Singleton):
+    """Base-class for singleton that does not automatically initialize
+
+    If get_instance is called on an uninitialized InitializeableSingleton,
+    a pseudo-instance is returned.
+
+    Sub-classes need to implement the function `_get_pseudo_instance`
+    that returns a pseudo instance.
+    """
+    __singleton_instance = None
+    """The singleton instance (redefined to get access)
+    """
+
+    @classmethod
+    def _get_pseudo_instance(cls):
+        """Get pseudo instance before the real instance is initialized
+        """
+        raise NotImplementedError("Subclass should implement this.")
+
+    @classmethod
+    def get_instance(cls):
+        """Get the singleton instance if its initialized.
+        Returns, the pseudo instance if not.
+        """
+        if not cls.__singleton_instance:
+            return cls._get_pseudo_instance()
+        else:
+            return cls.__singleton_instance
+
+    @classmethod
+    def initialize(cls, *args, **kwargs):
+        """Initializes the singleton.
+        After calling this function, the real instance will be used.
+        """
+        cls.__singleton_instance = cls(*args, **kwargs)
 
 
 class SingletonIndirector(object):
@@ -65,3 +107,12 @@ class SingletonIndirector(object):
         """Call __getitem__ on the singleton instance
         """
         return self.singleton.get_instance().__getitem__(*args)
+
+
+class InitializeableSingletonIndirector(SingletonIndirector):
+    """Creates a class that mimics an InitializeableSingleton lazily
+    """
+    def initialize(self, *args, **kwargs):
+        """Initializes the InitializeableSingleton
+        """
+        return self.singleton.initialize(*args, **kwargs)
