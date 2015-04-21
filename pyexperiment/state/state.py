@@ -12,10 +12,10 @@ from __future__ import unicode_literals
 from __future__ import division
 from __future__ import absolute_import
 
-try:  # For Python2.x compatibility
-    import cPickle as pickle
-except ImportError:
-    import pickle
+if True:  # Ugly, but makes pylint happy
+    # pylint:disable=import-error
+    from six.moves import cPickle as pickle
+    from six.moves import range  # pylint: disable=redefined-builtin
 
 import numpy as np
 import h5py
