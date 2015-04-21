@@ -66,16 +66,6 @@ class TestSaveLoadState(unittest.TestCase):
         """
         state.reset_instance()
 
-    def test_save_state_creates_file(self):
-        """Test that saving state produces the right file
-        """
-        filename = tempfile.mkstemp()[1]
-        state.save(filename)
-
-        self.assertTrue(os.path.isfile(filename))
-        # Clean up
-        os.remove(filename)
-
     def test_save_load_file(self):
         """Test saving file and reloading yields identical values
         """
