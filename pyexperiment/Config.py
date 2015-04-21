@@ -74,7 +74,7 @@ class Config(Singleton):
         validator = validate.Validator()
         result = config.validate(validator, copy=True, preserve_errors=True)
 
-        if type(result) != bool:
+        if not isinstance(result, bool):
             raise RuntimeError("Configuration does not adhere"
                                " to the specification: %s" %
                                configobj.flatten_errors(self.config, result))
@@ -190,7 +190,7 @@ class Config(Singleton):
             """
             repr_str = ''
             for key in dictionary.keys():
-                if type(dictionary[key]) == configobj.Section:
+                if isinstance(dictionary[key], configobj.Section):
                     repr_str += prefix + key + '\n'
                     repr_str += repr_section(dictionary[key], prefix + '  ')
                 else:
