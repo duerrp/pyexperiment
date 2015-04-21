@@ -229,26 +229,3 @@ class State(Singleton):
 
         print_bold("Current state:")
         show_level(self.state, " ")
-
-
-# Provide easy access to the singleton state at module level
-get_state = State.get_instance().get_state
-set_state = State.get_instance().set_state
-save = State.get_instance().save
-load = State.get_instance().load
-show = State.get_instance().show
-
-if __name__ == '__main__':
-    # Test writing some data
-    data = [1, 2, 3, 4]
-    set_state('list', data)
-
-    save('test.h5f')
-    set_state('list', [1, 2])
-    data2 = get_state('list')
-
-    load('test.h5f')
-    data3 = get_state('list')
-
-    assert data != data2
-    assert data == data3

@@ -18,7 +18,7 @@ import argparse
 
 from pyexperiment import conf
 from pyexperiment import log
-from pyexperiment.state import state
+from pyexperiment import state
 from pyexperiment.utils.printers import print_bold
 
 DEFAULT_CONFIG_SPECS = ("[basic]\n"

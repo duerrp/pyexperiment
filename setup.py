@@ -31,11 +31,7 @@ setup(
     url="https://github.com/duerrp/pyexperiment",
     download_url="https://github.com/duerrp/pyexperiment/tarball/0.1.15",
     packages=['pyexperiment',
-              'pyexperiment.conf',
-              'pyexperiment.state',
-              'pyexperiment.utils',
-              'pyexperiment.log',
-              ],
+              'pyexperiment.utils'],
     long_description=LONG_DESCRIPTION,
     classifiers=[
         "Development Status :: 3 - Alpha",
