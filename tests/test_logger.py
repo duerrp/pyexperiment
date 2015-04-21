@@ -82,20 +82,17 @@ class TestLogger(unittest.TestCase):
     def test_file_logger_writes_to_file(self):
         """Test logging to file writes something to the log file
         """
-        filename = tempfile.mkstemp()[1]
-        log.initialize(filename=filename, no_backups=0)
-        log.fatal("Test")
-        log.close()
+        with tempfile.NamedTemporaryFile() as temp:
+            log.initialize(filename=temp.name, no_backups=0)
+            log.fatal("Test")
+            log.close()
 
-        # Make sure file exists
-        self.assertTrue(os.path.isfile(filename))
+            # Make sure file exists
+            self.assertTrue(os.path.isfile(temp.name))
 
-        with open(filename) as f:
-            lines = f.readlines()
-        # There should be exactly one line in the file now
-        self.assertEqual(len(lines), 1)
-        # Clean up
-        os.remove(filename)
+            lines = temp.readlines()
+            # There should be exactly one line in the file now
+            self.assertEqual(len(lines), 1)
 
     def test_timing_logger_logs(self):
         """Test timing code logs a message

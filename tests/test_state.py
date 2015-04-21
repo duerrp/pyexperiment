@@ -69,52 +69,46 @@ class TestSaveLoadState(unittest.TestCase):
     def test_save_load_file(self):
         """Test saving file and reloading yields identical values
         """
-        filename = tempfile.mkstemp()[1]
-        state.save(filename)
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
 
-        # Write bogus info to state
-        state.set_state('list', 'foo')
-        state.set_state('dict', 'bar')
-        state.set_state('values.int', 43)
+            # Write bogus info to state
+            state.set_state('list', 'foo')
+            state.set_state('dict', 'bar')
+            state.set_state('values.int', 43)
 
-        state.load(filename, lazy=False)
+            state.load(temp.name, lazy=False)
 
-        # Get loaded data
-        list_val = state.get_state('list')
-        dict_val = state.get_state('dict')
-        int_val = state.get_state('values.int')
+            # Get loaded data
+            list_val = state.get_state('list')
+            dict_val = state.get_state('dict')
+            int_val = state.get_state('values.int')
 
-        self.assertEqual(self.list_val, list_val)
-        self.assertEqual(self.dict_val, dict_val)
-        self.assertEqual(self.int_val, int_val)
-
-        # Clean up
-        os.remove(filename)
+            self.assertEqual(self.list_val, list_val)
+            self.assertEqual(self.dict_val, dict_val)
+            self.assertEqual(self.int_val, int_val)
 
     def test_save_load_file_lazy(self):
         """Test saving file and reloading lazily yields identical values
         """
-        filename = tempfile.mkstemp()[1]
-        state.save(filename)
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
 
-        # Write bogus info to state
-        state.set_state('list', 'foo')
-        state.set_state('dict', 'bar')
-        state.set_state('values.int', 43)
+            # Write bogus info to state
+            state.set_state('list', 'foo')
+            state.set_state('dict', 'bar')
+            state.set_state('values.int', 43)
 
-        state.load(filename, lazy=True)
+            state.load(temp.name, lazy=True)
 
-        # Get loaded data
-        list_val = state.get_state('list')
-        dict_val = state.get_state('dict')
-        int_val = state.get_state('values.int')
+            # Get loaded data
+            list_val = state.get_state('list')
+            dict_val = state.get_state('dict')
+            int_val = state.get_state('values.int')
 
-        self.assertEqual(self.list_val, list_val)
-        self.assertEqual(self.dict_val, dict_val)
-        self.assertEqual(self.int_val, int_val)
-
-        # Clean up
-        os.remove(filename)
+            self.assertEqual(self.list_val, list_val)
+            self.assertEqual(self.dict_val, dict_val)
+            self.assertEqual(self.int_val, int_val)
 
 if __name__ == '__main__':
     unittest.main()
