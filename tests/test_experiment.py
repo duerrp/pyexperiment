@@ -10,12 +10,10 @@ from __future__ import absolute_import
 
 import unittest
 import argparse
-import sys
 import io
 
 from pyexperiment import experiment
-from pyexperiment.utils.stdout_redirector import stdout_redirector, \
-    stdout_err_redirector
+from pyexperiment.utils.stdout_redirector import stdout_redirector
 
 
 class TestExperiment(unittest.TestCase):
