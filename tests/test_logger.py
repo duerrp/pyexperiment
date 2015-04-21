@@ -99,7 +99,7 @@ class TestLogger(unittest.TestCase):
         # Make sure file exists
         self.assertTrue(os.path.isfile(filename))
 
-        with file(filename) as f:
+        with open(filename) as f:
             lines = f.readlines()
         # There should be exactly one line in the file now
         self.assertEqual(len(lines), 1)
