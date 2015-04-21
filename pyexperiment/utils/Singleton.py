@@ -121,6 +121,11 @@ class SingletonIndirector(object):
         """
         return self.singleton.get_instance().__getitem__(*args)
 
+    def __len__(self, *args):
+        """Call __len__ on the singleton instance
+        """
+        return len(self.singleton.get_instance())
+
 
 class InitializeableSingletonIndirector(SingletonIndirector):
     """Creates a class that mimics an InitializeableSingleton lazily
