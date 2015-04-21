@@ -270,8 +270,7 @@ def main(commands=[],
     init_log()
 
     # Run the command with the supplied arguments
-    # *arguments should be totally clear here
-    run_command(*arguments)  # pylint:disable=W0142
+    run_command(*arguments)
 
     # If necessary, save the state
     if conf['basic.save_state']:
@@ -279,7 +278,7 @@ def main(commands=[],
                    int(conf['basic.rotate_n_state_files']))
 
     # After everything is done, print timings if necessary
-    if (((type(conf['basic.print_timings']) == bool
+    if (((isinstance(conf['basic.print_timings'], bool)
           and conf['basic.print_timings'])
          or conf['basic.print_timings'] == 'True')):
         log.print_timings()
