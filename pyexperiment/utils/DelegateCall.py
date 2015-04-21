@@ -1,4 +1,5 @@
-"""Provides helper class for multiprocessing-safe logging
+"""Provides a multiprocessing-safe way to aggregate
+results from multiple function calls.
 """
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -13,10 +14,10 @@ import traceback
 
 class DelegateCall(object):
     """Helper class that provides a multiprocessing-safe way to aggregate
-    results from multiple processes. The arguments to the __call__
-    function are passed through a multiprocessing.Queue to the process
-    where the class was initialized (i.e., all arguments must be
-    serializable).
+    results from multiple function calls. The arguments to the
+    __call__ function are passed through a multiprocessing.Queue to
+    the process where the class was initialized (i.e., all arguments
+    must be serializable).
     """
     def __init__(self, callback):
         """Initializer, takes a callback that processes the received data in
@@ -55,7 +56,8 @@ class DelegateCall(object):
                 raise
             except EOFError:
                 break
-            except:
+            # This should really catch every other exception!
+            except Exception:  # pylint: disable=broad-except
                 traceback.print_exc(file=sys.stderr)
             finally:
                 pass
