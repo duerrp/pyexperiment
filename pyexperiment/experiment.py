@@ -58,8 +58,8 @@ def init_log():
     # Get options related to logging
     verbosity = conf['basic.verbosity']
     log_to_file = conf['basic.log_to_file']
-    if (((type(log_to_file) == str and log_to_file == 'True')
-         or (type(log_to_file) == bool and log_to_file))):
+    if (((isinstance(log_to_file, str) and log_to_file == 'True')
+         or (isinstance(log_to_file, bool) and log_to_file))):
         log_filename = conf['basic.log_filename']
     else:
         log_filename = None
