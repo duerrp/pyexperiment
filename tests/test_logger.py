@@ -11,9 +11,12 @@ from __future__ import absolute_import
 import unittest
 import io
 import logging
+import tempfile
+import os
 
 from pyexperiment import log
 from pyexperiment import Logger
+from pyexperiment.utils.stdout_redirector import stdout_redirector
 
 
 class TestLogger(unittest.TestCase):
@@ -74,4 +77,72 @@ class TestLogger(unittest.TestCase):
         log.initialize()
 
         # Something should be logged here
+        self.assertNotEqual(len(self.log_stream.getvalue()), 0)
+
+    def test_file_logger_creates_file(self):
+        """Test logging to file creates a file
+        """
+        filename = tempfile.mkstemp()[1]
+        log.initialize(filename=filename, no_backups=0)
+        self.assertTrue(os.path.isfile(filename))
+        # Clean up
+        os.remove(filename)
+
+    def test_file_logger_writes_to_file(self):
+        """Test logging to file writes something to the log file
+        """
+        filename = tempfile.mkstemp()[1]
+        log.initialize(filename=filename, no_backups=0)
+        log.fatal("Test")
+        log.close()
+
+        # Make sure file exists
+        self.assertTrue(os.path.isfile(filename))
+
+        with file(filename) as f:
+            lines = f.readlines()
+        # There should be exactly one line in the file now
+        self.assertEqual(len(lines), 1)
+        # Clean up
+        os.remove(filename)
+
+    def test_timing_logger_logs(self):
+        """Test timing code logs a message
+        """
+        # Nothing should be logged yet
+        self.assertEqual(len(self.log_stream.getvalue()), 0)
+
+        log.initialize()
+        # Still, nothing should be logged yet
+        self.assertEqual(len(self.log_stream.getvalue()), 0)
+
+        with log.timed(level=logging.FATAL):
+            _ = 1 + 1
+        log.close()
+        # Something should be logged
+        self.assertNotEqual(len(self.log_stream.getvalue()), 0)
+
+    def test_print_timings_prints(self):
+        """Test timing code and printing really prints a message
+        """
+        buf = io.StringIO()
+
+        # Nothing should be logged yet
+        self.assertEqual(len(self.log_stream.getvalue()), 0)
+
+        log.initialize()
+        # Still, nothing should be logged yet
+        self.assertEqual(len(self.log_stream.getvalue()), 0)
+
+        with log.timed(level=logging.FATAL):
+            _ = 1 + 1
+
+        with stdout_redirector(buf):
+            log.print_timings()
+
+        # Something should be printed
+        self.assertNotEqual(len(buf.getvalue()), 0)
+
+        log.close()
+        # Something should be logged
         self.assertNotEqual(len(self.log_stream.getvalue()), 0)
