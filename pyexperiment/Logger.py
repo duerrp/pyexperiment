@@ -32,6 +32,7 @@ from collections import OrderedDict
 from datetime import datetime
 from contextlib import contextmanager
 
+from pyexperiment.utils.Singleton import Singleton
 from pyexperiment.utils.Singleton import InitializeableSingleton
 from pyexperiment.utils.DelegateCall import DelegateCall
 
@@ -175,16 +176,20 @@ class MPRotLogHandler(logging.Handler):
             self.handleError(record)
 
 
-class PreInitLogHandler(logging.Handler):
+class PreInitLogHandler(logging.Handler, Singleton):
     """Handles messages before the main logger is initialized.
     """
-    PRE_INIT_LOGS = []
+    def __init__(self):
+        """Initializer
+        """
+        self.pre_init_logs = []
+        super(PreInitLogHandler, self).__init__()
 
     def emit(self, msg):
         """Catch logs and store them for later
         """
         #print msg
-        self.PRE_INIT_LOGS.append(msg)
+        self.pre_init_logs.append(msg)
 
 
 class Logger(logging.Logger, InitializeableSingleton):
@@ -230,6 +235,13 @@ class Logger(logging.Logger, InitializeableSingleton):
                                             level=file_level,
                                             no_backups=no_backups))
 
+        # Emit the messages saved by the pre-init logger
+        for logg in PreInitLogHandler.get_instance().pre_init_logs:
+            for handler in self.handlers:
+                if logg.levelno >= handler.level:
+                    handler.emit(logg)
+        PreInitLogHandler.reset_instance()
+
     def close(self):
         """Close the logger
         """
@@ -243,10 +255,11 @@ class Logger(logging.Logger, InitializeableSingleton):
         """
         temp_logger = logging.getLogger('pre_init_logger')
         if temp_logger.handlers == []:
-            temp_logger.addHandler(PreInitLogHandler())
+            temp_logger.addHandler(PreInitLogHandler.get_instance())
             temp_logger.setLevel(1)
             # temp_logger.debug(
             #     "Using temporary pre-init logger")
+            temp_logger.reset_instance = Logger.reset_instance
 
         return temp_logger
 
