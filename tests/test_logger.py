@@ -79,15 +79,6 @@ class TestLogger(unittest.TestCase):
         # Something should be logged here
         self.assertNotEqual(len(self.log_stream.getvalue()), 0)
 
-    def test_file_logger_creates_file(self):
-        """Test logging to file creates a file
-        """
-        filename = tempfile.mkstemp()[1]
-        log.initialize(filename=filename, no_backups=0)
-        self.assertTrue(os.path.isfile(filename))
-        # Clean up
-        os.remove(filename)
-
     def test_file_logger_writes_to_file(self):
         """Test logging to file writes something to the log file
         """
