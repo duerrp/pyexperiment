@@ -83,7 +83,6 @@ class InitializeableSingleton(Singleton):
                 if cls.__singleton_instance:
                     cls.__singleton_instance = None
 
-
     @classmethod
     def initialize(cls, *args, **kwargs):
         """Initializes the singleton.

@@ -68,6 +68,7 @@ CONSOLE_STREAM_HANDLER = logging.StreamHandler()
 """The stream handler for the console (can be mocked for testing)
 """  # pylint:disable=W0105
 
+
 class ColorFormatter(logging.Formatter):
     """Formats logged messages with optional added color for the log level
     """
