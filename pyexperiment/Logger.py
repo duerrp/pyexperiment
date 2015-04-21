@@ -176,7 +176,8 @@ class MPRotLogHandler(logging.Handler):
             self._delegate_emit(formated)
         except (KeyboardInterrupt, SystemExit):
             raise
-        except:
+        # This should really catch every other exception!
+        except Exception:  # pylint: disable=broad-except
             self.handleError(record)
 
 
