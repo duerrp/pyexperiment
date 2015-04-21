@@ -56,6 +56,11 @@ class SingletonIndirector(object):
         """
         return repr(self.singleton.get_instance())
 
+    def __dir__(self):
+        """Get the methods of the underlying singleton
+        """
+        return dir(self.singleton.get_instance())
+
     def __getitem__(self, *args):
         """Call __getitem__ on the singleton instance
         """
