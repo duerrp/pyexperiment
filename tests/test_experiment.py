@@ -112,6 +112,3 @@ class TestExperiment(unittest.TestCase):
     #     buf_out, buf_err = io.StringIO(), io.StringIO()
     #     with stdout_err_redirector(buf_out, buf_err):
     #         experiment.main(commands=[], tests=[ExampleTest])
-
-
-
