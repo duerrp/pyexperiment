@@ -71,6 +71,13 @@ class InitializeableSingleton(Singleton):
             return cls.__singleton_instance
 
     @classmethod
+    def reset_instance(cls):
+        """Reset the singleton instance if its initialized.
+        """
+        if InitializeableSingleton.__singleton_instance is not None:
+            return InitializeableSingleton.__singleton_instance.reset_instance()
+
+    @classmethod
     def initialize(cls, *args, **kwargs):
         """Initializes the singleton.
         After calling this function, the real instance will be used.
