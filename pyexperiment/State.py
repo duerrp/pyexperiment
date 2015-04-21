@@ -24,8 +24,14 @@ import shutil
 from collections import OrderedDict
 
 from pyexperiment.utils.Singleton import Singleton
-from pyexperiment import log
+from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
+from pyexperiment.Logger import TimingLogger
 from pyexperiment.utils.printers import print_bold
+
+log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
+    TimingLogger)
+"""Pyexperiment's logger, re-wrapped here to avoid cyclical dependency
+"""
 
 
 class State(Singleton):
