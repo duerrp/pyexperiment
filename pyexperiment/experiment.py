@@ -7,7 +7,7 @@ Written by Peter Duerr.
 """
 
 from __future__ import print_function
-# from __future__ import unicode_literals
+from __future__ import unicode_literals
 from __future__ import division
 from __future__ import absolute_import
 
@@ -227,9 +227,9 @@ def configure(commands, config_specs, description):
     args = arg_parser.parse_args()
 
     conf.load(args.config,
-              config_specs.split('\n'),
+              [option.encode() for option in config_specs.split('\n')],
               args.option,
-              DEFAULT_CONFIG_SPECS.split('\n'))
+              [option.encode() for option in DEFAULT_CONFIG_SPECS.split('\n')])
 
     for command in commands:
         if command.__name__ == args.command[0]:
