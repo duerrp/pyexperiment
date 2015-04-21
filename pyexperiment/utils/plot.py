@@ -22,7 +22,7 @@ def setup_matplotlib(font_size=14,
             'weight': 'normal',
             'size': font_size}
     # ** is elegant here
-    matplotlib.rc('font', **font)  # pylint:disable=W0142
+    matplotlib.rc('font', **font)
 
     matplotlib.rc('text', usetex=use_tex)
     matplotlib.rc('lines', linewidth=linewidth)
