@@ -35,7 +35,7 @@ setup(
               'pyexperiment.state',
               'pyexperiment.utils',
               'pyexperiment.log',
-          ],
+              ],
     long_description=LONG_DESCRIPTION,
     classifiers=[
         "Development Status :: 3 - Alpha",
