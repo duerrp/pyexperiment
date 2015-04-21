@@ -50,6 +50,10 @@ class InitializeableSingleton(Singleton):
     Sub-classes need to implement the function `_get_pseudo_instance`
     that returns a pseudo instance.
     """
+    __singleton_lock = threading.Lock()
+    """Lock to prevent conflicts on the singleton instance
+    (redefined to get access)
+    """
     __singleton_instance = None
     """The singleton instance (redefined to get access)
     """
@@ -74,8 +78,11 @@ class InitializeableSingleton(Singleton):
     def reset_instance(cls):
         """Reset the singleton instance if its initialized.
         """
-        if InitializeableSingleton.__singleton_instance is not None:
-            return InitializeableSingleton.__singleton_instance.reset_instance()
+        if cls.__singleton_instance:
+            with cls.__singleton_lock:
+                if cls.__singleton_instance:
+                    cls.__singleton_instance = None
+
 
     @classmethod
     def initialize(cls, *args, **kwargs):
