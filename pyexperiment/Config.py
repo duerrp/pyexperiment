@@ -53,10 +53,8 @@ class Config(Singleton):
                 split_key = key.split('.')
                 if len(split_key) == 1:
                     if 'basic' not in config:
-                        config['basic'] = configobj.Section(
-                            config_level,
-                            1,
-                            config, {})
+                        config['basic'] = configobj.Section(config_level, 1,
+                                                            config, {})
                     config['basic'][key] = value
                 else:
                     depth = 1
@@ -74,23 +72,19 @@ class Config(Singleton):
 
         # Validate it
         validator = validate.Validator()
-        result = config.validate(validator,
-                                 copy=True,
-                                 preserve_errors=True)
+        result = config.validate(validator, copy=True, preserve_errors=True)
 
         if type(result) != bool:
-            raise RuntimeError(
-                "Configuration does not adhere"
-                " to the specification: %s"
-                % configobj.flatten_errors(self.config, result))
+            raise RuntimeError("Configuration does not adhere"
+                               " to the specification: %s" %
+                               configobj.flatten_errors(self.config, result))
         else:
             if result:
                 return config
             else:
                 raise RuntimeError("Something strange going on...")
 
-    def load(self,
-             filename,
+    def load(self, filename,
              spec_filename=CONFIG_SPEC_PATH,
              options=None,
              default_spec=None):
@@ -161,31 +155,26 @@ class Config(Singleton):
                 except AttributeError as err:
                     raise AttributeError(
                         "Configuration does not contain section '%s',"
-                        " (err: '%s')",
-                        ".".join(level[0:level]),
-                        err
-                    )
+                        " (err: '%s')", ".".join(level[0:level]), err)
             try:
                 value = section[split_name[level]]
             except AttributeError as err:
                 raise AttributeError(
                     "Configuration does not contain value '%s', (err: '%s')",
-                    name,
-                    err)
+                    name, err)
             return value
 
     def __setitem__(self, name, value):
         """Set configuration item
         """
         raise NotImplementedError("Not implemented yet. Cannot set %s -> %s",
-                                  name,
-                                  value)
+                                  name, value)
 
     def __delitem__(self, name):
         """Delete configuration item
         """
-        raise NotImplementedError("Not implemented yet. Cannot delete %s -> %s",
-                                  name)
+        raise NotImplementedError(
+            "Not implemented yet. Cannot delete %s -> %s", name)
 
     def __repr__(self):
         """Pretty print the configuration
@@ -203,11 +192,11 @@ class Config(Singleton):
             for key in dictionary.keys():
                 if type(dictionary[key]) == configobj.Section:
                     repr_str += prefix + key + '\n'
-                    repr_str += repr_section(dictionary[key],
-                                             prefix + '  ')
+                    repr_str += repr_section(dictionary[key], prefix + '  ')
                 else:
-                    repr_str += (prefix + key + ' = ' +
-                                 repr(dictionary[key]) + '\n')
+                    repr_str += (
+                        prefix + key + ' = ' + repr(dictionary[key]) + '\n'
+                    )
 
             return repr_str
 

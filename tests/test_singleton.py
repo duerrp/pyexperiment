@@ -84,7 +84,6 @@ class TestSingleton(unittest.TestCase):
             def foo(self):
                 return "foo"
 
-
         indirect = SingletonIndirector(SingletonTest)
         direct = indirect.get_instance()
 
