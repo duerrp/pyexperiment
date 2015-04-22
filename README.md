@@ -41,6 +41,7 @@ For usage examples, check the [examples](https://github.com/duerrp/pyexperiment/
 The pyexperiment package has a few external dependencies (as you can
 see in the [requirements.txt](https://github.com/duerrp/pyexperiment/blob/master/requirements.txt)):
 
+* six
 * configobj
 * numpy
 * h5py

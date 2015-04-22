@@ -10,6 +10,9 @@ from pyexperiment.log import log
 from pyexperiment.utils.printers import print_red
 from pyexperiment.utils.printers import print_blue
 
+# Python 2.x compatibility
+from six.moves import range  # pylint: disable=redefined-builtin, import-error
+
 
 def example_function(argument):
     """An example function
@@ -24,7 +27,7 @@ def ex_1():
     """
     print_red("Experiment 1 started")
     log.debug("Trying to square 42 ten times...")
-    for _ in xrange(10):
+    for _ in range(10):
         with log.timed("Squaring number"):
             result = example_function(42)
 

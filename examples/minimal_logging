@@ -21,6 +21,9 @@ from __future__ import unicode_literals
 from __future__ import division
 from __future__ import absolute_import
 
+# For python2.x compatibility
+from six.moves import range  # pylint: disable=redefined-builtin, import-error
+
 # Import the experiment module for its main function
 from pyexperiment import experiment
 
@@ -47,11 +50,11 @@ def timed():
         no_loops = 10000
 
     # Run the experiment a couple of times to get statistics
-    for _ in xrange(replicates):
+    for _ in range(replicates):
         # Set up a context for timed execution of the for loop
         with log.timed("for"):
             # Run some code
-            for _ in xrange(no_loops):
+            for _ in range(no_loops):
                 # Need something more useful here
                 pass
 
