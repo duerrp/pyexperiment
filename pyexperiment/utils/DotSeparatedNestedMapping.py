@@ -9,21 +9,37 @@ from __future__ import absolute_import
 # Python 3 compatibility
 from six import iteritems
 
-
-from collections import MutableMapping, OrderedDict
-import unittest
+from collections import MutableMapping
 
 
-class DotSeparatedNestedMapping(MutableMapping):
-    def __init__(self, container_type):
+class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
+        MutableMapping):
+    """ABC for flat mutable mappings where all keys are strings, levels
+    and the storage is implemented as a hierarchy of nested Mutable
+    mappings.
+    """
+    @classmethod
+    def _new_section(cls):
+        """Creates a new section Mapping
+        """
+        raise NotImplementedError("Subclass should implement this")
+
+    @classmethod
+    def _is_section(cls, obj):
+        """Returns true if obj is a section
+        """
+        raise NotImplementedError("Subclass should implement this")
+
+    def __init__(self):
         """Initializer
         """
-        self.container_type = container_type
-        self.base = self.container_type()
+        self.base = None
 
     def __descend_sections(self, key, create=False):
-        """Traverse the nested containers down to the last layer
+        """Traverse the nested mappings down to the last layer
         """
+        if self.base is None:
+            raise KeyError("Cannot access key in empty mapping")
         try:
             split_name = key.split(".")
         except AttributeError() as err:
@@ -41,7 +57,7 @@ class DotSeparatedNestedMapping(MutableMapping):
                         "Section '%s' does not exist"
                         " ('%s')" % (split_name[level], err))
                 else:
-                    section[split_name[level]] = self.container_type()
+                    section[split_name[level]] = self._new_section()
                     section = section[split_name[level]]
                     level += 1
 
@@ -82,7 +98,7 @@ class DotSeparatedNestedMapping(MutableMapping):
     def __iter__(self):
         """Need to define __iter__ to make it a MutableMapping
         """
-        iterator_list = [(iteritems(self.base), '')]
+        iterator_list = [(iteritems(self.base or {}), '')]
         while iterator_list:
             iterator, prefix = iterator_list.pop()
             try:
@@ -93,7 +109,7 @@ class DotSeparatedNestedMapping(MutableMapping):
                 continue
             iterator_list.append((iterator, prefix))
 
-            if isinstance(value, self.container_type):
+            if self._is_section(value):
                 iterator_list.append((iteritems(value), key))
             else:
                 yield key
@@ -102,4 +118,4 @@ class DotSeparatedNestedMapping(MutableMapping):
         return len(list(iter(self)))
 
     def __repr__(self):
-        return repr(list(self.items()))
+        return repr(list(iteritems(self)))

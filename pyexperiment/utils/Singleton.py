@@ -121,10 +121,30 @@ class SingletonIndirector(object):
         """
         return self.singleton.get_instance().__getitem__(*args)
 
+    def __setitem__(self, *args):
+        """Call __setitem__ on the singleton instance
+        """
+        return self.singleton.get_instance().__setitem__(*args)
+
     def __len__(self, *args):
         """Call __len__ on the singleton instance
         """
         return len(self.singleton.get_instance())
+
+    def __contains__(self, *args):
+        """Call __contains__ on the singleton instance
+        """
+        return self.singleton.get_instance().__contains__(*args)
+
+    def __iter__(self, *args):
+        """Call __iter__ on the singleton instance
+        """
+        return self.singleton.get_instance().__iter__(*args)
+
+    def __next__(self, *args):
+        """Call __next__ on the singleton instance
+        """
+        return self.singleton.get_instance().__next__(*args)
 
 
 class InitializeableSingletonIndirector(SingletonIndirector):
