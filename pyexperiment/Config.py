@@ -53,7 +53,6 @@ class Config(DotSeparatedNestedMapping,  # pylint: disable=too-many-ancestors
         self.read_from_file = None
         self.filename = None
 
-
     def override_with_args(self, config, options=None):
         """Override configuration with command line arguments and validate
         against specification.
