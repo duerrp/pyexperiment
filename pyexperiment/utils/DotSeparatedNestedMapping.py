@@ -7,7 +7,7 @@ from __future__ import division
 from __future__ import absolute_import
 
 # Python 3 compatibility
-from six import iteritems
+from six import iteritems, iterkeys
 
 from collections import MutableMapping
 
@@ -119,3 +119,6 @@ class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
 
     def __repr__(self):
         return repr(list(iteritems(self)))
+
+    def keys(self):
+        return iterkeys(self)

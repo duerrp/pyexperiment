@@ -6,8 +6,6 @@ from __future__ import unicode_literals
 from __future__ import division
 from __future__ import absolute_import
 
-from six import iterkeys
-
 import unittest
 from collections import OrderedDict
 
@@ -112,7 +110,7 @@ class TestDotSeparatedNestedMapping(unittest.TestCase):
         keys = ['a', 'b', 'c', 'd', 'e', 'f']
         for i, key in enumerate(keys):
             m[key] = i
-        self.assertEqual(list(iterkeys(m)), keys)
+        self.assertEqual(list(m.keys()), keys)
 
 
 if __name__ == '__main__':
