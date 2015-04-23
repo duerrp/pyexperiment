@@ -193,7 +193,7 @@ class PreInitLogHandler(logging.Handler, Singleton):
     def emit(self, msg):
         """Catch logs and store them for later
         """
-        #print msg
+        # print msg
         self.pre_init_logs.append(msg)
 
 
