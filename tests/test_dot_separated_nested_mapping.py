@@ -112,6 +112,44 @@ class TestDotSeparatedNestedMapping(unittest.TestCase):
             m[key] = i
         self.assertEqual(list(m.keys()), keys)
 
+    def test_contains(self):
+        """Test the DotSeparatedOrderedDict with `in`
+        """
+        m = DotSeparatedOrderedDict()
+        self.assertEqual(len(m), 0)
+
+        self.assertFalse('a' in m)
+        m['a'] = 1
+        self.assertTrue('a' in m)
+
+        self.assertFalse('b.c.d' in m)
+        m['b.c.d'] = 1
+        self.assertTrue('b.c.d' in m)
+
+    def test_other_base(self):
+        """Test the DotSeparatedOrderedDict with another base
+        """
+        class DotSeparatedDict(  # pylint: disable=too-many-ancestors
+                DotSeparatedNestedMapping):
+            """Example instance of the DotSeparatedNestedMapping
+            """
+            @classmethod
+            def _new_section(cls):
+                """Creates a new section Mapping
+                """
+                return dict()
+
+            @classmethod
+            def _is_section(cls, obj):
+                """Returns true if obj is a section
+                """
+                return isinstance(obj, dict)
+
+            def __init__(self):
+                """Initializer
+                """
+                super(DotSeparatedOrderedDict, self).__init__()
+                self.base = dict()
 
 if __name__ == '__main__':
     unittest.main()
