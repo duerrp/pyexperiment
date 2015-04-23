@@ -148,8 +148,32 @@ class TestDotSeparatedNestedMapping(unittest.TestCase):
             def __init__(self):
                 """Initializer
                 """
-                super(DotSeparatedOrderedDict, self).__init__()
+                super(DotSeparatedDict, self).__init__()
                 self.base = dict()
+
+        m = DotSeparatedDict()
+        m['a.b.c'] = 3
+        self.assertEqual(len(m), 1)
+        self.assertEqual(m['a.b.c'], 3)
+
+    def test_get(self):
+        """Test getting values with and without default values
+        """
+        m = DotSeparatedOrderedDict()
+        self.assertRaises(KeyError, m.get, 'a')
+        self.assertEqual(m.get('a', 42), 42)
+        m['a'] = 123
+        self.assertEqual(m.get('a', 42), 123)
+
+    def test_get_or_set(self):
+        """Test get_or_setting values
+        """
+        m = DotSeparatedOrderedDict()
+        self.assertRaises(KeyError, m.get, 'a')
+        self.assertEqual(m.get_or_set('a', 42), 42)
+        self.assertEqual(m.get('a'), 42)
+        m['a'] = 52
+        self.assertEqual(m.get_or_set('a', 42), 52)
 
 if __name__ == '__main__':
     unittest.main()

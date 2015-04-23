@@ -65,6 +65,8 @@ class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
         return section, subkey
 
     def __getitem__(self, key):
+        """Get an item
+        """
         section, subkey = self.__descend_sections(key)
         # At the last section, get the value
         try:
@@ -76,6 +78,8 @@ class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
         return value
 
     def __setitem__(self, key, value):
+        """Set an item
+        """
         section, subkey = self.__descend_sections(key, create=True)
         # At the last section, set the value
         try:
@@ -86,6 +90,8 @@ class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
                 key, err)
 
     def __delitem__(self, key):
+        """Delete an item
+        """
         section, subkey = self.__descend_sections(key)
         # At the last section, set the value
         try:
@@ -115,10 +121,34 @@ class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
                 yield key
 
     def __len__(self):
+        """Returns the number of entries in the mapping"""
         return len(list(iter(self)))
 
     def __repr__(self):
+        """Get a represntation of the mapping"""
         return repr(list(iteritems(self)))
 
     def keys(self):
+        """Get the keys of the mapping"""
         return iterkeys(self)
+
+    def get(self, key, default=None):
+        """Get the key or return the default value if provided
+        """
+        try:
+            return self[key]
+        except KeyError:
+            if default is not None:
+                return default
+            else:
+                raise
+
+    def get_or_set(self, key, value):
+        """Either gets the value associated with key or set it
+        This can be useful as an easy way of
+        """
+        try:
+            return self[key]
+        except KeyError:
+            self[key] = value
+            return value
