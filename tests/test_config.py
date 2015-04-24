@@ -90,3 +90,29 @@ class TestConf(unittest.TestCase):
         conf.load(self.filename, spec_filename="")
         self.assertTrue('section_1.a' in conf)
         self.assertFalse('section_1.f' in conf)
+
+    def test_get_default(self):
+        """Test getting config values with a default argument
+        """
+        self.assertRaises(KeyError, conf.__getitem__, 'a')
+        self.assertRaises(KeyError, conf.get, 'a')
+        self.assertEqual(conf.get('a', default=12), 12)
+        self.assertRaises(KeyError, conf.get, 'a')
+
+    def test_set_value(self):
+        """Test setting config values
+        """
+        self.assertFalse('a' in conf)
+        conf['a'] = 2
+        self.assertTrue('a' in conf)
+        self.assertEqual(conf['a'], 2)
+
+    def test_get_or_set(self):
+        """Test get_or_setting config values
+        """
+        self.assertRaises(KeyError, conf.__getitem__, 'a')
+        self.assertRaises(KeyError, conf.get, 'a')
+        self.assertFalse('a' in conf)
+        self.assertEqual(conf.get_or_set('a', 12), 12)
+        self.assertEqual(conf.get('a'), 12)
+        self.assertTrue('a' in conf)

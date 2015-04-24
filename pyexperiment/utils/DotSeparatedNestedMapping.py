@@ -80,6 +80,8 @@ class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
     def __setitem__(self, key, value):
         """Set an item
         """
+        if self.base is None:
+            raise KeyError("Mapping has not been initialized")
         section, subkey = self.__descend_sections(key, create=True)
         # At the last section, set the value
         try:
