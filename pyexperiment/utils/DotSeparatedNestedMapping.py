@@ -10,6 +10,7 @@ from __future__ import absolute_import
 from six import iteritems, iterkeys
 
 from collections import MutableMapping
+from collections import OrderedDict
 
 
 class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
@@ -150,3 +151,42 @@ class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
         except KeyError:
             self[key] = value
             return value
+
+    def show(self):
+        """Pretty-prints the content of the mapping
+        """
+        def show_section(section, prefix):
+            """Show a sub-section of the mapping
+            """
+            for key, value in section.items():
+                if self._is_section(value):
+                    # Go to next level
+                    print(prefix + "[" + key + "]")
+                    show_section(section[key], prefix + "  ")
+                else:
+                    print(prefix + str(key) + ":" + repr(value))
+
+        show_section(self.base, " ")
+
+
+class DotSeparatedOrderedDict(  # pylint: disable=too-many-ancestors
+        DotSeparatedNestedMapping):
+    """Instance of the DotSeparatedNestedMapping based on an OrderedDict.
+    """
+    @classmethod
+    def _new_section(cls):
+        """Creates a new section Mapping
+        """
+        return OrderedDict()
+
+    @classmethod
+    def _is_section(cls, obj):
+        """Returns true if obj is a section
+        """
+        return isinstance(obj, OrderedDict)
+
+    def __init__(self):
+        """Initializer
+        """
+        super(DotSeparatedOrderedDict, self).__init__()
+        self.base = OrderedDict()

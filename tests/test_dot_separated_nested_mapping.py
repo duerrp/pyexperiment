@@ -7,33 +7,12 @@ from __future__ import division
 from __future__ import absolute_import
 
 import unittest
-from collections import OrderedDict
 
 from pyexperiment.utils.DotSeparatedNestedMapping \
     import DotSeparatedNestedMapping
 
-
-class DotSeparatedOrderedDict(  # pylint: disable=too-many-ancestors
-        DotSeparatedNestedMapping):
-    """Example instance of the DotSeparatedNestedMapping
-    """
-    @classmethod
-    def _new_section(cls):
-        """Creates a new section Mapping
-        """
-        return OrderedDict()
-
-    @classmethod
-    def _is_section(cls, obj):
-        """Returns true if obj is a section
-        """
-        return isinstance(obj, OrderedDict)
-
-    def __init__(self):
-        """Initializer
-        """
-        super(DotSeparatedOrderedDict, self).__init__()
-        self.base = OrderedDict()
+from pyexperiment.utils.DotSeparatedNestedMapping \
+    import DotSeparatedOrderedDict
 
 
 class TestDotSeparatedNestedMapping(unittest.TestCase):
