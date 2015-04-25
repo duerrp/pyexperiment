@@ -22,7 +22,7 @@ from pyexperiment import state
 from pyexperiment.utils.printers import print_bold
 from pyexperiment.utils.interactive import embed_interactive
 
-DEFAULT_CONFIG_SPECS = ("[basic]\n"
+DEFAULT_CONFIG_SPECS = ("[pyexperiment]\n"
                         "verbosity = option('DEBUG','INFO','WARNING','ERROR',"
                         "'CRITICAL',default='WARNING')\n"
                         "log_to_file = boolean(default=False)\n"
@@ -57,15 +57,15 @@ def init_log():
     """Initialize the logger based on the configuration
     """
     # Get options related to logging
-    verbosity = conf['basic.verbosity']
-    log_to_file = conf['basic.log_to_file']
+    verbosity = conf['pyexperiment.verbosity']
+    log_to_file = conf['pyexperiment.log_to_file']
     if (((isinstance(log_to_file, str) and log_to_file == 'True')
          or (isinstance(log_to_file, bool) and log_to_file))):
-        log_filename = conf['basic.log_filename']
+        log_filename = conf['pyexperiment.log_filename']
     else:
         log_filename = None
-    log_file_verbosity = conf['basic.log_file_verbosity']
-    rotate_n_logs = int(conf['basic.rotate_n_logs'])
+    log_file_verbosity = conf['pyexperiment.log_file_verbosity']
+    rotate_n_logs = int(conf['pyexperiment.rotate_n_logs'])
 
     # Setup the logger for the configuration
     log.initialize(console_level=verbosity,
@@ -139,7 +139,7 @@ def show_state(*arguments):
     the file specified as an argument.
     """
     if len(arguments) == 0:
-        state_file = conf['basic.state_filename']
+        state_file = conf['pyexperiment.state_filename']
     else:
         state_file = arguments[0]
     print_bold("Load state from file %s",
@@ -294,14 +294,14 @@ def main(commands=None,
         print(result)
 
     # If necessary, save the state
-    if conf['basic.save_state']:
-        state.save(conf['basic.state_filename'],
-                   int(conf['basic.rotate_n_state_files']))
+    if conf['pyexperiment.save_state']:
+        state.save(conf['pyexperiment.state_filename'],
+                   int(conf['pyexperiment.rotate_n_state_files']))
 
     # After everything is done, print timings if necessary
-    if (((isinstance(conf['basic.print_timings'], bool)
-          and conf['basic.print_timings'])
-         or conf['basic.print_timings'] == 'True')):
+    if (((isinstance(conf['pyexperiment.print_timings'], bool)
+          and conf['pyexperiment.print_timings'])
+         or conf['pyexperiment.print_timings'] == 'True')):
         log.print_timings()
 
     log.close()

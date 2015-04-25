@@ -58,10 +58,7 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
                 config_level = config
                 split_key = key.split('.')
                 if len(split_key) == 1:
-                    if 'basic' not in config:
-                        config['basic'] = configobj.Section(config_level, 1,
-                                                            config, {})
-                    config['basic'][key] = value
+                    [key] = value
                 else:
                     depth = 1
                     while len(split_key) > 1:
