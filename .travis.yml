@@ -22,7 +22,7 @@ after_success:
 # - pandoc -o README.rst README.md
 deploy:
   provider: pypi
-  server: https://testpypi.python.org/pypi
+  # server: https://testpypi.python.org/pypi
   user: duerrp
   skip_cleanup: true
   password:
@@ -30,5 +30,5 @@ deploy:
   on:
     tags: true
     repo: duerrp/pyexperiment
-    branch: deploy-test
+    branch: master
     python: 3.4
