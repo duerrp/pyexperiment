@@ -25,8 +25,9 @@ from collections import OrderedDict
 
 from pyexperiment.utils.Singleton import Singleton
 from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
+from pyexperiment.utils.DotSeparatedNestedMapping \
+    import DotSeparatedOrderedDict
 from pyexperiment.Logger import TimingLogger
-from pyexperiment.utils.printers import print_bold
 
 log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
     TimingLogger)
@@ -34,80 +35,39 @@ log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
 """
 
 
-class State(Singleton):
+class State(Singleton, DotSeparatedOrderedDict):
     """Represents persistent state of an experiment
     """
     def __init__(self):
         """Initializer
         """
-        # The dictionary representing the state
-        self.state = OrderedDict()
+        super(State, self).__init__()
 
         # Keeps track of changed files
         self.changed = []
         self.lazy_load_filename = None
 
-    def get_state(self, name):
-        """Get the state with specified name
+    def __getitem__(self, key):
+        """Get the state with specified key
         """
-        if self.state is None:
-            raise AttributeError("State not initialized yet")
-        else:
-            split_name = name.split(".")
-            level = 0
-            section = self.state
-            while level < len(split_name) - 1:
-                try:
-                    section = section[split_name[level]]
-                    level += 1
-                except KeyError as err:
-                    if self.lazy_load_filename is not None:
-                        # Try to get the section from file
-                        with h5py.File(self.lazy_load_filename, "r") as h5file:
-                            h5name = "state/" + "/".join(name.split("."))
-                            return pickle.loads(h5file[h5name].value)
+        try:
+            return super(State, self).__getitem__(key)
+        except KeyError:
+            if self.lazy_load_filename is not None:
+                # Try to get the section from file
+                with h5py.File(self.lazy_load_filename, "r") as h5file:
+                    h5name = "state/" + "/".join(key.split("."))
+                    value = pickle.loads(h5file[h5name].value)
+                    self.__setitem__(key, value)
+                    return value
+            else:
+                raise
 
-                    raise KeyError(
-                        "State does not contain section '%s', (err: '%s')",
-                        ".".join(level[0:level]),
-                        err
-                    )
-            try:
-                value = section[split_name[level]]
-                return value
-            except KeyError as err:
-                if self.lazy_load_filename is not None:
-                    # Try to get the section from file
-                    with h5py.File(self.lazy_load_filename, "r") as h5file:
-                        h5name = "state/" + "/".join(name.split("."))
-                        return pickle.loads(h5file[h5name].value)
-
-                raise KeyError(
-                    "State does not contain value '%s', (err: '%s')",
-                    name,
-                    err
-                )
-
-    def set_state(self, name, value):
-        """Stores state with name and value
+    def __setitem__(self, key, value):
+        """Stores state with key and value
         """
-        if self.state is None:
-            raise AttributeError("state not initialized yet")
-        else:
-            split_name = name.split(".")
-            level = 0
-            section = self.state
-            while level < len(split_name) - 1:
-                if split_name[level] not in section:
-                    section[split_name[level]] = OrderedDict()
-                section = section[split_name[level]]
-                level += 1
-            try:
-                section[split_name[level]] = value
-            except TypeError as err:
-                print("Cannot assign to state(%s), not section (%s)" %
-                      (".".join(split_name[:level]), err))
-            self.changed.append(name)
+        super(State, self).__setitem__(key, value)
+        self.changed.append(key)
 
     def do_rollover(self, filename, rotate_n_state_files=0):
         """Rotate state files (as in logging module). Preserves the content of
@@ -138,7 +98,7 @@ class State(Singleton):
     def need_saving(self):
         """Checks if state needs to be saved
         """
-        if self.state is None or len(self.state.keys()) == 0:
+        if self.base is None or len(self.base.keys()) == 0:
             log.debug("No need to save empty state...")
             return False
         if not self.changed:
@@ -152,8 +112,10 @@ class State(Singleton):
         """Saves state to a h5f file, rotating if necessary
         """
         if not self.need_saving():
+            log.debug("State does not need saving")
             return
         self.do_rollover(filename, rotate_n_state_files)
+        log.debug("Saving state to file: '%s'", filename)
         try:
             # Open data file and create groups
             with h5py.File(filename, 'a') as h5file:
@@ -180,7 +142,7 @@ class State(Singleton):
                                 group.name + "/" + key,
                                 data=pickled_state_array)
 
-                save_level_to_group(self.state, state_grp)
+                save_level_to_group(self.base, state_grp)
 
         except IOError as err:
             raise IOError("Cannot save state to file '%s', (err: '%s')",
@@ -191,48 +153,41 @@ class State(Singleton):
         """Loads state from a h5f file
         """
         # Reset state
-        self.state = OrderedDict()
+        self.base = OrderedDict()
         self.changed = []
 
         if lazy:
             # Load the data later when it's needed
             self.lazy_load_filename = filename
-            return
-        try:
-            with h5py.File(filename, 'r') as h5file:
-                log.info("Loading state from file '%s'", filename)
+        else:
+            self.lazy_load_filename = None
 
-                def load(group, level):
-                    """Loads a whole h5 file as an Ordered dict
-                    """
-                    for key, value in group.items():
-                        # TODO: Check if there is a better way
-                        if isinstance(value, h5py._hl.group.Group):
-                            if key not in level:
-                                level[key] = OrderedDict()
-                            load(value, level[key])
-                        else:
-                            level[key] = pickle.loads(value.value)
-                load(h5file['state'], self.state)
+            try:
+                with h5py.File(filename, 'r') as h5file:
+                    log.info("Loading state from file '%s'", filename)
 
-        except IOError as err:
-            raise IOError("Cannot load state from file '%s', (err: '%s')" %
-                          (filename, err))
-        self.changed = []
+                    def load(group, level):
+                        """Loads a whole h5 file as an Ordered dict
+                        """
+                        for key, value in group.items():
+                            # TODO: Check if there is a better way
+                            if isinstance(value, h5py._hl.group.Group):
+                                if key not in level:
+                                    level[key] = OrderedDict()
+                                load(value, level[key])
+                            else:
+                                level[key] = pickle.loads(value.value)
+                    load(h5file['state'], self.base)
+
+            except IOError as err:
+                raise IOError("Cannot load state from file '%s', (err: '%s')" %
+                              (filename, err))
 
     def show(self):
-        """Prints the content of the state
-        """
-        def show_level(level, prefix):
-            """Saves a state dict level to a h5 group
-            """
-            for key, value in level.items():
-                if isinstance(value, OrderedDict):
-                    # Go to next level
-                    print(prefix + "[" + key + "]")
-                    show_level(level[key], prefix + "  ")
-                else:
-                    print(prefix + str(key) + ":" + repr(value))
-
-        print_bold("Current state:")
-        show_level(self.state, " ")
+        """Shows the state"""
+        print(self)
+        print("Hello", self.lazy_load_filename)
+        # Force loading
+        if self.lazy_load_filename is not None:
+            self.load(self.lazy_load_filename, lazy=False)
+        super(State, self).show()
