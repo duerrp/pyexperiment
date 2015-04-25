@@ -14,8 +14,8 @@ install:
 - pip install pypandoc
 script:
 - coverage run --source=pyexperiment ./run_tests
-- coverage report -m
 after_success:
+- coverage report -m
 - coveralls --verbose
 deploy:
   provider: pypi
