@@ -1,22 +1,28 @@
 language: python
 cache: pip
 python:
-  - "2.7"
-  - "3.2"
-  - "3.3"
-  - "3.4"
-# command to install dependencies
+- '2.7'
+- '3.2'
+- '3.3'
+- '3.4'
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libhdf5-serial-dev
-install: 
-  - pip install -r requirements.txt
-  - pip install coveralls
-
-# command to run tests
+- sudo apt-get update -qq
+- sudo apt-get install -y libhdf5-serial-dev
+install:
+- pip install -r requirements.txt
+- pip install coveralls
 script:
-  - coverage run --source=pyexperiment ./run_tests
-  - coverage report -m
-# collect coverage statistics
+- coverage run --source=pyexperiment ./run_tests
+- coverage report -m
 after_success:
-  - coveralls --verbose
+- coveralls --verbose
+deploy:
+  provider: pypi
+  server: https://testpypi.python.org/pypi
+  user: duerrp
+  password:
+    secure: C6KG3dFhwueZlI43xYy1Gt/f8rzoZOlrzm2ICojI9pAY4jB6afdbZGbusZMuxiD1O/36m7aWwbZ8yYeiWPkgfV5W6NqTJ7tqsq2lhQYBdtAdFHn2CnwruKfnKeiwggrlUNR5CkKm+S9xKtzanfVonPZD64ZLQXBjUCPl3jH1ZLY=
+  on:
+    tags: true
+    repo: duerrp/pyexperiment
+    branch: deploy-test
