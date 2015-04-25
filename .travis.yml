@@ -8,19 +8,18 @@ python:
 - '3.4'
 addons:
   apt_packages:
-  - pandoc
   - libhdf5-serial-dev
+#  - pandoc
 install:
 - pip install -r requirements.txt
 - pip install coveralls
-- pip install pypandoc
+# - pip install pypandoc
 script:
 - coverage run --source=pyexperiment ./run_tests
 after_success:
 - coverage report -m
 - coveralls --verbose
-- pandoc -o README.rst README.md
-- pandoc --version
+# - pandoc -o README.rst README.md
 deploy:
   provider: pypi
   server: https://testpypi.python.org/pypi
