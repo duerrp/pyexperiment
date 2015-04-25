@@ -14,6 +14,9 @@
 
 import sys
 import os
+import importlib
+import inspect
+
 try:
     from mock import MagicMock
 except ImportError:
@@ -61,6 +64,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'sphinx.ext.linkcode',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -365,3 +369,31 @@ epub_exclude_files = ['search.html']
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'http://docs.python.org/': None}
+
+
+
+def linkcode_resolve(domain, info):
+    """Link source code to github
+    """
+    project = u'pyexperiment'
+    github_user = u'duerrp'
+
+    if domain != 'py' or not info['module']:
+        return None
+    filename = info['module'].replace('.', '/')
+    mod = importlib.import_module(info['module'])
+    basename = os.path.splitext(mod.__file__)[0]
+    if basename.endswith('__init__'):
+        filename += '/__init__'
+
+    item = mod
+    lineno = ''
+
+    for piece in info['fullname'].split('.'):
+        item = getattr(item, piece)
+        try:
+            lineno = '#L%d' % inspect.getsourcelines(item)[1]
+        except (TypeError, IOError):
+            pass
+        return ("https://github.com/%s/%s/blob/%s/%s.py%s" %
+                (github_user, project, release, filename, lineno))
