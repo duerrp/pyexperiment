@@ -32,6 +32,7 @@ from pyexperiment import __version__
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
@@ -78,7 +79,7 @@ release = __version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build', 'description.rst']
+exclude_patterns = ['_build', '**setup**', '../**tests**', '_templates']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -104,6 +105,8 @@ pygments_style = 'sphinx'
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
 
+# Enable autosummary
+autosummary_generate = True
 
 # -- Options for HTML output ----------------------------------------------
 

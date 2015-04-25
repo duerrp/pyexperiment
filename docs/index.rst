@@ -6,21 +6,26 @@
 Welcome to pyexperiment's documentation!
 ========================================
 
-.. include:: ./description.rst
+.. include:: ../README.rst
+   :start-line: 5
 
-Contents:
-=========
+Code
+----
 
 .. toctree::
    :maxdepth: 2
 
-   dependencies
-   reproducible
-   license
-   .. automodule:: pyexperiment.conf
+.. autosummary::
+   :toctree: _autosummary
+   
+   pyexperiment
+   pyexperiment.conf.conf
+   pyexperiment.conf.conf.Config
+   pyexperiment.utils
+   pyexperiment.utils.Singleton
       
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
