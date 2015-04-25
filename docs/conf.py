@@ -14,6 +14,27 @@
 
 import sys
 import os
+try:
+    from mock import MagicMock
+except ImportError:
+    from unittest.mock import MagicMock
+
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+            return Mock()
+
+MOCK_MODULES = ['pygtk',
+                'gtk',
+                'gobject',
+                'argparse',
+                'numpy',
+                'pandas',
+                'h5py',
+                'matplotlib']
+
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 from pyexperiment import __version__
 

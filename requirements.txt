@@ -3,3 +3,4 @@ configobj
 numpy
 h5py
 matplotlib
+mock
