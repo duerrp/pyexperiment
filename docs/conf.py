@@ -28,25 +28,25 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
             return Mock()
 
-MOCK_MODULES = ['pygtk',
-                'gtk',
-                'gobject',
-                'argparse',
-                'numpy',
-                'pandas',
-                'h5py',
-                'matplotlib',
-                'configobj',
-                'six']
+# MOCK_MODULES = ['pygtk',
+#                 'gtk',
+#                 'gobject',
+#                 'argparse',
+#                 'numpy',
+#                 'pandas',
+#                 'h5py',
+#                 'matplotlib',
+#                 'configobj',
+#                 'six']
 
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+# sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 from pyexperiment import __version__
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../pyexperiment'))
 
 # -- General configuration ------------------------------------------------
 
