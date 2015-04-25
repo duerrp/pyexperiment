@@ -128,7 +128,8 @@ class Config(DotSeparatedNestedMapping,  # pylint: disable=too-many-ancestors
         """Write configuration to file
         """
         if self.base is None:
-            raise RuntimeError("Configuration not initialized yet.")
+            raise RuntimeError(
+                "Configuration not initialized yet (call load first).")
         else:
             if filename is None:
                 print("Too few arguments (provide filename for configuration)")
