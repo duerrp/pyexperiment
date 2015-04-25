@@ -5,6 +5,8 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
+from pyexperiment import __version__
+
 import os
 from setuptools import setup
 
@@ -27,7 +29,7 @@ elif os.path.exists('README.md'):
 
 setup(
     name="pyexperiment",
-    version="0.1.18",
+    version=__version__,
     author="Peter Duerr",
     author_email="duerrp@gmail.com",
     description="Run experiments with Python - quick and clean.",
