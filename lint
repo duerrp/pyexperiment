@@ -9,7 +9,9 @@ from subprocess import Popen, PIPE
 from pyexperiment.utils.printers import print_blue
 
 CHECKERS = [
-    ['pep8', './'],
+    ['pep8', './pyexperiment'],
+    ['pep8', './examples'],
+    ['pep8', './tests'],
     ['pylint', './pyexperiment', '--reports=n', '--disable=I0011'],
     #['pylint', './tests', '--reports=n'],
     #['pylint', './examples', '--reports=n']
