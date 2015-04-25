@@ -130,10 +130,6 @@ class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
         """Get a represntation of the mapping"""
         return repr(list(iteritems(self)))
 
-    def keys(self):
-        """Get the keys of the mapping"""
-        return iterkeys(self)
-
     def get(self, key, default=None):
         """Get the key or return the default value if provided
         """
