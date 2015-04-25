@@ -270,7 +270,10 @@ def main(commands=None,
     init_log()
 
     # Run the command with the supplied arguments
-    run_command(*arguments)
+    result = run_command(*arguments)
+
+    if result is not None:
+        print(result)
 
     # If necessary, save the state
     if conf['basic.save_state']:

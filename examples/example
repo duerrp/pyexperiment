@@ -31,7 +31,7 @@ def ex_1():
         with log.timed("Squaring number"):
             result = example_function(42)
 
-    print_red("The incredible result is %d", result)
+    return result
 
 
 def ex_2(*args):
@@ -41,7 +41,8 @@ def ex_2(*args):
     number = int(number)
     print_blue("Welcome to experiment 2")
     log.info("Experiment 2 started")
-    print_red("You entered the incredible number %d", number)
+
+    return number
 
 
 class ExampleTest(unittest.TestCase):
