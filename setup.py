@@ -22,7 +22,7 @@ if os.path.exists('README.md'):
 
 setup(
     name="pyexperiment",
-    version="0.1.16-test2",
+    version="0.1.16-test3",
     author="Peter Duerr",
     author_email="duerrp@gmail.com",
     description="Run experiments with Python - quick and clean.",
