@@ -25,7 +25,7 @@ class Singleton(object):
     def get_instance(cls):
         """Get the singleton instance
         """
-        if not cls.__singleton_instance:
+        if cls.__singleton_instance is None:
             with cls.__singleton_lock:
                 if not cls.__singleton_instance:
                     cls.__singleton_instance = cls()
@@ -35,7 +35,7 @@ class Singleton(object):
     def reset_instance(cls):
         """Reset the singleton
         """
-        if cls.__singleton_instance:
+        if cls.__singleton_instance is not None:
             with cls.__singleton_lock:
                 if cls.__singleton_instance:
                     cls.__singleton_instance = None
