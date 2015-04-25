@@ -11,6 +11,10 @@ from __future__ import absolute_import
 
 import unittest
 
+# Make sure matplotlib is using backend for headless testing
+import matplotlib
+matplotlib.use('Agg')
+
 if __name__ == "__main__":
     suite = unittest.TestLoader().discover('tests')
     unittest.TextTestRunner(verbosity=2).run(suite)
