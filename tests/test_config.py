@@ -102,6 +102,7 @@ class TestConf(unittest.TestCase):
     def test_set_value(self):
         """Test setting config values
         """
+        conf.load(self.filename, spec_filename="")
         self.assertFalse('a' in conf)
         conf['a'] = 2
         self.assertTrue('a' in conf)
@@ -110,6 +111,7 @@ class TestConf(unittest.TestCase):
     def test_get_or_set(self):
         """Test get_or_setting config values
         """
+        conf.load(self.filename, spec_filename="")
         self.assertRaises(KeyError, conf.__getitem__, 'a')
         self.assertRaises(KeyError, conf.get, 'a')
         self.assertFalse('a' in conf)
