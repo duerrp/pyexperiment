@@ -34,7 +34,6 @@ setup(
     license="MIT",
     keywords="science experiment",
     url="https://github.com/duerrp/pyexperiment",
-    # download_url="https://github.com/duerrp/pyexperiment/tarball/0.1.15",
     packages=['pyexperiment',
               'pyexperiment.conf',
               'pyexperiment.state',
