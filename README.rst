@@ -37,8 +37,10 @@ this setup are opinionated and may or may not fit your personal taste.
 Feel free to start a discussion on the
 `issues <https://github.com/duerrp/pyexperiment/issues>`__ page.
 
-For usage examples, check the
-`examples <https://github.com/duerrp/pyexperiment/tree/master/examples>`__
+For documentation, see the automatically generated pages `here
+<https://pyexperiment.readthedocs.org>`__. For usage examples, check
+the `examples
+<https://github.com/duerrp/pyexperiment/tree/master/examples>`__
 folder.
 
 Dependencies
