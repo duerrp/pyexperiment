@@ -35,7 +35,9 @@ MOCK_MODULES = ['pygtk',
                 'numpy',
                 'pandas',
                 'h5py',
-                'matplotlib']
+                'matplotlib',
+                'configobj',
+                'six']
 
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
