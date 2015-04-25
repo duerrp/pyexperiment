@@ -28,11 +28,6 @@ class Config(DotSeparatedNestedMapping,  # pylint: disable=too-many-ancestors
     """Path of the file with the specification for configurations.
     """
 
-    CONFIG = None
-    """The global configuration. Initialized with load. Access it with
-    get_value and set_value.
-    """
-
     @classmethod
     def _new_section(cls):
         """Creates a new section Mapping
