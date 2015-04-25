@@ -1,21 +1,34 @@
 language: python
+cache: pip
+sudo: false
 python:
-  - "2.7"
-  - "3.2"
-  - "3.3"
-  - "3.4"
-# command to install dependencies
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libhdf5-serial-dev
-install: 
-  - pip install -r requirements.txt
-  - pip install coveralls
-
-# command to run tests
+- '2.7'
+- '3.2'
+- '3.3'
+- '3.4'
+addons:
+  apt_packages:
+  - libhdf5-serial-dev
+#  - pandoc
+install:
+- pip install -r requirements.txt
+- pip install coveralls
+# - pip install pypandoc
 script:
-  - coverage run --source=pyexperiment ./run_tests
-  - coverage report -m
-# collect coverage statistics
+- coverage run --source=pyexperiment ./run_tests
 after_success:
-  - coveralls --verbose
+- coverage report -m
+- coveralls --verbose
+# - pandoc -o README.rst README.md
+deploy:
+  provider: pypi
+  # server: https://testpypi.python.org/pypi
+  user: duerrp
+  skip_cleanup: true
+  password:
+    secure: C6KG3dFhwueZlI43xYy1Gt/f8rzoZOlrzm2ICojI9pAY4jB6afdbZGbusZMuxiD1O/36m7aWwbZ8yYeiWPkgfV5W6NqTJ7tqsq2lhQYBdtAdFHn2CnwruKfnKeiwggrlUNR5CkKm+S9xKtzanfVonPZD64ZLQXBjUCPl3jH1ZLY=
+  on:
+    tags: true
+    repo: duerrp/pyexperiment
+    branch: master
+    python: 3.4

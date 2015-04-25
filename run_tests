@@ -12,6 +12,9 @@ from __future__ import absolute_import
 import unittest
 import sys
 
+# Make sure matplotlib is using backend for headless testing
+import matplotlib
+matplotlib.use('Agg')
 
 def main(argv):
     """Runs all the tests
