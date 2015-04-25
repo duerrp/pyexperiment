@@ -9,6 +9,8 @@ Welcome to pyexperiment's documentation!
 .. include:: ../README.rst
    :start-line: 5
 
+.. include:: ../examples/README.rst
+
 Code
 ----
 
