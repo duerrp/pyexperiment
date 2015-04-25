@@ -8,21 +8,26 @@ from __future__ import absolute_import
 import os
 from setuptools import setup
 
+read_plain = lambda fname: open(
+    os.path.join(os.path.dirname(__file__), fname), 'r').read()
 try:
     from pypandoc import convert
     read_md = lambda fname: convert(fname, 'rst')
 except ImportError:
     print("Warning: pypandoc module not found")
-    read_md = lambda fname: open(
-        os.path.join(os.path.dirname(__file__), fname), 'r').read()
+    read_md = read_plain
 
 LONG_DESCRIPTION = 'Framework for easy and clean experiments with python.'
-if os.path.exists('README.md'):
+if os.path.exists('README.rst'):
+    print("README.rst found...")
+    LONG_DESCRIPTION = read_plain('README.rst')
+elif os.path.exists('README.md'):
+    print("RADME.md found, converting to rst")
     LONG_DESCRIPTION = read_md('README.md')
 
 setup(
     name="pyexperiment",
-    version="0.1.16.dev2",
+    version="0.1.16.dev5",
     author="Peter Duerr",
     author_email="duerrp@gmail.com",
     description="Run experiments with Python - quick and clean.",

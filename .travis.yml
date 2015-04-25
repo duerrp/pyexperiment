@@ -17,11 +17,12 @@ script:
 after_success:
 - coverage report -m
 - coveralls --verbose
-- 
+- pandoc -o README.rst README.md
 deploy:
   provider: pypi
   server: https://testpypi.python.org/pypi
   user: duerrp
+  skip_cleanup: true
   password:
     secure: C6KG3dFhwueZlI43xYy1Gt/f8rzoZOlrzm2ICojI9pAY4jB6afdbZGbusZMuxiD1O/36m7aWwbZ8yYeiWPkgfV5W6NqTJ7tqsq2lhQYBdtAdFHn2CnwruKfnKeiwggrlUNR5CkKm+S9xKtzanfVonPZD64ZLQXBjUCPl3jH1ZLY=
   on:
