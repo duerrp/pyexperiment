@@ -92,7 +92,7 @@ def help(*args):  # pylint:disable=W0622
 def show_config():
     """Print the configuration
     """
-    print(conf)
+    conf.show()
 
 
 def save_config(filename=None):
