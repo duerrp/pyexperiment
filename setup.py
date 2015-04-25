@@ -27,7 +27,7 @@ elif os.path.exists('README.md'):
 
 setup(
     name="pyexperiment",
-    version="0.1.16",
+    version="0.1.17",
     author="Peter Duerr",
     author_email="duerrp@gmail.com",
     description="Run experiments with Python - quick and clean.",
@@ -46,9 +46,7 @@ setup(
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
