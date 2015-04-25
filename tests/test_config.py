@@ -118,3 +118,10 @@ class TestConf(unittest.TestCase):
         self.assertEqual(conf.get_or_set('a', 12), 12)
         self.assertEqual(conf.get('a'), 12)
         self.assertTrue('a' in conf)
+
+    def test_keys(self):
+        """Test the keys method on the configuration
+        """
+        self.assertEqual(list(conf.keys()), [])
+        conf.load(self.filename, spec_filename="")
+        self.assertEqual(len(conf.keys()), 3)
