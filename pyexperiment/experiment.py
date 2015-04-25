@@ -20,6 +20,7 @@ from pyexperiment import conf
 from pyexperiment import log
 from pyexperiment import state
 from pyexperiment.utils.printers import print_bold
+from pyexperiment.utils.interactive import embed_interactive
 
 DEFAULT_CONFIG_SPECS = ("[basic]\n"
                         "verbosity = option('DEBUG','INFO','WARNING','ERROR',"
@@ -201,7 +202,7 @@ def configure(commands, config_specs, description):
                             type=str,
                             choices=[command.__name__
                                      for command in commands],
-                            nargs=1)
+                            nargs='?')
 
     arg_parser.add_argument('argument',
                             help='argument to the command',
@@ -224,6 +225,12 @@ def configure(commands, config_specs, description):
         metavar=('key', 'value'),
         action='append')
 
+    arg_parser.add_argument(
+        '-i',
+        '--interactive',
+        action='store_true',
+        help='Drop to interactive prompt after COMMAND')
+
     args = arg_parser.parse_args()
 
     conf.load(args.config,
@@ -231,12 +238,22 @@ def configure(commands, config_specs, description):
               args.option,
               [option.encode() for option in DEFAULT_CONFIG_SPECS.split('\n')])
 
-    for command in commands:
-        if command.__name__ == args.command[0]:
-            actual_command = command
-            break
+    actual_command = None
+    if args.command is not None:
+        for command in commands:
+            if command.__name__ == args.command:
+                actual_command = command
+                break
+    else:
+        if args.interactive:
+            actual_command = lambda: None
 
-    return actual_command, args.argument
+    if actual_command is None:
+        print("Error: Not enough arguments.")
+        arg_parser.print_usage()
+        exit()
+
+    return actual_command, args.argument, args.interactive
 
 
 def main(commands=None,
@@ -253,10 +270,11 @@ def main(commands=None,
 
     # Configure the application from the command line and get the
     # command to be run
-    run_command, arguments = configure(commands,
-                                       config_spec,
-                                       "Thanks for using %(prog)s."
-                                       if description is None else description)
+    run_command, arguments, interactive = configure(
+        commands,
+        config_spec,
+        "Thanks for using %(prog)s."
+        if description is None else description)
 
     # Store the commands and tests globally
     # I believe global is justified here for simplicity
@@ -285,5 +303,10 @@ def main(commands=None,
           and conf['basic.print_timings'])
          or conf['basic.print_timings'] == 'True')):
         log.print_timings()
-    else:
-        log.close()
+
+    log.close()
+
+    # Finally, drop to the interactive console if necessary
+    if interactive:
+        embed_interactive()
+

@@ -11,7 +11,10 @@ from __future__ import absolute_import
 import unittest
 import argparse
 import io
+import mock
+import code
 
+import pyexperiment
 from pyexperiment import experiment
 from pyexperiment.utils.stdout_redirector import stdout_redirector
 
@@ -39,7 +42,7 @@ class TestExperiment(unittest.TestCase):
             """
             run[0] = True
 
-        # Need to monkey patch arg parser here
+        # Monkey patch arg parser here
         argparse._sys.argv = ["test", "custom_function"]
 
         buf = io.StringIO()
@@ -59,7 +62,7 @@ class TestExperiment(unittest.TestCase):
             """
             run[0] = True
 
-        # Need to monkey patch arg parser here
+        # Monkey patch arg parser here
         argparse._sys.argv = ["test", "help"]
 
         buf = io.StringIO()
@@ -79,7 +82,7 @@ class TestExperiment(unittest.TestCase):
             """
             run[0] = True
 
-        # Need to monkey patch arg parser here
+        # Monkey patch arg parser here
         argparse._sys.argv = ["test", "help", "custom_function"]
 
         buf = io.StringIO()
@@ -89,24 +92,46 @@ class TestExperiment(unittest.TestCase):
         self.assertFalse(run[0])
         self.assertIn("This should be printed!!", buf.getvalue())
 
-    # Need to mock unittest to avoid printing
-    # def test_main_runs_test(self):
-    #     """Test running main calls tests
-    #     """
-    #     run = [False]
+    def test_main_runs_test(self):
+        """Test running main calls tests when needed
+        """
+        class ExampleTest(unittest.TestCase):
+            """Test case for the test
+            """
+            pass
 
-    #     class ExampleTest(unittest.TestCase):
-    #         pass
-    #     #     """Test case for the test
-    #     #     """
-    #     #     def custom_test(self):
-    #     #         """Test something
-    #     #         """
-    #     #         run[0] = True
+        # Monkey patch arg parser
+        argparse._sys.argv = ["test", "test"]
 
-    #     # # Need to monkey patch arg parser and stdout here
-    #     argparse._sys.argv = ["test", "test"]
+        with mock.patch.object(unittest, 'TextTestRunner') as mock_method:
+            experiment.main(commands=[], tests=[ExampleTest])
+        self.assertEqual(mock_method.call_count, 1)
 
-    #     buf_out, buf_err = io.StringIO(), io.StringIO()
-    #     with stdout_err_redirector(buf_out, buf_err):
-    #         experiment.main(commands=[], tests=[ExampleTest])
+    def test_main_doesnt_test_on_help(self):
+        """Test running main does not call tests when not needed
+        """
+        class ExampleTest(unittest.TestCase):
+            """Test case for the test
+            """
+            pass
+
+        # Monkey patch arg parser
+        argparse._sys.argv = ["test", "-h"]
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            with mock.patch.object(unittest, 'TextTestRunner') as mock_method:
+                try:
+                    experiment.main(commands=[], tests=[ExampleTest])
+                    self.assertEqual(mock_method.call_count, 0)
+                except SystemExit:
+                    pass
+
+    @mock.patch('pyexperiment.experiment.embed_interactive')
+    def test_main_runs_interactive(self, mock_interactive):
+        """Test running main runs interactive session
+        """
+        argparse._sys.argv = ["test", "--interactive"]
+
+        experiment.main(commands=[], tests=[])
+        self.assertTrue(mock_interactive.call_count == 1)

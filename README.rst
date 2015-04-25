@@ -10,10 +10,8 @@ plotting. When writing small scripts for quick experiments though, it's
 often too much effort to configure these components, and one ends up
 rewriting the same setup code over and over again.
 
-Pyexperiment fixes this by providing a very simple way to jump start a
-short experiment, adding many features of a full-blown framework.
-
-Importing pyexperiment will give you:
+Pyexperiment fixes this by providing a simple way to jump start a
+short experiment. Importing pyexperiment will give you:
 
 -  A basic *command line interface* that allows calling arbitrary
    functions (and passing arguments) from the command prompt, providing
@@ -55,6 +53,7 @@ in the
 -  numpy
 -  h5py
 -  matplotlib
+-  IPython (optional)
 
 If you install the dependencies from pypi, you may need to install
 libhdf5 first, e.g., by running ``sudo apt-get install libhdf5-dev``.
