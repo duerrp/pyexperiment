@@ -16,11 +16,11 @@ import configobj
 import validate
 
 from pyexperiment.utils.Singleton import Singleton
-from pyexperiment.utils.DotSeparatedNestedMapping \
-    import DotSeparatedNestedMapping
+from pyexperiment.utils.HierarchicalMapping \
+    import HierarchicalMapping
 
 
-class Config(DotSeparatedNestedMapping,  # pylint: disable=too-many-ancestors
+class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
              Singleton):
     """Represents a singleton configuration object.
     """

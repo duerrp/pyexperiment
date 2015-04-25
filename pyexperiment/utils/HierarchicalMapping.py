@@ -13,12 +13,17 @@ from collections import MutableMapping
 from collections import OrderedDict
 
 
-class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
+class HierarchicalMapping(  # pylint: disable=too-many-ancestors
         MutableMapping):
-    """ABC for flat mutable mappings where all keys are strings, levels
-    and the storage is implemented as a hierarchy of nested Mutable
-    mappings.
+    """ABC for flat mutable mappings where all keys are strings.
+
+    Levels of hierarchy are indicated by a separator character and the
+    storage is implemented as a hierarchy of nested Mutable mappings.
     """
+    SECTION_SEPARATOR = "."
+    """Separates the hierarchy levels
+    """
+
     @classmethod
     def _new_section(cls):
         """Creates a new section Mapping
@@ -42,7 +47,7 @@ class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
         if self.base is None:
             raise KeyError("Cannot access key in empty mapping")
         try:
-            split_name = key.split(".")
+            split_name = key.split(self.SECTION_SEPARATOR)
         except AttributeError() as err:
             raise KeyError("Key must be a string ('%s')", err)
         level = 0
@@ -169,9 +174,9 @@ class DotSeparatedNestedMapping(  # pylint: disable=too-many-ancestors
         show_section(self.base, " ")
 
 
-class DotSeparatedOrderedDict(  # pylint: disable=too-many-ancestors
-        DotSeparatedNestedMapping):
-    """Instance of the DotSeparatedNestedMapping based on an OrderedDict.
+class HierarchicalOrderedDict(  # pylint: disable=too-many-ancestors
+        HierarchicalMapping):
+    """Instance of the HierarchicalMapping based on an OrderedDict.
     """
     @classmethod
     def _new_section(cls):
@@ -188,5 +193,5 @@ class DotSeparatedOrderedDict(  # pylint: disable=too-many-ancestors
     def __init__(self):
         """Initializer
         """
-        super(DotSeparatedOrderedDict, self).__init__()
+        super(HierarchicalOrderedDict, self).__init__()
         self.base = OrderedDict()

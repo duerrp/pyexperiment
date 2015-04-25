@@ -1,4 +1,4 @@
-"""Test the DotSeparatedNestedMapping base class
+"""Test the HierarchicalMapping base class
 """
 
 from __future__ import print_function
@@ -8,15 +8,15 @@ from __future__ import absolute_import
 
 import unittest
 
-from pyexperiment.utils.DotSeparatedNestedMapping \
-    import DotSeparatedNestedMapping
+from pyexperiment.utils.HierarchicalMapping \
+    import HierarchicalMapping
 
-from pyexperiment.utils.DotSeparatedNestedMapping \
-    import DotSeparatedOrderedDict
+from pyexperiment.utils.HierarchicalMapping \
+    import HierarchicalOrderedDict
 
 
-class TestDotSeparatedNestedMapping(unittest.TestCase):
-    """Test the DotSeparatedNestedMapping
+class TestHierarchicalMapping(unittest.TestCase):
+    """Test the HierarchicalMapping
     """
     def setUp(self):
         """Setup the test fixure
@@ -31,13 +31,13 @@ class TestDotSeparatedNestedMapping(unittest.TestCase):
     def test_len_empty_mapping(self):
         """Test if the empty mapping is really empty
         """
-        m = DotSeparatedOrderedDict()
+        m = HierarchicalOrderedDict()
         self.assertEqual(len(m), 0)
 
     def test_insert_retrieve_base_level(self):
         """Make sure we can use the container at the base
         """
-        m = DotSeparatedOrderedDict()
+        m = HierarchicalOrderedDict()
         m['a'] = 12
 
         self.assertEqual(m['a'], 12)
@@ -45,14 +45,14 @@ class TestDotSeparatedNestedMapping(unittest.TestCase):
     def test_retrieve_second_level(self):
         """Make sure we can use the container at the second level
         """
-        m = DotSeparatedOrderedDict()
+        m = HierarchicalOrderedDict()
         m['hello.world'] = 12
         self.assertEqual(m['hello.world'], 12)
 
     def test_len_after_inserting_at_first_level(self):
         """Test if the length is correct after inserting at the first level
         """
-        m = DotSeparatedOrderedDict()
+        m = HierarchicalOrderedDict()
         self.assertEqual(len(m), 0)
 
         # New keys should increase the length
@@ -68,7 +68,7 @@ class TestDotSeparatedNestedMapping(unittest.TestCase):
     def test_inserting_higher_levels(self):
         """Test if the length is correct after inserting at the first level
         """
-        m = DotSeparatedOrderedDict()
+        m = HierarchicalOrderedDict()
         self.assertEqual(len(m), 0)
 
         # New keys should increase the length
@@ -82,7 +82,7 @@ class TestDotSeparatedNestedMapping(unittest.TestCase):
     def test_keys(self):
         """Test the keys method on the mapping
         """
-        m = DotSeparatedOrderedDict()
+        m = HierarchicalOrderedDict()
         self.assertEqual(len(m), 0)
 
         # New keys
@@ -92,9 +92,9 @@ class TestDotSeparatedNestedMapping(unittest.TestCase):
         self.assertEqual(list(m.keys()), keys)
 
     def test_contains(self):
-        """Test the DotSeparatedOrderedDict with `in`
+        """Test the HierarchicalOrderedDict with `in`
         """
-        m = DotSeparatedOrderedDict()
+        m = HierarchicalOrderedDict()
         self.assertEqual(len(m), 0)
 
         self.assertFalse('a' in m)
@@ -106,11 +106,11 @@ class TestDotSeparatedNestedMapping(unittest.TestCase):
         self.assertTrue('b.c.d' in m)
 
     def test_other_base(self):
-        """Test the DotSeparatedOrderedDict with another base
+        """Test the HierarchicalOrderedDict with another base
         """
         class DotSeparatedDict(  # pylint: disable=too-many-ancestors
-                DotSeparatedNestedMapping):
-            """Example instance of the DotSeparatedNestedMapping
+                HierarchicalMapping):
+            """Example instance of the HierarchicalMapping
             """
             @classmethod
             def _new_section(cls):
@@ -138,7 +138,7 @@ class TestDotSeparatedNestedMapping(unittest.TestCase):
     def test_get(self):
         """Test getting values with and without default values
         """
-        m = DotSeparatedOrderedDict()
+        m = HierarchicalOrderedDict()
         self.assertRaises(KeyError, m.get, 'a')
         self.assertEqual(m.get('a', 42), 42)
         m['a'] = 123
@@ -147,7 +147,7 @@ class TestDotSeparatedNestedMapping(unittest.TestCase):
     def test_get_or_set(self):
         """Test get_or_setting values
         """
-        m = DotSeparatedOrderedDict()
+        m = HierarchicalOrderedDict()
         self.assertRaises(KeyError, m.get, 'a')
         self.assertEqual(m.get_or_set('a', 42), 42)
         self.assertEqual(m.get('a'), 42)

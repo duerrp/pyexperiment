@@ -25,8 +25,8 @@ from collections import OrderedDict
 
 from pyexperiment.utils.Singleton import Singleton
 from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
-from pyexperiment.utils.DotSeparatedNestedMapping \
-    import DotSeparatedOrderedDict
+from pyexperiment.utils.HierarchicalMapping \
+    import HierarchicalOrderedDict
 from pyexperiment.Logger import TimingLogger
 
 log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
@@ -35,7 +35,7 @@ log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
 """
 
 
-class State(Singleton, DotSeparatedOrderedDict):
+class State(Singleton, HierarchicalOrderedDict):
     """Represents persistent state of an experiment
     """
     def __init__(self):
