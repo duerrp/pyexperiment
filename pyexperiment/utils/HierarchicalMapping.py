@@ -18,7 +18,7 @@ from __future__ import division
 from __future__ import absolute_import
 
 # Python 3 compatibility
-from six import iteritems, iterkeys
+from six import iteritems
 
 from collections import MutableMapping
 from collections import OrderedDict
