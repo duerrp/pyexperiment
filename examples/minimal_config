@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+"""Illustrates pyexperiment's configuration system in a minmal example.
+
+Running `minmal_config` will print a short usage message,
+`minimal_config -h` will show more help, `minimal_config show_config`
+will show the current configuration, `minimal_config simple` will
+print the default value for example, and `minmal_config -o example
+'foo'` will override the default value for 'example' with 'foo'.
+
+The behavior of nested configuration values can be observed by running
+`minimal_config nested`.
+
+Saving the configuration to a file called 'config.ini' with
+`minimal_config save_config ./config.ini` results in a configuration
+file that you can edit to change the configuration for subsequent
+runs. To run the experiment with an other configuration file than
+'config.ini', use the `-c` option or monkey patch the
+`pyexperiment.experiment.DEFAULT_CONFIG_FILENAME`.
+
+
+Written by Peter Duerr
+
+"""
+
+# Sensible imports from the future (optional)
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+
+# Import the experiment module for its main function
+from pyexperiment import experiment
+from pyexperiment import conf
+
+CONFIG_SPEC = ("example = string(default=bar)\n"
+               "[level1]\n"
+               "example = boolean(default=True)")
+"""The config spec defines the default key-value pair example: 'bar'
+"""  # pylint:disable=W0105
+
+def simple():
+    """Prints the configured value for 'example'
+    """
+    print(conf['example'])
+
+def nested():
+    """Prints the configured value for 'example'
+    """
+    print(conf['level1.example'])
+
+if __name__ == '__main__':
+    # Passing the functions to the main function will set up the
+    # functions' names as first level commands. The (optional)
+    # description text will appear in the help text.
+    experiment.main(commands=[simple, nested],
+                    description="Welcome to the world of pyexperiment...",
+                    config_spec=CONFIG_SPEC)
