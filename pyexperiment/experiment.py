@@ -256,6 +256,13 @@ def configure(commands, config_specs, description):
     return actual_command, args.argument, args.interactive
 
 
+def save_state():
+    """Saves the state of the experiment
+    """
+    state.save(conf['pyexperiment.state_filename'],
+               int(conf['pyexperiment.rotate_n_state_files']))
+
+
 def main(commands=None,
          config_spec="",
          tests=None,
@@ -295,8 +302,7 @@ def main(commands=None,
 
     # If necessary, save the state
     if conf['pyexperiment.save_state']:
-        state.save(conf['pyexperiment.state_filename'],
-                   int(conf['pyexperiment.rotate_n_state_files']))
+        save_state()
 
     # After everything is done, print timings if necessary
     if (((isinstance(conf['pyexperiment.print_timings'], bool)
@@ -309,4 +315,3 @@ def main(commands=None,
     # Finally, drop to the interactive console if necessary
     if interactive:
         embed_interactive()
-
