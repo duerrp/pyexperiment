@@ -6,11 +6,12 @@
 Welcome to pyexperiment's documentation!
 ========================================
 
-.. include:: ../README.rst
-   :start-line: 5
+For a brief introduction and installation instructions, check the
+README on `github <https://github.com/duerrp/pyexperiment>`__.
 
 .. include:: ../examples/README.rst
-
+   :start-line: 3
+                
 Code
 ----
 
