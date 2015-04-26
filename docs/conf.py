@@ -38,7 +38,10 @@ MOCK_MODULES = ['pygtk',
                 'configobj',
                 'validate',
                 'argparse',
-                ]
+                'six',
+                'six',
+                'six.moves'
+]
 
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
