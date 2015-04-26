@@ -15,6 +15,13 @@ import unittest
 import sys
 from datetime import datetime
 import argparse
+try:
+    import argcomplete
+    AUTO_COMPLETION = True
+except ImportError:
+    AUTO_COMPLETION = False
+
+import subprocess
 
 from pyexperiment import conf
 from pyexperiment import log
@@ -147,7 +154,6 @@ def show_state(*arguments):
     state.load(state_file, lazy=False)
     state.show()
 
-
 def collect_commands(commands):
     """Add default commands
     """
@@ -183,12 +189,8 @@ def format_command_help(commands):
                        for command in commands]))
     return string
 
-
-def configure(commands, config_specs, description):
-    """Load configuration from command line arguments and optionally, a
-    configuration file. Possible command line arguments depend on the
-    list of supplied commands, the configuration depends on the
-    supplied configuration specification.
+def setup_arg_parser(commands, description):
+    """Setup the argument parser for the experiment
     """
     command_help = format_command_help(commands)
 
@@ -231,6 +233,18 @@ def configure(commands, config_specs, description):
         action='store_true',
         help='Drop to interactive prompt after COMMAND')
 
+    if AUTO_COMPLETION:
+        argcomplete.autocomplete(arg_parser)
+
+    return arg_parser
+
+def configure(commands, config_specs, description):
+    """Load configuration from command line arguments and optionally, a
+    configuration file. Possible command line arguments depend on the
+    list of supplied commands, the configuration depends on the
+    supplied configuration specification.
+    """
+    arg_parser = setup_arg_parser(commands, description)
     args = arg_parser.parse_args()
 
     conf.load(args.config,
@@ -274,6 +288,24 @@ def main(commands=None,
     log.debug("Time: '%s'", datetime.now())
 
     commands = collect_commands(commands or [])
+
+    # At this point we can setup a command for autocompletion
+    if AUTO_COMPLETION:
+        def activate_autocompletion():
+            """Activate auto completion for your experiment with zsh or bash.
+
+            Call with eval \"$(script_name activate_autocompletion)\".
+            In zsh you may need to call `autoload bashcompinit` and
+            `bashcompinit` first.
+
+            """
+            process = subprocess.Popen(
+                ["register-python-argcomplete", sys.argv[0].split("/")[-1]],
+                stdout=subprocess.PIPE)
+            out, _err = process.communicate()
+            print(out)
+
+        commands += [activate_autocompletion]
 
     # Configure the application from the command line and get the
     # command to be run

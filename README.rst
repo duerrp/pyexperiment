@@ -14,9 +14,10 @@ Pyexperiment fixes this by providing a simple way to jump start a
 short experiment. Importing pyexperiment will give you:
 
 -  A basic *command line interface* that allows calling arbitrary
-   functions (and passing arguments) from the command prompt, providing
-   help text derived from the functions' docstrings (based on the
-   standard library's argparse).
+   functions (and passing arguments) from the command prompt,
+   providing help text derived from the functions' docstrings and
+   zsh/bash autocompletion (based on the standard library's argparse
+   and argcomplete).
 -  A simple *configuration management* with an easy way to provide
    default values (based on the excellent configobj library).
 -  A thread-safe *logger* with configurable logging levels, *timing
@@ -41,8 +42,12 @@ the `examples
 <https://github.com/duerrp/pyexperiment/tree/master/examples>`__
 folder.
 
-Dependencies
+Installation
 ------------
+
+The easiest way to install pyexperiment is from pypi, just call `pip
+install pyexperiment` (in a virtualenv, prepend `sudo` for system wide
+installation).
 
 The pyexperiment package has a few external dependencies (as you can see
 in the
@@ -53,9 +58,10 @@ in the
 -  numpy
 -  h5py
 -  matplotlib
--  IPython (optional)
-
-If you install the dependencies from pypi, you may need to install
+-  IPython (optional, adds --interactive command)
+-  argcomplete (optional, adds activate_autocompletion command)
+   
+If you install (the h5py dependency) from pypi, you may need to install
 libhdf5 first, e.g., by running ``sudo apt-get install libhdf5-dev``.
 
 Reproducible experiments
