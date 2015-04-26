@@ -1,6 +1,26 @@
-"""Implements a singleton base-class (as in tornado.ioloop.IOLoop.instance())
+"""Provides data structures for unique objects.
 
-Written by Peter Duerr (inspired by tornado's implementation)
+The `Singleton` class whose implementation is inspired by Tornado's
+singleton (tornado.ioloop.IOLoop.instance()), can be inherited by
+classes which only need to be instantiated once (for example a global
+settings class such as :class:`pyexperiment.Config`). This design
+pattern is often criticized, but it is hard to beat in terms of
+simplicity.
+
+A variant of the `Singleton`, the `InitializableSingleton` provides an
+abstract base class for classes that are only instantiated once, but
+need to provide an instance before being properly initialized (such as
+`pyexperiment.Logger.Logger`).
+
+The `SingletonIndirector` is a utility class that 'thunks' a
+`Singleton` so that calls to the singleton instance's methods don't
+need to be ugly chain calls. Similarly, the
+`InitializeableSingletonIndirector` provides 'thunking' for the
+`InitializeableSingleton`.
+
+Written by Peter Duerr (Singleton inspired by Tornado's
+implementation)
+
 """
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -42,13 +62,14 @@ class Singleton(object):
 
 
 class InitializeableSingleton(Singleton):
-    """Base-class for singleton that does not automatically initialize
+    """ABC for singleton that does not automatically initialize
 
     If get_instance is called on an uninitialized InitializeableSingleton,
     a pseudo-instance is returned.
 
     Sub-classes need to implement the function `_get_pseudo_instance`
     that returns a pseudo instance.
+
     """
     __singleton_lock = threading.Lock()
     """Lock to prevent conflicts on the singleton instance

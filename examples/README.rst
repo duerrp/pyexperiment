@@ -44,26 +44,27 @@ structure of our script to a file, say 'analyzer.py'
        pass
    
    if __name__ == 'main':
-       experiment(commands=[load, average, plot],
-                  tests=[AverageTest])
+       experiment.main(commands=[load, average, plot],
+                       tests=[AverageTest])
    
 
-Without any further code, the call to `experiment` will set up a
-command line interface for our application that allows executing the
-three functions `read`, `average`, and `plot` by calling `analyzer
-read ./datafile1 ./datafile2`, `analyzer average`, and `analyzer plot`
-respectively. A call to `analyzer test` will run our (yet
+Without any further code, the call to
+:func:`pyexperiment.experiment.main` will set up a command line
+interface for our application that allows executing the three
+functions `read`, `average`, and `plot` by calling ``analyzer read
+./datafile1 ./datafile2``, `analyzer average`, and `analyzer plot`
+respectively. A call to ``analyzer test`` will run our (yet
 unimplemented) unittests.
 
 State
 ~~~~~
 
 Next, let's write the `read` function and save the loaded data to a
-persistent state file. To this end, we can use pyexperiment's `state`
-which we get by adding `from pyexperiment import state` and `from
-pyexperiment.experiment import save_state` to the top of
-'analyzer.py'. Then, assuming the data files consist of comma
-separated values, we can achieve this by defining `load` as
+persistent state file. To this end, we can use pyexperiment's
+:class:`pyexperiment.State` which we get by adding ``from pyexperiment
+import state`` and ``from pyexperiment.experiment import save_state``
+to the top of 'analyzer.py'. Then, assuming the data files consist of
+comma separated values, we can achieve this by defining `load` as
 
 .. code-block:: python
 
@@ -78,14 +79,22 @@ separated values, we can achieve this by defining `load` as
                                  for data in f.readlines()]
        save_state()
 
+Note that internally, the implementation of
+:class:`pyexperiment.State` uses a
+:class:`pyexperiment.utils.Singleton.Singleton` wrapped by a
+:class:`pyexperiment.utils.Singleton.SingletonIndirector`, so that
+wherever you access the state you are accessing the same underlying
+data structure (in a thread safe way).
+
 Logging
 ~~~~~~~
 
 In order to better understand our results, it would be nice to have a
 logger to print some debug output, e.g., printing the names of the
 files we load and how many data points they contain. A few calls to
-pyexperiment's logger will do the job - simply add `from pyexperiment
-import log` and add logging calls at the desired level:
+pyexperiment's :mod:`pyexperiment.log` will do the job -
+simply add ``from pyexperiment import log`` and add logging calls at
+the desired level:
 
 .. code-block:: python
 
@@ -140,17 +149,17 @@ Configuration
 You will notice that by default, pyexperiment does not log to a file
 and it will only print messages at, or above the 'WARNING' level. If
 you would like to see more (or less) messages, you can change the
-logging level by runnint the analyzer with an additional argument
-e.g., `-o verbosity DEBUG`. In general, any configuration option can
-be set from the command line with `-o [level[.level2.[...]]].key
-value`.
+logging level by running the analyzer with an additional argument
+e.g., ``-o verbosity DEBUG``. In general, any configuration option can
+be set from the command line with ``-o [level[.level2.[...]]].key
+value``.
 
 The `verbosity` configuration value is predefined by pyexperiment, but
 we can use the same configuration mechanism for our own parameters.
 This is achieved by defining a specification for the configuration and
-passing it as the `config_spec` argument to the `experiment` call. For
-example, we may want to add an option to ignore data files longer
-than a certain length:
+passing it as the ``config_spec`` argument to the
+:func:`pyexperiment.experiment.main` call. For example, we may want to
+add an option to ignore data files longer than a certain length:
 
 .. code-block:: python
 
@@ -162,9 +171,10 @@ than a certain length:
                   tests=[AverageTest],
                   config_spec=CONFIG_SPEC)
 
-We can then access the parameters by adding `from pyexperiment import
-conf` at the top of 'analyzer.py' and calling `conf` like a dictionary
-with the levels of the configuration separated by dots:
+We can then access the parameters by adding ``from pyexperiment import
+conf`` at the top of 'analyzer.py' and calling
+:mod:`pyexperiment.conf` like a dictionary with the levels of the
+configuration separated by dots:
 
 .. code-block:: python
 
@@ -187,8 +197,8 @@ with the levels of the configuration separated by dots:
 By default, pyexperiment will try to load a file called 'config.ini'
 (if necessary, one can of course override this default filename). To
 generate an initial configuration file with the default options,
-simply run `analyzer save_config ./config.ini`. Any options set in the
-resulting file will be used in future runs.
+simply run ``analyzer save_config ./config.ini``. Any options set in
+the resulting file will be used in future runs.
 
 Timing
 ~~~~~~
@@ -197,7 +207,7 @@ If we are loading big data files, we may also be interested to learn
 how much time it takes to load an individual file - there may be some
 room for optimization. To measure the time it takes to load a file and
 compute statistics, we can use pyexperiment's timing function from the
-`Logger`.
+:class:`pyexperiment.Logger`.
 
 .. code-block:: python
              
@@ -225,7 +235,7 @@ Loading State
 To average over our data, we will need the state from when we called
 our script with the `read` command. By default, pyexperiment does not
 load the state saved in previous runs, but we can load it manually
-with the `state.load` function.
+with the :func:`pyexperiment.State.load` function.
 
 .. code-block:: python
              
@@ -237,19 +247,20 @@ with the `state.load` function.
        return sum(data)/len(data)
 
        
-We can now call 'analyzer.py load file1 file2' followed by
-'analyzer.py average' to get the average of the data points in our
-files. If you add timing calls you will notice that the `state.load`
-function returns almost immediately. By default, pyexperiment loads
-entries in the hierarchical state only when they are needed.
+We can now call ``analyzer.py load file1 file2`` followed by
+``analyzer.py average`` to get the average of the data points in our
+files. If you add timing calls you will notice that
+:func:`pyexperiment.state.load` returns almost immediately. By
+default, pyexperiment loads entries in the :class:`pyexperiment.State`
+only when they are needed.
 
 Plotting
 ~~~~~~~~
 
-Finally, let's add two utilities from the plotting module with `from
-pyexperiment.utils.plot import setup_matplotlib` and `from
-pyexperiment.utils.plot import setup_figure` as well as pyplot (with
-`from matplotlib import pyplot as plt`) and write the plotter:
+Finally, let's add two utilities from the plotting module with ``from
+pyexperiment.utils.plot import setup_matplotlib`` and ``from
+pyexperiment.utils.plot import setup_figure`` as well as pyplot (with
+``from matplotlib import pyplot as plt``) and write the plotter:
 
 .. code-block:: python
              
@@ -265,6 +276,6 @@ pyexperiment.utils.plot import setup_figure` as well as pyplot (with
        plt.plot(data)
 
 
-With this code in place, we can now call 'analyze.py plot' which will
+With this code in place, we can now call `analyze.py plot` which will
 open an window with the plotted data. To make the window fullscreen,
 press the 'f' key on your keyboard, to close the window press 'q'.
