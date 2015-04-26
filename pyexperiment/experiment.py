@@ -210,6 +210,7 @@ def format_command_help(commands):
                        for command in commands]))
     return string
 
+
 def setup_arg_parser(commands, description):
     """Setup the argument parser for the experiment
     """
@@ -258,6 +259,7 @@ def setup_arg_parser(commands, description):
         argcomplete.autocomplete(arg_parser)
 
     return arg_parser
+
 
 def configure(commands, config_specs, description):
     """Load configuration from command line arguments and optionally, a
