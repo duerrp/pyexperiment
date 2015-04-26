@@ -1,10 +1,10 @@
 Getting Started
 ===============
 
-The main idea behind pyexperiment is to make starting a new project as
-simple as possible without sacrificing the comfort of some basic
-facilities like a reasonable CLI, logging, state, configuration
-management, plotting and timing.
+The main idea behind pyexperiment is to make starting a short
+experiment as simple as possible without sacrificing the comfort of
+some basic facilities like a reasonable CLI, logging, persistent
+state, configuration management, plotting and timing.
 
 Motivating Example
 ------------------
@@ -110,20 +110,19 @@ Configuration
 ~~~~~~~~~~~~~
 
 You will notice that by default, pyexperiment does not log to a file
-and it will only show you messages at, or above the 'WARNING' level.
-If you would like to see more (or less) messages, you can change the
+and it will only print messages at, or above the 'WARNING' level. If
+you would like to see more (or less) messages, you can change the
 logging level by runnint the analyzer with an additional argument
 e.g., `-o verbosity DEBUG`. In general, any configuration option can
 be set from the command line with `-o [level[.level2.[...]]].key
 value`.
 
 The `verbosity` configuration value is predefined by pyexperiment, but
-you can use the same configuration mechanism for your own parameters.
-Define a specification for your configuration by passing a
-`config_spec` argument to the `experiment` call. For example, you may
-want to add an option to ignore data files longer than a certain
-length. To achieve this, create a configspec and pass it to
-`experiment`:
+we can use the same configuration mechanism for our own parameters.
+This is achieved by defining a specification for the configuration and
+passing it as the `config_spec` argument to the `experiment` call. For
+example, we may want to add an option to ignore data files longer
+than a certain length:
 
 .. code-block:: python
 
@@ -135,9 +134,9 @@ length. To achieve this, create a configspec and pass it to
                   tests=[AverageTest],
                   config_spec=CONFIG_SPEC)
 
-You can then access the parameters by adding `from pyexperiment import
+We can then access the parameters by adding `from pyexperiment import
 conf` at the top of 'analyzer.py' and calling `conf` like a dictionary
-with the levels of your configuration separated by dots:
+with the levels of the configuration separated by dots:
 
 .. code-block:: python
 
@@ -167,7 +166,7 @@ with the levels of your configuration separated by dots:
        save_state()
                   
 By default, pyexperiment will try to load a file called 'config.ini'
-(if necessary, you can of course override this default filename). To
+(if necessary, one can of course override this default filename). To
 generate an initial configuration file with the default options,
 simply run `analyzer save_config ./config.ini`. Any options set in the
 resulting file will be used in future runs.
