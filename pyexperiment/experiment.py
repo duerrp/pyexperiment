@@ -154,6 +154,22 @@ def show_state(*arguments):
     state.load(state_file, lazy=False)
     state.show()
 
+
+def activate_autocompletion():
+    """Activate auto completion for your experiment with zsh or bash.
+
+    Call with eval \"$(script_name activate_autocompletion)\".
+    In zsh you may need to call `autoload bashcompinit` and
+    `bashcompinit` first.
+
+    """
+    process = subprocess.Popen(
+        ["register-python-argcomplete", sys.argv[0].split("/")[-1]],
+        stdout=subprocess.PIPE)
+    out, _err = process.communicate()
+    print(out)
+
+
 def collect_commands(commands):
     """Add default commands
     """
@@ -169,11 +185,16 @@ def collect_commands(commands):
         """
         print_bold("Available commands:")
         all_commands = commands + default_commands + [show_commands]
+        if AUTO_COMPLETION:
+            all_commands += [activate_autocompletion]
         names = [command.__name__ for command in all_commands]
         for name in names:
             print("\t" + str(name))
 
     all_commands = commands + default_commands + [show_commands]
+    if AUTO_COMPLETION:
+        all_commands += [activate_autocompletion]
+
     return all_commands
 
 
@@ -288,24 +309,6 @@ def main(commands=None,
     log.debug("Time: '%s'", datetime.now())
 
     commands = collect_commands(commands or [])
-
-    # At this point we can setup a command for autocompletion
-    if AUTO_COMPLETION:
-        def activate_autocompletion():
-            """Activate auto completion for your experiment with zsh or bash.
-
-            Call with eval \"$(script_name activate_autocompletion)\".
-            In zsh you may need to call `autoload bashcompinit` and
-            `bashcompinit` first.
-
-            """
-            process = subprocess.Popen(
-                ["register-python-argcomplete", sys.argv[0].split("/")[-1]],
-                stdout=subprocess.PIPE)
-            out, _err = process.communicate()
-            print(out)
-
-        commands += [activate_autocompletion]
 
     # Configure the application from the command line and get the
     # command to be run
