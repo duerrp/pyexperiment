@@ -79,9 +79,9 @@ extensions = [
 ]
 
 if ON_RTD:
-    extension += ['sphinxcontrib.napoleon',]
+    extensions += ['sphinxcontrib.napoleon',]
 else:
-    extension += ['sphinx.ext.napoleon',]
+    extensions += ['sphinx.ext.napoleon',]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
