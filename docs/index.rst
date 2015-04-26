@@ -22,10 +22,19 @@ Code
    :toctree: _autosummary
    
    pyexperiment
-   pyexperiment.conf.conf
-   pyexperiment.conf.conf.Config
-   pyexperiment.utils
+   pyexperiment.Config
+   pyexperiment.Logger
+   pyexperiment.State
+   pyexperiment.experiment
+   
+   pyexperiment.utils.HierarchicalMapping
+   pyexperiment.utils.DelegateCall
    pyexperiment.utils.Singleton
+   pyexperiment.utils.interactive
+   pyexperiment.utils.plot
+   pyexperiment.utils.printers
+   pyexperiment.utils.stdout_redirector
+   pyexperiment.utils
       
 Indices and tables
 ------------------
