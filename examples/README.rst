@@ -106,6 +106,34 @@ import log` and add logging calls at the desired level:
                state['data'] += data
        save_state()
 
+At this point, let's factor out a method that reads a single file to
+make our code more readable
+
+.. code-block:: python
+
+   def read_file(filenam):
+       """Read a file and return the data
+       """
+       log.info("Reading file %s", filename)
+       with open(filename) as f:
+           data = [float(data)
+           for data in f.readlines()]
+           if len(data) == 0:
+               log.warning("Datafile %s does not contain any data",
+                           filename)
+           log.debug("Read %i datapoints", len(data))
+           return data
+
+                
+   def read(*filenames):
+       """Reads data files and stores their content
+       """
+       # Initialize the state with an empty list for the data
+       state['data'] = []
+       for filename in filenames:
+           state['data'] += read_file(filename)
+       save_state()
+
 Configuration
 ~~~~~~~~~~~~~
 
@@ -150,21 +178,12 @@ with the levels of the configuration separated by dots:
        max_length = conf['read.max_length']
        
        for filename in filenames:
-           log.info("Reading file %s", filename)
-           with open(filename) as f:
-               data = [float(data)
-                       for data in f.readlines()]
-               if len(data < max_length):
-                   if len(data) == 0:
-                       log.warning("Datafile %s does not contain any data",
-                                   filename)
-                   log.debug("Read %i datapoints", len(data))
-                   state['data'] += data
-               else:
-                   log.warning("Datafile %s too long. Ignoring data")
-                   
+           data = read_file(filename)
+           if len(data < max_length):
+               state['data'] += data
        save_state()
-                  
+
+       
 By default, pyexperiment will try to load a file called 'config.ini'
 (if necessary, one can of course override this default filename). To
 generate an initial configuration file with the default options,
@@ -177,7 +196,75 @@ Timing
 If we are loading big data files, we may also be interested to learn
 how much time it takes to load an individual file - there may be some
 room for optimization. To measure the time it takes to load a file and
-compute statistics, we can use pyexperiment's timing function (see the
-docs for more information).
+compute statistics, we can use pyexperiment's timing function from the
+`Logger`.
 
-To be continued...
+.. code-block:: python
+             
+   def read(*filenames):
+       """Reads data files and stores their content
+       """
+       # Initialize the state with an empty list for the data
+       state['data'] = []
+
+       # Get the max length from the configuration
+       max_length = conf['read.max_length']
+       
+       for filename in filenames:
+           with log.timed("read_file"):
+               data = read_file(filename)
+           if len(data < max_length):
+               state['data'] += data
+       save_state()
+       log.print_timings()
+
+       
+Loading State
+~~~~~~~~~~~~~
+
+To average over our data, we will need the state from when we called
+our script with the `read` command. By default, pyexperiment does not
+load the state saved in previous runs, but we can load it manually
+with the `state.load` function.
+
+.. code-block:: python
+             
+   def average():
+       """Returns the average of the data stored in state
+       """
+       state.load(conf['pyexperiment.state_filename'])
+       data = state['data']
+       return sum(data)/len(data)
+
+       
+We can now call 'analyzer.py load file1 file2' followed by
+'analyzer.py average' to get the average of the data points in our
+files. If you add timing calls you will notice that the `state.load`
+function returns almost immediately. By default, pyexperiment loads
+entries in the hierarchical state only when they are needed.
+
+Plotting
+~~~~~~~~
+
+Finally, let's add two utilities from the plotting module with `from
+pyexperiment.utils.plot import setup_matplotlib` and `from
+pyexperiment.utils.plot import setup_figure` as well as pyplot (with
+`from matplotlib import pyplot as plt`) and write the plotter:
+
+.. code-block:: python
+             
+   def plot():
+       """Plots the data saved in the state
+       """
+       state.load(conf['pyexperiment.state_filename'])
+       data = state['data']
+
+       setup_matplotlib()
+
+       fig = setup_figure('Time Series Data')
+       plt.plot(data)
+
+
+With this code in place, we can now call 'analyze.py plot' which will
+open an window with the plotted data. To make the window fullscreen,
+press the 'f' key on your keyboard, to close the window press 'q'.
