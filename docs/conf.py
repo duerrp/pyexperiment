@@ -28,18 +28,19 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
             return Mock()
 
-# MOCK_MODULES = ['pygtk',
-#                 'gtk',
-#                 'gobject',
-#                 'argparse',
-#                 'numpy',
-#                 'pandas',
-#                 'h5py',
-#                 'matplotlib',
-#                 'configobj',
-#                 'six']
+MOCK_MODULES = ['pygtk',
+                'gtk',
+                'gobject',
+                'numpy',
+                'pandas',
+                'h5py',
+                'matplotlib',
+                'configobj',
+                'argparse'
+                'six',
+                'six.moves']
 
-# sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 from pyexperiment import __version__
 
