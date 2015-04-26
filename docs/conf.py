@@ -42,12 +42,16 @@ MOCK_MODULES = ['pygtk',
 
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
-from pyexperiment import __version__
+ON_RTD = os.environ.get('READTHEDOCS', None) == 'True'
+if ON_RTD:
+    __version__ = 'master'
+else:
+    from pyexperiment import __version__
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../pyexperiment'))
+# sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration ------------------------------------------------
 

@@ -5,10 +5,14 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
 
-from pyexperiment import __version__
-
 import os
 from setuptools import setup
+
+ON_RTD = os.environ.get('READTHEDOCS', None) == 'True'
+if ON_RTD:
+    __version__ = 'master'
+else:
+    from pyexperiment import __version__
 
 read_plain = lambda fname: open(
     os.path.join(os.path.dirname(__file__), fname), 'r').read()
@@ -19,7 +23,7 @@ except ImportError:
     print("Warning: pypandoc module not found")
     read_md = read_plain
 
-LONG_DESCRIPTION = 'Framework for easy and clean experiments with python.'
+LONG_DESCRIPTION = 'Framework for quick and clean experiments with python.'
 if os.path.exists('README.rst'):
     print("README.rst found...")
     LONG_DESCRIPTION = read_plain('README.rst')
