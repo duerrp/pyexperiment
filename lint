@@ -3,6 +3,11 @@
 
 Written by Peter Duerr
 """
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+
 
 from subprocess import Popen, PIPE
 
@@ -12,9 +17,11 @@ CHECKERS = [
     ['pep8', './pyexperiment'],
     ['pep8', './examples'],
     ['pep8', './tests'],
+    ['pep8', './lint'],
     ['pylint', './pyexperiment', '--reports=n', '--disable=I0011'],
-    #['pylint', './tests', '--reports=n'],
-    #['pylint', './examples', '--reports=n']
+    ['pylint', './lint', '--reports=n', '--disable=I0011'],
+    # ['pylint', './tests', '--reports=n'],
+    # ['pylint', './examples', '--reports=n']
 ]
 """List of checkers to run and their arguments
 """
