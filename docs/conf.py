@@ -23,6 +23,9 @@ except ImportError:
     from unittest.mock import MagicMock
 
 
+ON_RTD = os.environ.get('READTHEDOCS', None) == 'True'
+
+
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
@@ -38,10 +41,12 @@ MOCK_MODULES = ['pygtk',
                 'configobj',
                 'validate',
                 'argparse',
-                'six',
-                'six',
-                'six.moves'
 ]
+
+# if ON_RTD:
+#     MOCK_MODULES += ['six',
+#                      'six.moves',
+#     ]
 
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
@@ -49,8 +54,6 @@ sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('..'))
-
-ON_RTD = os.environ.get('READTHEDOCS', None) == 'True'
 
 from pyexperiment import __version__
 
@@ -73,8 +76,12 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.linkcode',
-    'sphinx.ext.napoleon',
 ]
+
+if ON_RTD:
+    extension += ['sphinxcontrib.napoleon',]
+else:
+    extension += ['sphinx.ext.napoleon',]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
