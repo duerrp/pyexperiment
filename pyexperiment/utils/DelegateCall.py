@@ -1,5 +1,15 @@
-"""Provides a multiprocessing-safe way to aggregate
-results from multiple function calls.
+"""Provides a multiprocessing-safe way to aggregate results from
+multiple function calls.
+
+In multi-process programs, it is oft often useful to delegate a
+function call - e.g., writing a log message to a file - to another
+process to avoid conflicts. :class:`pyexperiment.utils.DelegateCall`
+implements a functor that, when called, passes the argument data to a
+function running in a thread of the process that created the
+DelegateCall object. The callback itself must be thread-safe though.
+
+Written by Peter Duerr
+
 """
 from __future__ import print_function
 from __future__ import unicode_literals
