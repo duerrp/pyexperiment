@@ -9,7 +9,6 @@ from __future__ import absolute_import
 
 import unittest
 import tempfile
-import os
 
 from pyexperiment import state
 
@@ -20,7 +19,9 @@ class TestState(unittest.TestCase):
     def setUp(self):
         """Setup test fixure
         """
-        pass
+        self.list_val = [1, 2, 'a', 1.2]
+        self.dict_val = {'a': 1, 1: 2.3}
+        self.int_val = 123
 
     def tearDown(self):
         """Teardown test fixure
@@ -30,30 +31,24 @@ class TestState(unittest.TestCase):
     def set_up_basic_state(self):
         """Setup test fixure
         """
-        self.list_val = [1, 2, 'a', 1.2]
         state['list'] = self.list_val
-        self.dict_val = {'a': 1, 1: 2.3}
         state['dict'] = self.dict_val
-
-        self.int_val = 123
         state['values.int'] = self.int_val
 
     def test_set_get_first_level(self):
         """Test setting, getting state at the lowest level
         """
         state['a'] = 123
-        a = state['a']
-        self.assertEqual(a, 123)
+        self.assertEqual(state['a'], 123)
 
     def test_set_get_higher_levels(self):
         """Test setting, getting state at the higher levels
         """
         state['a.b'] = 123
         state['c.d.e'] = 345
-        ab = state['a.b']
-        self.assertEqual(ab, 123)
-        abc = state['c.d.e']
-        self.assertEqual(abc, 345)
+
+        self.assertEqual(state['a.b'], 123)
+        self.assertEqual(state['c.d.e'], 345)
 
     def test_get_inexistent(self):
         """Test getting non-existent value

@@ -1,6 +1,7 @@
 """Tests the utils.plot module of pyexperiment
 
 Written by Peter Duerr
+
 """
 
 import unittest
@@ -22,10 +23,9 @@ class TestPlot(unittest.TestCase):
         pass
 
     def test_setup_matplotlib(self):
-        """Test setting up matplotlib
+        """Test setting up matplotlib returns
         """
-        plot.setup_matplotlib()
-        # TODO: more checks here?
+        self.assertIsNone(plot.setup_matplotlib())
 
     def test_setup_figure(self):
         """Test setting up a fiugre

@@ -1,4 +1,6 @@
 """Test the HierarchicalMapping base class
+
+Written by Peter Duerr
 """
 
 from __future__ import print_function
@@ -49,7 +51,7 @@ class TestHierarchicalMapping(unittest.TestCase):
         m['hello.world'] = 12
         self.assertEqual(m['hello.world'], 12)
 
-    def test_len_after_inserting_at_first_level(self):
+    def test_len_after_first_level(self):
         """Test if the length is correct after inserting at the first level
         """
         m = HierarchicalOrderedDict()

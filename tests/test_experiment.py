@@ -12,9 +12,7 @@ import unittest
 import argparse
 import io
 import mock
-import code
 
-import pyexperiment
 from pyexperiment import experiment
 from pyexperiment.utils.stdout_redirector import stdout_redirector
 
@@ -43,7 +41,8 @@ class TestExperiment(unittest.TestCase):
             run[0] = True
 
         # Monkey patch arg parser here
-        argparse._sys.argv = ["test", "custom_function"]
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "custom_function"]
 
         buf = io.StringIO()
         with stdout_redirector(buf):
@@ -63,7 +62,8 @@ class TestExperiment(unittest.TestCase):
             run[0] = True
 
         # Monkey patch arg parser here
-        argparse._sys.argv = ["test", "help"]
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "help"]
 
         buf = io.StringIO()
         with stdout_redirector(buf):
@@ -83,7 +83,8 @@ class TestExperiment(unittest.TestCase):
             run[0] = True
 
         # Monkey patch arg parser here
-        argparse._sys.argv = ["test", "help", "custom_function"]
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "help", "custom_function"]
 
         buf = io.StringIO()
         with stdout_redirector(buf):
@@ -101,7 +102,8 @@ class TestExperiment(unittest.TestCase):
             pass
 
         # Monkey patch arg parser
-        argparse._sys.argv = ["test", "test"]
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "test"]
 
         with mock.patch.object(unittest, 'TextTestRunner') as mock_method:
             experiment.main(commands=[], tests=[ExampleTest])
@@ -116,7 +118,8 @@ class TestExperiment(unittest.TestCase):
             pass
 
         # Monkey patch arg parser
-        argparse._sys.argv = ["test", "-h"]
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "-h"]
 
         buf = io.StringIO()
         with stdout_redirector(buf):
@@ -131,7 +134,8 @@ class TestExperiment(unittest.TestCase):
     def test_main_runs_interactive(self, mock_interactive):
         """Test running main runs interactive session
         """
-        argparse._sys.argv = ["test", "--interactive"]
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "--interactive"]
 
         experiment.main(commands=[], tests=[])
         self.assertTrue(mock_interactive.call_count == 1)
