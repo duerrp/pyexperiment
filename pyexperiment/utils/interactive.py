@@ -11,6 +11,7 @@ from __future__ import absolute_import
 from pyexperiment import state
 from pyexperiment import conf
 
+
 def embed_interactive(**kwargs):
     """Embed an interactive terminal into a running python process
     """
