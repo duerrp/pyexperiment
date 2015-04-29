@@ -36,17 +36,8 @@ from pyexperiment.utils.Singleton import Singleton
 from pyexperiment.utils.Singleton import InitializeableSingleton
 from pyexperiment.utils.DelegateCall import DelegateCall
 
-from pyexperiment.utils.printers import print_blue
+from pyexperiment.utils import printers
 
-# TODO: Factor these out
-from pyexperiment.utils.printers import COLOR_SEQ
-from pyexperiment.utils.printers import RESET_SEQ
-from pyexperiment.utils.printers import BOLD_SEQ
-from pyexperiment.utils.printers import MAGENTA
-from pyexperiment.utils.printers import WHITE
-from pyexperiment.utils.printers import YELLOW
-from pyexperiment.utils.printers import RED
-from pyexperiment.utils.printers import BLUE
 
 CONSOLE_FORMAT = ("[%(levelname)-19s] [%(relativeCreated)s]"
                   " $BOLD%(message)s$RESET")
@@ -84,19 +75,20 @@ class ColorFormatter(logging.Formatter):
     def _setup_log_level_colors():
         """Returns a dictionary with the colors associated to each log level.
         """
-        return {'WARNING': MAGENTA,
-                'INFO': WHITE,
-                'DEBUG': BLUE,
-                'CRITICAL': YELLOW,
-                'ERROR': RED}
+        return {'WARNING': printers.MAGENTA,
+                'INFO': printers.WHITE,
+                'DEBUG': printers.BLUE,
+                'CRITICAL': printers.YELLOW,
+                'ERROR': printers.RED}
 
     def format(self, record):
         """Format the log
         """
         levelname = record.levelname
         if self.use_color and levelname in self.colors:
-            levelname_color = (COLOR_SEQ % (self.colors[levelname])
-                               + levelname + RESET_SEQ)
+            levelname_color = printers.colorize(levelname,
+                                                self.colors[levelname])
+
             relative_color = ("%0.3fs" % (record.relativeCreated / 1000.0))
             self.log_no += 1
             record = copy.copy(record)
@@ -221,7 +213,9 @@ class Logger(logging.Logger, InitializeableSingleton):
             """
             if use_color:
                 message = message.replace(
-                    "$RESET", RESET_SEQ).replace("$BOLD", BOLD_SEQ)
+                    "$RESET",
+                    printers.RESET_SEQ).replace("$BOLD",
+                                                printers.BOLD_SEQ)
             else:
                 message = message.replace("$RESET", "").replace("$BOLD", "")
             return message
@@ -330,7 +324,7 @@ class TimingLogger(Logger):
 
         if len(self.timings.items()) > 0:
             # Announce timings
-            print_blue("Timing Summary:")
+            printers.print_blue("Timing Summary:")
 
             # Iterate over all saved timings
             for msg, times in self.timings.items():
@@ -349,7 +343,7 @@ class TimingLogger(Logger):
 
                 print(message)
         else:
-            print_blue("No timings stored...")
+            printers.print_blue("No timings stored...")
 
     def _process_timings(self, data):
         """Aggregates the timing data in the dict

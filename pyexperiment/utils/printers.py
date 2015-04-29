@@ -40,10 +40,16 @@ def wrap_seq(string, seq, reset=RESET_SEQ):
     return seq + string + reset
 
 
+def colorize(string, color):
+    """Colorize a string
+    """
+    return wrap_seq(string, COLOR_SEQ % color)
+
+
 def print_color(color, string, *args):
     """Prints string in color to stdout
     """
-    print(wrap_seq(string % args, COLOR_SEQ % color))
+    print(colorize(string % args, color))
 
 
 def print_bold(msg, *args):
