@@ -170,8 +170,7 @@ class State(Singleton, HierarchicalOrderedDict):
                         """Loads a whole h5 file as an Ordered dict
                         """
                         for key, value in group.items():
-                            # TODO: Check if there is a better way
-                            if isinstance(value, h5py._hl.group.Group):
+                            if isinstance(value, h5py.Group):
                                 if key not in level:
                                     level[key] = OrderedDict()
                                 load(value, level[key])
