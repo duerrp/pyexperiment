@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Copy the requirements file from parent directory if necessary
-cmp --silent ../requirements.txt ./requirements.txt || cp ../requirements.txt ./
-
 # Replace values in the template
 cat Dockerfile.template | \
     sed "s/USERID/$UID/g" | \

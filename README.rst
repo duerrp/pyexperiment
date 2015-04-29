@@ -49,9 +49,9 @@ The easiest way to install pyexperiment is from pypi, just call `pip
 install pyexperiment` (in a virtualenv, prepend `sudo` for system wide
 installation).
 
-The pyexperiment package has a few external dependencies (as you can see
-in the
-`requirements.txt <https://github.com/duerrp/pyexperiment/blob/master/requirements.txt>`__):
+The pyexperiment package has a few external dependencies (as you can
+see in the `requirements.txt
+<https://github.com/duerrp/pyexperiment/blob/master/docker/requirements.txt>`__):
 
 -  six
 -  configobj

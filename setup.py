@@ -43,6 +43,14 @@ setup(
     packages=['pyexperiment',
               'pyexperiment.utils'],
     long_description=LONG_DESCRIPTION,
+    install_requires=[
+        'six',
+        'configobj',
+        'numpy',
+        'h5py',
+        'matplotlib',
+        'mock',
+    ],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
