@@ -112,7 +112,7 @@ class InitializeableSingleton(Singleton):
         cls.__singleton_instance = cls(*args, **kwargs)
 
 
-class SingletonIndirector(object):
+class SingletonIndirector(object):  # pylint: disable=too-few-public-methods
     """Creates a class that mimics the Singleton lazily
 
     This avoids calling obj.get_instance().attribute too often
@@ -168,7 +168,8 @@ class SingletonIndirector(object):
         return self.singleton.get_instance().__next__(*args)
 
 
-class InitializeableSingletonIndirector(SingletonIndirector):
+class InitializeableSingletonIndirector(  # pylint: disable=R0903
+        SingletonIndirector):
     """Creates a class that mimics an InitializeableSingleton lazily
     """
     def initialize(self, *args, **kwargs):
