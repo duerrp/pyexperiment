@@ -10,6 +10,8 @@ sudo apt-get install -y \
      python-pip
 
 sudo pip install Cython
-sudo pip install -r /home/vagrant/pyexperiment/requirements.txt
+sudo pip install -r /home/vagrant/pyexperiment/docker/requirements.txt
 
 echo "export PYTHONPATH='.'" >> /home/vagrant/.bashrc
+
+cd /home/USERNAME/pyexperiment && sudo python setup.py develop
