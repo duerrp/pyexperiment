@@ -10,6 +10,8 @@ from __future__ import absolute_import
 
 
 from subprocess import Popen, PIPE
+import sys
+from datetime import datetime
 
 from pyexperiment.utils.printers import print_blue
 
@@ -29,16 +31,34 @@ CHECKERS = [
 """
 
 if __name__ == "__main__":
-    for checker in CHECKERS:
-        process = Popen(checker, stdout=PIPE)
-        header = "Output from %s" % " ".join(checker)
-        output = process.communicate()
-        message = ""
-        for elem in output:
-            if elem is not None and not len(elem) == 0:
-                message += elem
-        if not message == "":
-            print_blue(header)
-            print_blue("=" * len(header))
-            print(message)
-            print_blue("=" * len(header))
+    try:
+        TIC = datetime.now()
+        CHECKERS_RUN = 0
+        ERROR = False
+        for checker in CHECKERS:
+            process = Popen(checker, stdout=PIPE)
+            sys.stdout.write('.')
+            sys.stdout.flush()
+            CHECKERS_RUN += 1
+            header = "Output from %s" % " ".join(checker)
+            output = process.communicate()
+            message = ""
+            for elem in output:
+                if elem is not None and not len(elem) == 0:
+                    message += elem
+                    ERROR = True
+            if not message == "":
+                print_blue(header)
+                print_blue("=" * len(header))
+                print(message)
+                print_blue("=" * len(header))
+
+        TOC = datetime.now()
+        print("\n" + ''.join(['-']*70))
+        print("Ran %i checkers in %fs\n" % (CHECKERS_RUN,
+                                            (TOC - TIC).total_seconds()))
+
+        if not ERROR:
+            print("OK")
+    except KeyboardInterrupt:
+        pass
