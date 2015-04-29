@@ -35,8 +35,9 @@ log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
 """
 
 
-class State(Singleton, HierarchicalOrderedDict):
-    """Represents persistent state of an experiment
+class State(Singleton,  # pylint: disable=too-many-ancestors
+            HierarchicalOrderedDict):
+    """Represents persistent state of an experiment.
     """
     def __init__(self):
         """Initializer
