@@ -22,12 +22,14 @@ import threading
 import traceback
 
 
-class DelegateCall(object):
+class DelegateCall(object):  # pylint: disable=too-few-public-methods
     """Helper class that provides a multiprocessing-safe way to aggregate
-    results from multiple function calls. The arguments to the
-    __call__ function are passed through a multiprocessing.Queue to
-    the process where the class was initialized (i.e., all arguments
-    must be serializable).
+    results from multiple function calls.
+
+    The arguments to the __call__ function are passed through a
+    multiprocessing.Queue to the process where the class was
+    initialized (i.e., all arguments must be serializable).
+
     """
     def __init__(self, callback):
         """Initializer, takes a callback that processes the received data in
