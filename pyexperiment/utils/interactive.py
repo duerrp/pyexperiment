@@ -8,10 +8,17 @@ from __future__ import unicode_literals
 from __future__ import division
 from __future__ import absolute_import
 
+from pyexperiment import state
+from pyexperiment import conf
 
 def embed_interactive(**kwargs):
     """Embed an interactive terminal into a running python process
     """
+    if not 'state' in kwargs:
+        kwargs['state'] = state
+    if not 'conf' in kwargs:
+        kwargs['conf'] = conf
+
     try:
         import IPython
         ipython_config = IPython.Config()
