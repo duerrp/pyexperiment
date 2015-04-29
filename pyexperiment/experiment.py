@@ -337,6 +337,10 @@ def main(commands=None,
     if result is not None:
         print(result)
 
+    # Drop to the interactive console if necessary, passing the result
+    if interactive:
+        embed_interactive(result=result)
+
     # If necessary, save the state
     if conf['pyexperiment.save_state']:
         save_state()
@@ -348,7 +352,3 @@ def main(commands=None,
         log.print_timings()
 
     log.close()
-
-    # Finally, drop to the interactive console if necessary
-    if interactive:
-        embed_interactive()
