@@ -6,13 +6,18 @@ from __future__ import division
 from __future__ import absolute_import
 
 import os
+import sys
 from setuptools import setup
 
 ON_RTD = os.environ.get('READTHEDOCS', None) == 'True'
 if ON_RTD:
     __version__ = 'master'
 else:
-    from pyexperiment.version import __version__
+    # Hack to avoid having to import __init__.py before pyexperiment
+    # is installed
+    sys.path.insert(0, os.path.abspath('./pyexperiment'))
+    from version import __version__
+    sys.path.pop(0)
 
 
 read_plain = lambda fname: open(
