@@ -49,7 +49,7 @@ FILE_FORMAT_STD_MSG_LEN = 50
 file.
 """  # pylint:disable=W0105
 
-FILE_FORMAT = ("[%(relativeCreated)0.5fs] [%(levelname)-1s]"
+FILE_FORMAT = ("[%(relativeCreated)10.5fs] [%(levelname)-1s]"
                " %(message)-50s (%(filename)s:%(lineno)d) %(processName)s "
                "- %(threadName)s")
 """The format used for logging to file
