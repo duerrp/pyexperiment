@@ -39,4 +39,4 @@ RUN echo "export PYTHONPATH='.'" >> /home/USERNAME/.bashrc
 USER USERNAME
 ENV HOME /home/USERNAME
 
-CMD /bin/bash -i
+CMD cd /home/USERNAME/ && /bin/bash -i
