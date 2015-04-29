@@ -1,6 +1,6 @@
 """The pyexperiment module - quick and clean experiments with Python.
 """
-__version__ = '0.2.4'
+from pyexperiment.version import __version__
 
 from pyexperiment.utils.Singleton import SingletonIndirector
 from pyexperiment.utils.Singleton import InitializeableSingletonIndirector

@@ -12,7 +12,8 @@ ON_RTD = os.environ.get('READTHEDOCS', None) == 'True'
 if ON_RTD:
     __version__ = 'master'
 else:
-    from pyexperiment import __version__
+    from pyexperiment.version import __version__
+
 
 read_plain = lambda fname: open(
     os.path.join(os.path.dirname(__file__), fname), 'r').read()
