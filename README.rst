@@ -63,6 +63,9 @@ see in the `requirements.txt
    
 If you install (the h5py dependency) from pypi, you may need to install
 libhdf5 first, e.g., by running ``sudo apt-get install libhdf5-dev``.
+You may also find that you need to install cython first, e.g., by
+running either ``sudo apt-get install Cython`` or ``pip install
+Cython``.
 
 Reproducible experiments
 ------------------------
