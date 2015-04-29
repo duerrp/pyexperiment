@@ -31,12 +31,14 @@ CHECKERS = [
 if __name__ == "__main__":
     for checker in CHECKERS:
         process = Popen(checker, stdout=PIPE)
-        msg = "Running %s" % " ".join(checker)
-        print_blue(msg)
-        print_blue("=" * len(msg))
+        header = "Output from %s" % " ".join(checker)
         output = process.communicate()
+        message = ""
         for elem in output:
-            if elem is not None:
-                print(elem)
-        print_blue("=" * len(msg))
-        print_blue("done...\n")
+            if elem is not None and not len(elem) == 0:
+                message += elem
+        if not message == "":
+            print_blue(header)
+            print_blue("=" * len(header))
+            print(message)
+            print_blue("=" * len(header))
