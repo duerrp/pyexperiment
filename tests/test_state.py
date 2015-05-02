@@ -9,6 +9,7 @@ from __future__ import absolute_import
 
 import unittest
 import tempfile
+import os
 
 from pyexperiment import state
 
@@ -99,5 +100,65 @@ class TestState(unittest.TestCase):
             self.assertEqual(self.dict_val, dict_val)
             self.assertEqual(self.int_val, int_val)
 
+    def test_save_rollover(self):
+        """Test saving file with rollover
+        """
+        self.set_up_basic_state()
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name, rotate_n_state_files=2)
+
+            # Write bogus info to state
+            state['list'] = 'foo'
+            state['dict'] = 'bar'
+            state['values.int'] = 43
+
+            state.save(temp.name, rotate_n_state_files=2)
+
+            # Write more bogus info to state
+            state['list'] = 'foo2'
+            state['dict'] = 'bar2'
+            state['values.int'] = 44
+
+            state.save(temp.name, rotate_n_state_files=2)
+
+            # Load original file
+            state.load(temp.name + ".2", lazy=True)
+
+            # Get loaded data
+            list_val = state['list']
+            dict_val = state['dict']
+            int_val = state['values.int']
+
+            self.assertEqual(self.list_val, list_val)
+            self.assertEqual(self.dict_val, dict_val)
+            self.assertEqual(self.int_val, int_val)
+
+            # Load second file
+            state.load(temp.name + ".1", lazy=True)
+
+            # Get loaded data
+            list_val = state['list']
+            dict_val = state['dict']
+            int_val = state['values.int']
+
+            self.assertEqual('foo', list_val)
+            self.assertEqual('bar', dict_val)
+            self.assertEqual(43, int_val)
+
+            # Load third file
+            state.load(temp.name, lazy=True)
+
+            # Get loaded data
+            list_val = state['list']
+            dict_val = state['dict']
+            int_val = state['values.int']
+
+            self.assertEqual('foo2', list_val)
+            self.assertEqual('bar2', dict_val)
+            self.assertEqual(44, int_val)
+
+            # Remove temp files
+            os.remove(temp.name + ".1")
+            os.remove(temp.name + ".2")
 if __name__ == '__main__':
     unittest.main()
