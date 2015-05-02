@@ -174,5 +174,25 @@ class TestState(unittest.TestCase):
         state['list'] = 'foo2'
         self.assertTrue(state.need_saving())
 
+    def test_no_unnecessary_save(self):
+        """Test saving the state only saves when necessary
+        """
+        self.assertFalse(state.need_saving())
+
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            self.assertEqual(os.stat(temp.name).st_size, 0)
+
+        self.assertFalse(state.need_saving())
+
+        state['bla'] = 'bla'
+        self.assertTrue(state.need_saving())
+
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            self.assertNotEqual(os.stat(temp.name).st_size, 0)
+
+        self.assertFalse(state.need_saving())
+
 if __name__ == '__main__':
     unittest.main()
