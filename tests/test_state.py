@@ -168,7 +168,7 @@ class TestState(unittest.TestCase):
         self.assertTrue(state.need_saving())
 
         with tempfile.NamedTemporaryFile() as temp:
-            state.save(temp.name, rotate_n_state_files=2)
+            state.save(temp.name)
 
         self.assertFalse(state.need_saving())
         state['list'] = 'foo2'
