@@ -185,9 +185,8 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                               (filename, err))
 
     def show(self):
-        """Shows the state"""
-        print(self)
-        print("Hello", self.lazy_load_filename)
+        """Shows the state
+        """
         # Force loading
         if self.lazy_load_filename is not None:
             self.load(self.lazy_load_filename, lazy=False)
