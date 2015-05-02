@@ -78,9 +78,9 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
         result = config.validate(validator, copy=True, preserve_errors=True)
 
         if not isinstance(result, bool):
-            raise RuntimeError("Configuration does not adhere"
-                               " to the specification: %s" %
-                               configobj.flatten_errors(config, result))
+            raise ValueError("Configuration does not adhere"
+                             " to the specification: %s" %
+                             configobj.flatten_errors(config, result))
         else:
             if result:
                 return config

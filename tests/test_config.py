@@ -142,3 +142,31 @@ class TestConf(unittest.TestCase):
         self.assertTrue('section_1.a' in conf)
         self.assertEqual(conf['section_1.a'], '12')
         conf.override_with_args(conf.base, [('section_1.a', '13')])
+
+    def test_load_with_spec(self):
+        """Test loading a configuration with a specification
+        """
+        spec = ("[section_1]\n"
+                "a = integer(min=0, default=5)")
+        conf.load(self.filename,
+                  spec_filename=(
+                      [option.encode() for option in spec.split('\n')]))
+        self.assertTrue('section_1.a' in conf)
+        self.assertIsInstance(conf['section_1.a'], int)
+        self.assertEqual(conf['section_1.a'], 12)
+
+    def test_load_with_wrong_spec(self):
+        """Test loading a configuration that does not adhere to the specs
+        """
+        spec = ("[section_1]\n"
+                "a = integer(min=0, default=5, max=7)")
+        expected_error = (
+            r"Configuration does not adhere to the specification: "
+            r"\[\(\['section_1'\], 'a', "
+            r"VdtValueTooBigError\('the value \"12\" is too big.',\)\)\]")
+
+        self.assertRaisesRegexp(
+            ValueError,
+            expected_error,
+            conf.load, self.filename, spec_filename=(
+                [option.encode() for option in spec.split('\n')]))
