@@ -10,11 +10,14 @@ from __future__ import absolute_import
 import unittest
 import tempfile
 import os
+import io
+import six
 
 # For python2.x compatibility
 from six.moves import range  # pylint: disable=redefined-builtin, import-error
 
 from pyexperiment import state
+from pyexperiment.utils.stdout_redirector import stdout_redirector
 
 
 class TestState(unittest.TestCase):
@@ -178,6 +181,47 @@ class TestState(unittest.TestCase):
             self.assertNotEqual(os.stat(temp.name).st_size, 0)
 
         self.assertFalse(state.need_saving())
+
+    def test_show(self):
+        """Test showing the state
+        """
+        state['a.b'] = 12
+        state['bla.bli'] = 13
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            state.show()
+
+        self.assertNotEqual(len(buf.getvalue()), 0)
+        self.assertRegexpMatches(buf.getvalue(), r"\[a\]")
+        self.assertRegexpMatches(buf.getvalue(), r"\[bla\]")
+        self.assertRegexpMatches(buf.getvalue(), r"b")
+        self.assertRegexpMatches(buf.getvalue(), r"bli")
+        self.assertRegexpMatches(buf.getvalue(), r"12")
+        self.assertRegexpMatches(buf.getvalue(), r"13")
+
+    def test_show_lazy(self):
+        """Test showing the state lazily loaded
+        """
+        state['a.b'] = 12
+        buf = io.StringIO()
+
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state['a.b'] = 13
+            state.load(temp.name, lazy=True)
+
+            with stdout_redirector(buf):
+                state.show()
+            self.assertNotEqual(len(buf.getvalue()), 0)
+            self.assertRegexpMatches(buf.getvalue(), r"\[a\]")
+            self.assertRegexpMatches(buf.getvalue(), r"b")
+            self.assertRegexpMatches(buf.getvalue(), r"12")
+            if six.PY2:
+                self.assertNotRegexpMatches(buf.getvalue(), r"13")
+            elif six.PY3:
+                self.assertNotRegex(  # pylint: disable=E1101
+                    buf.getvalue(), r"13")
 
 if __name__ == '__main__':
     unittest.main()
