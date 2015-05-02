@@ -115,7 +115,7 @@ class TestHierarchicalMapping(unittest.TestCase):
             """Example instance of the HierarchicalMapping
             """
             @classmethod
-            def _new_section(cls):
+            def _new_section(cls, _parent, _level):
                 """Creates a new section Mapping
                 """
                 return dict()

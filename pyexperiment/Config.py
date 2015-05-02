@@ -29,16 +29,15 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
     """
 
     @classmethod
-    def _new_section(cls):
-        """Creates a new section Mapping
-        """
-        return configobj.Section()
-
-    @classmethod
     def _is_section(cls, obj):
         """Returns true if obj is a section
         """
         return isinstance(obj, configobj.Section)
+
+    def _new_section(self, parent, level):
+        """Creates a new section Mapping
+        """
+        return configobj.Section(parent, level, self.base)
 
     def __init__(self):
         """Initializer

@@ -36,7 +36,7 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
     """
 
     @classmethod
-    def _new_section(cls):
+    def _new_section(cls, parent, level):
         """Creates a new section Mapping
         """
         raise NotImplementedError("Subclass should implement this")
@@ -74,7 +74,8 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
                         "Section '%s' does not exist"
                         " ('%s')" % (split_name[level], err))
                 else:
-                    section[split_name[level]] = self._new_section()
+                    section[split_name[level]] = self._new_section(section,
+                                                                   level)
                     section = section[split_name[level]]
                     level += 1
 
@@ -190,7 +191,7 @@ class HierarchicalOrderedDict(  # pylint: disable=too-many-ancestors
     """Instance of the HierarchicalMapping based on an OrderedDict.
     """
     @classmethod
-    def _new_section(cls):
+    def _new_section(cls, _parent, _level):
         """Creates a new section Mapping
         """
         return OrderedDict()

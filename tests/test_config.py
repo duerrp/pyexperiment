@@ -108,6 +108,15 @@ class TestConf(unittest.TestCase):
         self.assertTrue('a' in conf)
         self.assertEqual(conf['a'], 2)
 
+    def test_set_value_section(self):
+        """Test setting config values in new section
+        """
+        conf.load(self.filename, spec_filename="")
+        self.assertFalse('a.b' in conf)
+        conf['a.b'] = 2
+        self.assertTrue('a.b' in conf)
+        self.assertEqual(conf['a.b'], 2)
+
     def test_get_or_set(self):
         """Test get_or_setting config values
         """
