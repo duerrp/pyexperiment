@@ -15,9 +15,9 @@ from pyexperiment import conf
 def embed_interactive(**kwargs):
     """Embed an interactive terminal into a running python process
     """
-    if not 'state' in kwargs:
+    if 'state' not in kwargs:
         kwargs['state'] = state
-    if not 'conf' in kwargs:
+    if 'conf' not in kwargs:
         kwargs['conf'] = conf
 
     try:
