@@ -142,6 +142,23 @@ class TestConf(unittest.TestCase):
         self.assertTrue('section_1.a' in conf)
         self.assertEqual(conf['section_1.a'], '12')
         conf.override_with_args(conf.base, [('section_1.a', '13')])
+        self.assertEqual(conf['section_1.a'], '13')
+
+    def test_override_with_args_level(self):
+        """Test adding config options from dictionary at higher level
+        """
+        conf.load(self.filename, spec_filename="")
+        conf['section_1.section_12.a'] = '15'
+        self.assertEqual(conf['section_1.section_12.a'], '15')
+        conf.override_with_args(conf.base, [('section_1.section_12.a', '13')])
+        self.assertEqual(conf['section_1.section_12.a'], '13')
+
+    def test_override_with_args_level2(self):
+        """Test adding config options from dictionary at new level
+        """
+        conf.load(self.filename, spec_filename="")
+        conf.override_with_args(conf.base, [('section_1.section_12.a', '13')])
+        self.assertEqual(conf['section_1.section_12.a'], '13')
 
     def test_load_with_spec(self):
         """Test loading a configuration with a specification
