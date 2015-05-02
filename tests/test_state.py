@@ -160,5 +160,19 @@ class TestState(unittest.TestCase):
             # Remove temp files
             os.remove(temp.name + ".1")
             os.remove(temp.name + ".2")
+
+    def test_need_saving(self):
+        """Test the state.need_saving method
+        """
+        self.set_up_basic_state()
+        self.assertTrue(state.need_saving())
+
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name, rotate_n_state_files=2)
+
+        self.assertFalse(state.need_saving())
+        state['list'] = 'foo2'
+        self.assertTrue(state.need_saving())
+
 if __name__ == '__main__':
     unittest.main()

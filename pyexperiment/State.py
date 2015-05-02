@@ -144,6 +144,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                                 data=pickled_state_array)
 
                 save_level_to_group(self.base, state_grp)
+                self.changed = []
 
         except IOError as err:
             raise IOError("Cannot save state to file '%s', (err: '%s')",
