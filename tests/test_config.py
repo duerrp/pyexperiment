@@ -10,6 +10,9 @@ from __future__ import absolute_import
 import unittest
 import tempfile
 import os
+import io
+
+from pyexperiment.utils.stdout_redirector import stdout_redirector
 from pyexperiment import conf
 
 
@@ -51,6 +54,25 @@ class TestConf(unittest.TestCase):
         self.assertEqual(b_conf, '13')
         c_conf = conf['section_2.c']
         self.assertEqual(c_conf, 'True')
+
+    def test_save_no_config(self):
+        """Test saving unititialized config
+        """
+        filename = tempfile.mkstemp()[1]
+        self.assertRaises(RuntimeError, conf.save, filename)
+        os.remove(filename)
+
+    def test_save_config_wo_filename(self):
+        """Test saving config without passing filename
+        """
+        buf = io.StringIO()
+        conf.load(self.filename, spec_filename="")
+
+        # Save should print something and return
+        with stdout_redirector(buf):
+            conf.save(None)
+
+        self.assertNotEqual(len(buf.getvalue()), 0)
 
     def test_save_load_config(self):
         """Test saving and reloading conf
