@@ -11,6 +11,9 @@ import unittest
 import tempfile
 import os
 
+# For python2.x compatibility
+from six.moves import range  # pylint: disable=redefined-builtin, import-error
+
 from pyexperiment import state
 
 
@@ -103,59 +106,41 @@ class TestState(unittest.TestCase):
     def test_save_rollover(self):
         """Test saving file with rollover
         """
-        self.set_up_basic_state()
+        # Write some stuff to the state
+        state['a'] = (-1) ** 2
+        state['b'] = (-1) ** 3
+        state['c'] = 41
+
         with tempfile.NamedTemporaryFile() as temp:
+            # Save original state
             state.save(temp.name, rotate_n_state_files=2)
 
-            # Write bogus info to state
-            state['list'] = 'foo'
-            state['dict'] = 'bar'
-            state['values.int'] = 43
+            for i in range(10):
+                # Write bogus info to state
+                state['a'] = i**2
+                state['b'] = i**3
+                state['c'] = 42 + i
 
-            state.save(temp.name, rotate_n_state_files=2)
+                state.save(temp.name, rotate_n_state_files=2)
 
-            # Write more bogus info to state
-            state['list'] = 'foo2'
-            state['dict'] = 'bar2'
-            state['values.int'] = 44
+                # Load last file and check contents
+                state.load(temp.name + ".1", lazy=True)
+                self.assertEqual(state['a'], (i - 1) ** 2)
+                self.assertEqual(state['b'], (i - 1) ** 3)
+                self.assertEqual(state['c'], 42 + (i - 1))
 
-            state.save(temp.name, rotate_n_state_files=2)
+                if i > 0:
+                    # Load previous to last file and check contents
+                    state.load(temp.name + ".2", lazy=True)
+                    self.assertEqual(state['a'], (i - 2) ** 2)
+                    self.assertEqual(state['b'], (i - 2) ** 3)
+                    self.assertEqual(state['c'], 42 + (i - 2))
 
-            # Load original file
-            state.load(temp.name + ".2", lazy=True)
-
-            # Get loaded data
-            list_val = state['list']
-            dict_val = state['dict']
-            int_val = state['values.int']
-
-            self.assertEqual(self.list_val, list_val)
-            self.assertEqual(self.dict_val, dict_val)
-            self.assertEqual(self.int_val, int_val)
-
-            # Load second file
-            state.load(temp.name + ".1", lazy=True)
-
-            # Get loaded data
-            list_val = state['list']
-            dict_val = state['dict']
-            int_val = state['values.int']
-
-            self.assertEqual('foo', list_val)
-            self.assertEqual('bar', dict_val)
-            self.assertEqual(43, int_val)
-
-            # Load third file
-            state.load(temp.name, lazy=True)
-
-            # Get loaded data
-            list_val = state['list']
-            dict_val = state['dict']
-            int_val = state['values.int']
-
-            self.assertEqual('foo2', list_val)
-            self.assertEqual('bar2', dict_val)
-            self.assertEqual(44, int_val)
+                # Load current state and check contents
+                state.load(temp.name, lazy=True)
+                self.assertEqual(state['a'], i ** 2)
+                self.assertEqual(state['b'], i ** 3)
+                self.assertEqual(state['c'], 42 + i)
 
             # Remove temp files
             os.remove(temp.name + ".1")
