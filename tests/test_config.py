@@ -134,3 +134,11 @@ class TestConf(unittest.TestCase):
         self.assertEqual(list(conf.keys()), [])
         conf.load(self.filename, spec_filename="")
         self.assertEqual(len(conf.keys()), 3)
+
+    def test_override_with_args(self):
+        """Test adding config options from dictionary
+        """
+        conf.load(self.filename, spec_filename="")
+        self.assertTrue('section_1.a' in conf)
+        self.assertEqual(conf['section_1.a'], '12')
+        conf.override_with_args(conf.base, [('section_1.a', '13')])

@@ -47,7 +47,8 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
         self.read_from_file = None
         self.filename = None
 
-    def override_with_args(self, config, options=None):
+    @staticmethod
+    def override_with_args(config, options=None):
         """Override configuration with command line arguments and validate
         against specification.
         """
@@ -57,7 +58,7 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
                 config_level = config
                 split_key = key.split('.')
                 if len(split_key) == 1:
-                    [key] = value
+                    config[key] = value
                 else:
                     depth = 1
                     while len(split_key) > 1:
@@ -77,13 +78,9 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
         result = config.validate(validator, copy=True, preserve_errors=True)
 
         if not isinstance(result, bool):
-            if self.base is not None:
-                raise RuntimeError("Configuration does not adhere"
-                                   " to the specification: %s" %
-                                   configobj.flatten_errors(self.base, result))
-            else:
-                raise RuntimeError("Configuration does not adhere"
-                                   " to the specification.")
+            raise RuntimeError("Configuration does not adhere"
+                               " to the specification: %s" %
+                               configobj.flatten_errors(config, result))
         else:
             if result:
                 return config
