@@ -47,6 +47,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         # Keeps track of changed files
         self.changed = []
         self.lazy_load_filename = None
+        self.raise_ioerror_on_load = True
 
     def __getitem__(self, key):
         """Get the state with specified key
@@ -56,11 +57,26 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         except KeyError:
             if self.lazy_load_filename is not None:
                 # Try to get the section from file
-                with h5py.File(self.lazy_load_filename, "r") as h5file:
-                    h5name = "state/" + "/".join(key.split("."))
-                    value = pickle.loads(h5file[h5name].value)
-                    self.__setitem__(key, value)
-                    return value
+                try:
+                    with h5py.File(self.lazy_load_filename, "r") as h5file:
+                        h5name = "state/" + "/".join(key.split("."))
+                        value = pickle.loads(h5file[h5name].value)
+                        self.__setitem__(key, value)
+                        return value
+                except IOError as err:
+                    if self.raise_ioerror_on_load:
+                        raise IOError(
+                            "Cannot load state from file '%s',"
+                            "(err: '%s')" % (
+                                self.lazy_load_filename, err))
+                    else:
+                        log.debug(
+                            "Tried to load state from '%s' "
+                            "but failed." % self.lazy_load_filename)
+                        raise KeyError("Could not load key '%s' "
+                                       "from file '%s', "
+                                       "IOError ('%s')" % (
+                                           key, self.lazy_load_filename, err))
             else:
                 raise
 
@@ -151,12 +167,16 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                           filename,
                           err)
 
-    def load(self, filename, lazy=True):
+    def load(self,
+             filename,
+             lazy=True,
+             raise_error=True):
         """Loads state from a h5f file
         """
         # Reset state
         self.base = OrderedDict()
         self.changed = []
+        self.raise_ioerror_on_load = raise_error
 
         if lazy:
             # Load the data later when it's needed
@@ -181,13 +201,21 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                     load(h5file['state'], self.base)
 
             except IOError as err:
-                raise IOError("Cannot load state from file '%s', (err: '%s')" %
-                              (filename, err))
+                if self.raise_ioerror_on_load:
+                    raise IOError(
+                        "Cannot load state from file '%s',"
+                        " (err: '%s')" % (filename, err))
+                else:
+                    log.debug(
+                        "Tried to load state from '%s' "
+                        "but failed." % self.lazy_load_filename)
 
     def show(self):
         """Shows the state
         """
         # Force loading
         if self.lazy_load_filename is not None:
-            self.load(self.lazy_load_filename, lazy=False)
+            self.load(self.lazy_load_filename,
+                      lazy=False,
+                      raise_error=self.raise_ioerror_on_load)
         super(State, self).show()

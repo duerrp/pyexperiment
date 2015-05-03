@@ -242,5 +242,59 @@ class TestState(unittest.TestCase):
                 self.assertNotRegex(  # pylint: disable=E1101
                     buf.getvalue(), r"13")
 
+    def test_show_nonexisting(self):
+        """Test showing a state that does not exist
+        """
+        buf = io.StringIO()
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        os.remove(temp.name)
+        state.load(temp.name, lazy=True)
+        with stdout_redirector(buf):
+            self.assertRaises(IOError, state.show)
+
+    def test_show_nonexisting_noraise(self):
+        """Test showing a state that does not exist
+        """
+        buf = io.StringIO()
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        os.remove(temp.name)
+        state.load(temp.name, lazy=True, raise_error=False)
+        with stdout_redirector(buf):
+            state.show()
+
+        self.assertEqual(len(buf.getvalue()), 0)
+
+    def test_load_nonexisting(self):
+        """Test loading a state that does not exist with error flag default
+        """
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        os.remove(temp.name)
+        self.assertRaises(IOError, state.load, temp.name, lazy=False)
+
+    def test_load_nonexisting_lazy(self):
+        """Test loading a state that does not exist with error flag default
+        """
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        os.remove(temp.name)
+        state.load(temp.name, lazy=True)
+        self.assertRaises(IOError, state.__contains__, 'foo')
+
+    def test_load_nonexisting_noraise(self):
+        """Test loading a state that does not exist with error flag True
+        """
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        os.remove(temp.name)
+        state.load(temp.name, lazy=False, raise_error=False)
+        self.assertEqual(len(state), 0)
+
+    def test_load_nonexist_lazy_noraise(self):
+        """Test loading a state that does not exist with error flag default
+        """
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        os.remove(temp.name)
+        state.load(temp.name, lazy=True, raise_error=False)
+
+        self.assertFalse('foo' in state)
+
 if __name__ == '__main__':
     unittest.main()
