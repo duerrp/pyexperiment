@@ -35,7 +35,7 @@ class TestState(unittest.TestCase):
         """
         state.reset_instance()
 
-    def set_up_basic_state(self):
+    def _setup_basic_state(self):
         """Setup test fixure
         """
         state['list'] = self.list_val
@@ -65,7 +65,7 @@ class TestState(unittest.TestCase):
     def test_save_load_file(self):
         """Test saving file and reloading yields identical values
         """
-        self.set_up_basic_state()
+        self._setup_basic_state()
         with tempfile.NamedTemporaryFile() as temp:
             state.save(temp.name)
 
@@ -88,7 +88,7 @@ class TestState(unittest.TestCase):
     def test_save_load_file_lazy(self):
         """Test saving file and reloading lazily yields identical values
         """
-        self.set_up_basic_state()
+        self._setup_basic_state()
         with tempfile.NamedTemporaryFile() as temp:
             state.save(temp.name)
 
@@ -152,7 +152,7 @@ class TestState(unittest.TestCase):
     def test_need_saving(self):
         """Test the state.need_saving method
         """
-        self.set_up_basic_state()
+        self._setup_basic_state()
         self.assertTrue(state.need_saving())
 
         with tempfile.NamedTemporaryFile() as temp:
@@ -203,7 +203,7 @@ class TestState(unittest.TestCase):
     def test_in_lazy(self):
         """Test checking for an attribute in a lazily loaded state
         """
-        self.set_up_basic_state()
+        self._setup_basic_state()
         with tempfile.NamedTemporaryFile() as temp:
             state.save(temp.name)
             state.reset_instance()
@@ -214,7 +214,7 @@ class TestState(unittest.TestCase):
     def test_delete_from_state(self):
         """Test deleting a value from the state
         """
-        self.set_up_basic_state()
+        self._setup_basic_state()
         self.assertTrue('list' in state)
         del state['list']
         self.assertFalse('list' in state)
