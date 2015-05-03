@@ -147,6 +147,11 @@ class SingletonIndirector(object):  # pylint: disable=too-few-public-methods
         """
         return self.singleton.get_instance().__setitem__(*args)
 
+    def __delitem__(self, *args):
+        """Call __delitem__ on the singleton instance
+        """
+        return self.singleton.get_instance().__delitem__(*args)
+
     def __len__(self, *args):
         """Call __len__ on the singleton instance
         """

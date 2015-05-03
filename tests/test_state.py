@@ -200,6 +200,25 @@ class TestState(unittest.TestCase):
         self.assertRegexpMatches(buf.getvalue(), r"12")
         self.assertRegexpMatches(buf.getvalue(), r"13")
 
+    def test_in_lazy(self):
+        """Test checking for an attribute in a lazily loaded state
+        """
+        self.set_up_basic_state()
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertFalse('list' in state)
+            state.load(temp.name, lazy=True)
+            self.assertTrue('list' in state)
+
+    def test_delete_from_state(self):
+        """Test deleting a value from the state
+        """
+        self.set_up_basic_state()
+        self.assertTrue('list' in state)
+        del state['list']
+        self.assertFalse('list' in state)
+
     def test_show_lazy(self):
         """Test showing the state lazily loaded
         """
