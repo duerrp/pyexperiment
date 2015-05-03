@@ -149,10 +149,17 @@ def show_state(*arguments):
         state_file = conf['pyexperiment.state_filename']
     else:
         state_file = arguments[0]
-    print_bold("Load state from file %s",
+    print_bold("Load state from file '%s'",
                state_file)
-    state.load(state_file, lazy=False)
-    state.show()
+    try:
+        state.load(state_file, lazy=False, raise_error=True)
+    except IOError as err:
+        print(err)
+    else:
+        if len(state) > 0:
+            state.show()
+        else:
+            print("State empty")
 
 
 def activate_autocompletion():
