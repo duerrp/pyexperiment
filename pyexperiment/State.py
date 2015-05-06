@@ -86,6 +86,17 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         super(State, self).__setitem__(key, value)
         self.changed.append(key)
 
+    def __iter__(self):
+        """Overload HierarchicalOrderedDict's __iter__
+        """
+        if self.base is None:
+            return super(State, self).__iter__()
+        if self.lazy_load_filename is not None:
+            self.load(self.lazy_load_filename,
+                      lazy=False,
+                      raise_error=self.raise_ioerror_on_load)
+        return super(State, self).__iter__()
+
     def do_rollover(self, filename, rotate_n_state_files=0):
         """Rotate state files (as in logging module). Preserves the content of
         files with lazy_loading.

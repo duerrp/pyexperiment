@@ -207,17 +207,17 @@ class TestState(unittest.TestCase):
         with tempfile.NamedTemporaryFile() as temp:
             state.save(temp.name)
             state.reset_instance()
-            self.assertFalse('list' in state)
+            self.assertNotIn('list', state)
             state.load(temp.name, lazy=True)
-            self.assertTrue('list' in state)
+            self.assertIn('list', state)
 
     def test_delete_from_state(self):
         """Test deleting a value from the state
         """
         self._setup_basic_state()
-        self.assertTrue('list' in state)
+        self.assertIn('list', state)
         del state['list']
-        self.assertFalse('list' in state)
+        self.assertNotIn('list', state)
 
     def test_show_lazy(self):
         """Test showing the state lazily loaded
@@ -294,7 +294,16 @@ class TestState(unittest.TestCase):
         os.remove(temp.name)
         state.load(temp.name, lazy=True, raise_error=False)
 
-        self.assertFalse('foo' in state)
+        self.assertNotIn('foo', state)
+
+    def test_keys(self):
+        """Test getting the keys in a state
+        """
+        self._setup_basic_state()
+        self.assertEqual(len(state.keys()), 3)
+        self.assertIn('list', state.keys())
+        self.assertIn('dict', state.keys())
+        self.assertIn('values.int', state.keys())
 
 if __name__ == '__main__':
     unittest.main()
