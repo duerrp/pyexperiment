@@ -14,6 +14,7 @@ import io
 import six
 import shutil
 import multiprocessing
+import numpy as np
 
 # For python2.x compatibility
 from six.moves import range  # pylint: disable=redefined-builtin, import-error
@@ -468,6 +469,39 @@ class TestStateIO(StateTester):
             state.load(temp.name)
             self.assertIn('a', state)
             self.assertIn('b', state)
+
+
+class TestStateEfficientIO(StateTester):
+    """Test save/load functionality of pyexperiment's state for numpy arrays
+    """
+    def tearDown(self):
+        """Clean up after tests
+        """
+        state.reset_instance()
+
+    def test_saving_loading_np_array(self):
+        """Test saving and loading a numpy array
+        """
+        random = np.random.rand(100)
+        state['random'] = random
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertNotIn('random', state)
+            state.load(temp.name, lazy=False)
+            self.assertTrue((random == state['random']).all())
+
+    def test_saving_loading_lazy_array(self):
+        """Test saving and loading a numpy array
+        """
+        random = np.random.rand(100)
+        state['random'] = random
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertNotIn('random', state)
+            state.load(temp.name)
+            self.assertTrue((random == state['random']).all())
 
 
 class TestStateHandler(unittest.TestCase):

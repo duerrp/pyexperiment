@@ -80,7 +80,11 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
             with h5py.File(self.filename, "r") as h5file:
                 h5name = "state/" + "/".join(key.split(self.SECTION_SEPARATOR))
                 if not isinstance(h5file[h5name], h5py.Group):
-                    value = pickle.loads(h5file[h5name].value)
+                    if (('type' in h5file[h5name].attrs
+                         and h5file[h5name].attrs['type'] == 'ndarray')):
+                        value = h5file[h5name].value
+                    else:  # must be a pickled array
+                        value = pickle.loads(h5file[h5name].value)
                     self.__setitem__(key, value)
                 else:
                     return h5file[h5name]
@@ -228,12 +232,18 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                                 del group[key]
 
                             if value is not DELETED and value is not UNLOADED:
-                                # Pickle and save
-                                pickled_state = pickle.dumps(value)
-                                pickled_state_array = np.array(pickled_state)
-                                h5file.create_dataset(
+                                if isinstance(value, np.ndarray):
+                                    state_array = value
+                                    ds_type = 'ndarray'
+                                else:
+                                    # Pickle the data
+                                    pickled_state = pickle.dumps(value)
+                                    state_array = np.array(pickled_state)
+                                    ds_type = 'pickle'
+                                dataset = h5file.create_dataset(
                                     group.name + "/" + key,
-                                    data=pickled_state_array)
+                                    data=state_array)
+                                dataset.attrs['type'] = ds_type
                             elif value is DELETED:
                                 del level[key]
 
@@ -279,7 +289,11 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                                 level[key] = OrderedDict()
                             load(value, level[key])
                         elif not lazy:
-                            level[key] = pickle.loads(value.value)
+                            if (('type' in value.attrs
+                                 and value.attrs['type'] == 'ndarray')):
+                                level[key] = value.value
+                            else:  # must be a pickled array
+                                level[key] = pickle.loads(value.value)
                         else:
                             level[key] = UNLOADED
                 load(h5file['state'], self.base)
