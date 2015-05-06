@@ -12,9 +12,11 @@ import unittest
 import argparse
 import io
 import mock
+import tempfile
 
 from pyexperiment import experiment
 from pyexperiment.utils.stdout_redirector import stdout_redirector
+from pyexperiment import state
 
 
 class TestExperiment(unittest.TestCase):
@@ -50,6 +52,45 @@ class TestExperiment(unittest.TestCase):
 
         self.assertTrue(run[0])
         self.assertEqual(len(buf.getvalue()), 0)
+
+    def test_main_shows_commands(self):
+        """Test running main shows commands
+        """
+        def custom_function1():
+            """User function
+            """
+            pass
+
+        def custom_function2():
+            """User function
+            """
+            pass
+
+        # Monkey patch arg parser here
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "show_commands"]
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(commands=[custom_function1, custom_function2])
+
+        self.assertNotEqual(len(buf.getvalue()), 0)
+        self.assertRegexpMatches(buf.getvalue(), r"custom_function1")
+        self.assertRegexpMatches(buf.getvalue(), r"custom_function2")
+
+    def test_main_not_enough_arguments(self):
+        """Test running main without command
+        """
+        # Monkey patch arg parser here
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test"]
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main()
+
+        self.assertNotEqual(len(buf.getvalue()), 0)
+        self.assertRegexpMatches(buf.getvalue(), r"[Nn]ot enough arguments")
 
     def test_main_does_not_run_function(self):
         """Test running main does not call unnecessary function but complains
@@ -93,6 +134,26 @@ class TestExperiment(unittest.TestCase):
         self.assertFalse(run[0])
         self.assertIn("This should be printed!!", buf.getvalue())
 
+    def test_main_complains_on_help(self):
+        """Test running help complains on help for wrong command
+        """
+        def custom_function():
+            """Foo function
+            """
+            pass
+
+        # Monkey patch arg parser here
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "help", "foo"]
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(commands=[custom_function])
+
+        self.assertRegexpMatches(buf.getvalue(), r"[cC]ommand")
+        self.assertRegexpMatches(buf.getvalue(), r"not")
+        self.assertRegexpMatches(buf.getvalue(), r"foo")
+
     def test_main_runs_test(self):
         """Test running main calls tests when needed
         """
@@ -108,6 +169,24 @@ class TestExperiment(unittest.TestCase):
         with mock.patch.object(unittest, 'TextTestRunner') as mock_method:
             experiment.main(commands=[], tests=[ExampleTest])
         self.assertEqual(mock_method.call_count, 1)
+
+    def test_main_shows_test(self):
+        """Test running main shows tests when needed
+        """
+        class ExampleTest(unittest.TestCase):
+            """Test case for the test
+            """
+            pass
+
+        # Monkey patch arg parser
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "show_tests"]
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(tests=[ExampleTest])
+
+        self.assertRegexpMatches(buf.getvalue(), r"ExampleTest")
 
     def test_main_doesnt_test_on_help(self):
         """Test running main does not call tests when not needed
@@ -139,3 +218,58 @@ class TestExperiment(unittest.TestCase):
 
         experiment.main(commands=[], tests=[])
         self.assertTrue(mock_interactive.call_count == 1)
+
+    def test_main_shows_empty_state(self):
+        """Test running main shows empty state
+        """
+        with tempfile.NamedTemporaryFile() as temp:
+            state['bla'] = 12
+            del state['bla']
+            state.save(temp.name)
+
+            spec = ('[pyexperiment]\n'
+                    'state_filename = string(default=%s)' % temp.name)
+            # Monkey patch arg parser
+            argparse._sys.argv = [  # pylint: disable=W0212
+                "test", "show_state"]
+
+            buf = io.StringIO()
+            with stdout_redirector(buf):
+                experiment.main(config_spec=spec)
+            self.assertRegexpMatches(buf.getvalue(), r"[Ss]tate empty")
+
+    def test_main_shows_default_state(self):
+        """Test running main shows the default state
+        """
+        with tempfile.NamedTemporaryFile() as temp:
+            state['bla'] = 12
+            state.save(temp.name)
+
+            spec = ('[pyexperiment]\n'
+                    'state_filename = string(default=%s)' % temp.name)
+            # Monkey patch arg parser
+            argparse._sys.argv = [  # pylint: disable=W0212
+                "test", "show_state"]
+
+            buf = io.StringIO()
+            with stdout_redirector(buf):
+                experiment.main(config_spec=spec)
+            self.assertRegexpMatches(buf.getvalue(), r"bla")
+            self.assertRegexpMatches(buf.getvalue(), r"12")
+
+    def test_main_shows_other_state(self):
+        """Test running main shows state from file
+        """
+        with tempfile.NamedTemporaryFile() as temp:
+            state['foo'] = 42
+            state.save(temp.name)
+
+            # Monkey patch arg parser
+            argparse._sys.argv = [  # pylint: disable=W0212
+                "test", "show_state", temp.name]
+
+            buf = io.StringIO()
+            with stdout_redirector(buf):
+                experiment.main()
+            self.assertRegexpMatches(buf.getvalue(), r"foo")
+            self.assertRegexpMatches(buf.getvalue(), r"42")

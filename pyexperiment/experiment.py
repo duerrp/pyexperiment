@@ -294,7 +294,7 @@ def configure(commands, config_specs, description):
     if actual_command is None:
         print("Error: Not enough arguments.")
         arg_parser.print_usage()
-        exit()
+        return None, args.argument, args.interactive
 
     return actual_command, args.argument, args.interactive
 
@@ -338,10 +338,11 @@ def main(commands=None,
                           'pyexperiment.rotate_n_state_files']):
 
         # Run the command with the supplied arguments
-        result = run_command(*arguments)
+        if run_command is not None:
+            result = run_command(*arguments)
 
-        if result is not None:
-            print(result)
+            if result is not None:
+                print(result)
 
         # Drop to the interactive console if necessary, passing the result
         if interactive:
