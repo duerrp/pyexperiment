@@ -86,7 +86,7 @@ def show(*names):
         names = state.base_keys()
     else:
         for name in names:
-            if not name in state.base_keys():
+            if name not in state.base_keys():
                 print("No stopwatch named '%s'" % name)
                 return
 
