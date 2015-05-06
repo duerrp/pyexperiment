@@ -98,6 +98,7 @@ class TestState(unittest.TestCase):
             state['values.int'] = 43
 
             state.load(temp.name, lazy=True)
+
             list_val = state['list']
             dict_val = state['dict']
             int_val = state['values.int']
@@ -242,23 +243,10 @@ class TestState(unittest.TestCase):
                 self.assertNotRegex(  # pylint: disable=E1101
                     buf.getvalue(), r"13")
 
-    def test_show_nonexisting(self):
-        """Test showing a state that does not exist
-        """
-        buf = io.StringIO()
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        os.remove(temp.name)
-        state.load(temp.name, lazy=True)
-        with stdout_redirector(buf):
-            self.assertRaises(IOError, state.show)
-
     def test_show_nonexisting_noraise(self):
         """Test showing a state that does not exist
         """
         buf = io.StringIO()
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        os.remove(temp.name)
-        state.load(temp.name, lazy=True, raise_error=False)
         with stdout_redirector(buf):
             state.show()
 
@@ -276,8 +264,7 @@ class TestState(unittest.TestCase):
         """
         temp = tempfile.NamedTemporaryFile(delete=False)
         os.remove(temp.name)
-        state.load(temp.name, lazy=True)
-        self.assertRaises(IOError, state.__contains__, 'foo')
+        self.assertRaises(IOError, state.load, temp.name, lazy=True)
 
     def test_load_nonexisting_noraise(self):
         """Test loading a state that does not exist with error flag True

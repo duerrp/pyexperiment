@@ -35,50 +35,78 @@ log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
 """
 
 
+class _Deleted(object):  # pylint: disable=too-few-public-methods
+    """Sentinel for deleted state values
+    """
+    def __repr__(self):
+        """Represent deleted values"""
+        return 'deleted state'
+DELETED = _Deleted()
+del _Deleted
+
+
+class _Unloaded(object):  # pylint: disable=too-few-public-methods
+    """Sentinel for values that have to be loaded first
+    """
+    def __repr__(self):
+        """Represent unloaded values"""
+        return 'state not loaded yet'
+UNLOADED = _Unloaded()
+del _Unloaded
+
+
 class State(Singleton,  # pylint: disable=too-many-ancestors
             HierarchicalOrderedDict):
     """Represents persistent state of an experiment.
     """
-    def __init__(self):
+    def __init__(self, filename=None):
         """Initializer
         """
         super(State, self).__init__()
 
-        # Keeps track of changed files
+        # Keep track of changed values
         self.changed = []
-        self.lazy_load_filename = None
+        self.filename = filename
+        self.lazy = True if filename is not None else False
         self.raise_ioerror_on_load = True
 
     def __getitem__(self, key):
         """Get the state with specified key
         """
         try:
-            return super(State, self).__getitem__(key)
+            value = super(State, self).__getitem__(key)
+            if value is UNLOADED:
+                raise KeyError("Value for '%s' not loaded yet" % key)
+            elif value is DELETED:
+                raise KeyError("Value for '%s' has been deleted" % key)
         except KeyError:
-            if self.lazy_load_filename is not None:
+            if self.lazy:
+                if self.filename is None:
+                    raise
                 # Try to get the section from file
                 try:
-                    with h5py.File(self.lazy_load_filename, "r") as h5file:
+                    with h5py.File(self.filename, "r") as h5file:
                         h5name = "state/" + "/".join(key.split("."))
                         value = pickle.loads(h5file[h5name].value)
                         self.__setitem__(key, value)
-                        return value
                 except IOError as err:
                     if self.raise_ioerror_on_load:
                         raise IOError(
                             "Cannot load state from file '%s',"
                             "(err: '%s')" % (
-                                self.lazy_load_filename, err))
+                                self.filename, err))
                     else:
                         log.debug(
                             "Tried to load state from '%s' "
-                            "but failed." % self.lazy_load_filename)
+                            "but failed." % self.filename)
                         raise KeyError("Could not load key '%s' "
                                        "from file '%s', "
                                        "IOError ('%s')" % (
-                                           key, self.lazy_load_filename, err))
+                                           key, self.filename, err))
             else:
                 raise
+
+        return value
 
     def __setitem__(self, key, value):
         """Stores state with key and value
@@ -86,15 +114,18 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         super(State, self).__setitem__(key, value)
         self.changed.append(key)
 
+    def __delitem__(self, key):
+        """Delete a key from the state
+        """
+        super(State, self).__delitem__(key)
+        self[key] = DELETED
+
     def __iter__(self):
         """Overload HierarchicalOrderedDict's __iter__
         """
         if self.base is None:
             return super(State, self).__iter__()
-        if self.lazy_load_filename is not None:
-            self.load(self.lazy_load_filename,
-                      lazy=False,
-                      raise_error=self.raise_ioerror_on_load)
+
         return super(State, self).__iter__()
 
     def do_rollover(self, filename, rotate_n_state_files=0):
@@ -114,14 +145,14 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
             if os.path.exists(dfn):
                 os.remove(dfn)
             if os.path.exists(filename):
-                if self.lazy_load_filename is None:
+                if not self.lazy:
                     os.rename(filename, dfn)
                 else:
-                    if self.lazy_load_filename == filename:
+                    if self.filename == filename:
                         shutil.copyfile(filename, dfn)
                     else:
                         os.rename(filename, dfn)
-                        shutil.copyfile(self.lazy_load_filename, filename)
+                        shutil.copyfile(self.filename, filename)
 
     def need_saving(self):
         """Checks if state needs to be saved
@@ -144,6 +175,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
             return
         self.do_rollover(filename, rotate_n_state_files)
         log.debug("Saving state to file: '%s'", filename)
+
         try:
             # Open data file and create groups
             with h5py.File(filename, 'a') as h5file:
@@ -163,12 +195,15 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                             if key in group:
                                 del group[key]
 
-                            # Pickle and save
-                            pickled_state = pickle.dumps(value)
-                            pickled_state_array = np.array(pickled_state)
-                            h5file.create_dataset(
-                                group.name + "/" + key,
-                                data=pickled_state_array)
+                            if value is not DELETED and value is not UNLOADED:
+                                # Pickle and save
+                                pickled_state = pickle.dumps(value)
+                                pickled_state_array = np.array(pickled_state)
+                                h5file.create_dataset(
+                                    group.name + "/" + key,
+                                    data=pickled_state_array)
+                            elif value is DELETED:
+                                del level[key]
 
                 save_level_to_group(self.base, state_grp)
                 self.changed = []
@@ -179,7 +214,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                           err)
 
     def load(self,
-             filename,
+             filename=None,
              lazy=True,
              raise_error=True):
         """Loads state from a h5f file
@@ -188,45 +223,48 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         self.base = OrderedDict()
         self.changed = []
         self.raise_ioerror_on_load = raise_error
+        self.lazy = lazy
 
-        if lazy:
+        if filename is not None:
             # Load the data later when it's needed
-            self.lazy_load_filename = filename
+            self.filename = filename
+        elif filename is None and self.filename is None:
+            raise RuntimeError(
+                "Need filename to load data")
         else:
-            self.lazy_load_filename = None
+            filename = self.filename
 
-            try:
-                with h5py.File(filename, 'r') as h5file:
-                    log.info("Loading state from file '%s'", filename)
+        try:
+            with h5py.File(filename, 'r') as h5file:
+                log.info("Loading state from file '%s'", filename)
 
-                    def load(group, level):
-                        """Loads a whole h5 file as an Ordered dict
-                        """
-                        for key, value in group.items():
-                            if isinstance(value, h5py.Group):
-                                if key not in level:
-                                    level[key] = OrderedDict()
-                                load(value, level[key])
-                            else:
-                                level[key] = pickle.loads(value.value)
-                    load(h5file['state'], self.base)
+                def load(group, level):
+                    """Loads a whole h5 file as an Ordered dict
+                    """
+                    for key, value in group.items():
+                        if isinstance(value, h5py.Group):
+                            if key not in level:
+                                level[key] = OrderedDict()
+                            load(value, level[key])
+                        elif not lazy:
+                            level[key] = pickle.loads(value.value)
+                        else:
+                            level[key] = UNLOADED
+                load(h5file['state'], self.base)
 
-            except IOError as err:
-                if self.raise_ioerror_on_load:
-                    raise IOError(
-                        "Cannot load state from file '%s',"
-                        " (err: '%s')" % (filename, err))
-                else:
-                    log.debug(
-                        "Tried to load state from '%s' "
-                        "but failed." % self.lazy_load_filename)
+        except IOError as err:
+            if self.raise_ioerror_on_load:
+                raise IOError(
+                    "Cannot load state from file '%s',"
+                    " (err: '%s')" % (filename, err))
+            else:
+                log.debug(
+                    "Tried to load state from '%s' "
+                    "but failed." % self.filename)
 
     def show(self):
         """Shows the state
         """
-        # Force loading
-        if self.lazy_load_filename is not None:
-            self.load(self.lazy_load_filename,
-                      lazy=False,
-                      raise_error=self.raise_ioerror_on_load)
+        if self.lazy:
+            self.load(lazy=False)
         super(State, self).show()
