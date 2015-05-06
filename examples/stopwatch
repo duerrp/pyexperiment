@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+"""A simple command line stopwatch implemented with pyexperiment.
+
+Use ``stopwatch start`` to start the main clock and ``stopwatch stop``
+to stop it and show the elapsed time.
+
+Calling ``stopwatch start NAME`` and ``stopwatch stop NAME`` starts
+and stops named stopwatch respectively, ``stopwatch show`` shows all
+stopwatches with running watches indicated by a '*'.
+
+``stopwatch reset`` resets all stopwatches.
+"""
+
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+
+from datetime import datetime
+
+from pyexperiment import state
+from pyexperiment import experiment
+
+CONFIG_SPEC = ("[pyexperiment]\n"
+               "state_filename = string(default=stopwatch_state.h5f)\n"
+               "rotate_n_state_files = integer(min=0, default=0)\n"
+               "load_state = boolean(default=True)\n"
+               "save_state = boolean(default=True)\n")
+"""Specification with default values for the stopwatch experiment's
+configuration.
+
+Unless specified otherwise (from the command line or config file), the
+state of the watch should be saved in a file called
+'stopwatch_state.h5f' and saving the state should not keep rotating
+backup copies. Moreover, the state should be loaded before every
+experiment and saved afterwards.
+"""
+
+
+def start(name='main'):
+    """Starts a stopwatch
+
+    If no argument is provided, starts the 'main' stopwatch.
+    """
+    # Set the start time for the stopwatch
+    state['%s.start' % name] = datetime.now()
+    # If there is a stop time, remove it
+    if '%s.stop' % name in state:
+        del state['%s.stop' % name]
+
+
+def stop(name='main'):
+    """Stops a stopwatch and show the elapsed time.
+
+    If no argument is provided, stops the 'main' stopwatch.
+    """
+    # Check if the stopwatch has already been stopped
+    if '%s.stop' % name in state:
+        print("The '%s' stopwatch has already been stopped." % name)
+        return
+
+    if '%s.start' % name in state:
+        # Check if already stopped
+        if not '%s.stop' % name in state:
+            toc = datetime.now()
+            state['%s.stop' % name] = toc
+        print("%s:\t%s" % (name, state['%s.stop' % name]
+                           - state['%s.start' % name]))
+    else:
+        print("Stopwatch %s has not been started yet." % name)
+
+
+def reset():
+    """Clears all stopwatches
+    """
+    for name in state.base_keys():
+        del state[name]
+
+
+def show(*names):
+    """Show the progress of one or multiple stopwatches.
+
+    If no argument is provided, shows all running stopwatches
+    """
+    if not names:
+        names = state.base_keys()
+    else:
+        for name in names:
+            if not name in state.base_keys():
+                print("No stopwatch named '%s'" % name)
+                return
+
+    toc = datetime.now()
+    for name in names:
+        if '%s.stop' % name in state:
+            print("   %-10s%s" % (name, state['%s.stop' % name]
+                                  - state['%s.start' % name]))
+        else:
+            print("(*)%-10s%s" % (name, toc - state['%s.start' % name]))
+
+if __name__ == '__main__':
+    experiment.main(commands=[start, stop, reset, show],
+                    config_spec=CONFIG_SPEC)
