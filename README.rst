@@ -58,6 +58,7 @@ see in the `requirements.txt
 -  numpy
 -  h5py
 -  matplotlib
+-  lockfile
 -  IPython (optional, adds --interactive command)
 -  argcomplete (optional, adds activate_autocompletion command)
    

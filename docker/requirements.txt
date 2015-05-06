@@ -4,3 +4,4 @@ numpy
 h5py
 matplotlib
 mock
+lockfile
