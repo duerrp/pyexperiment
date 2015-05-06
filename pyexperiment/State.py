@@ -37,11 +37,6 @@ log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
 """Pyexperiment's logger, re-wrapped here to avoid cyclical dependency
 """
 
-STATE_LOCK_TIMEOUT = 10
-"""Maximal time allowed to acquire the state file's lock (if specified
-in the configuration)
-"""
-
 
 class _Deleted(object):  # pylint: disable=too-few-public-methods
     """Sentinel for deleted state values
@@ -310,6 +305,11 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
 class StateHandler(object):
     """Provides a save environment for using the state
     """
+    STATE_LOCK_TIMEOUT = 10
+    """Maximal time allowed to acquire the state file's lock (if specified
+    in the configuration)
+    """
+
     def __init__(self,
                  filename,
                  load=False,
@@ -328,7 +328,7 @@ class StateHandler(object):
         """
         self.state_lock = lockfile.FileLock(self.filename)
         try:
-            self.state_lock.acquire(timeout=STATE_LOCK_TIMEOUT)
+            self.state_lock.acquire(timeout=self.STATE_LOCK_TIMEOUT)
         except lockfile.LockTimeout:
             raise RuntimeError("Cannot acquire lock on state file ('%s'), "
                                "check if another process is using it"

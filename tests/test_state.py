@@ -13,11 +13,13 @@ import os
 import io
 import six
 import shutil
+import multiprocessing
 
 # For python2.x compatibility
 from six.moves import range  # pylint: disable=redefined-builtin, import-error
 
 from pyexperiment import state
+from pyexperiment.State import StateHandler
 from pyexperiment.utils.stdout_redirector import stdout_redirector
 
 
@@ -467,6 +469,83 @@ class TestStateIO(StateTester):
             self.assertIn('a', state)
             self.assertIn('b', state)
 
+
+class TestStateHandler(unittest.TestCase):
+    """Test the state's StateHandler
+    """
+    def tearDown(self):
+        """Clean up after the test
+        """
+        state.reset_instance()
+
+    def test_with_block_does_not_load(self):
+        """Test the basic with-block of the StateHandler does not load anything
+        """
+        state['a'] = 1
+        self.assertEqual(len(state), 1)
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            with StateHandler(temp.name):
+                self.assertEqual(len(state), 0)
+
+    def test_with_block_does_not_save(self):
+        """Test the basic with-block of the StateHandler does not save anything
+        """
+        state['a'] = 1
+        self.assertEqual(len(state), 1)
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            with StateHandler(temp.name):
+                state['a'] = 42
+            state.reset_instance()
+            state.load(temp.name)
+            self.assertEqual(state['a'], 1)
+
+    def test_with_block_does_load(self):
+        """Test the with-block of the StateHandler loads if required
+        """
+        state['a'] = 123
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            with StateHandler(temp.name, load=True):
+                self.assertEqual(len(state), 1)
+                self.assertEqual(state['a'], 123)
+
+    def test_with_block_does_save(self):
+        """Test the with-block of the StateHandler saves if required
+        """
+        state['a'] = 1
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            with StateHandler(temp.name, save=True):
+                state['a'] = 42
+            state.reset_instance()
+            state.load(temp.name)
+            self.assertEqual(state['a'], 42)
+
+    def test_with_block_locks(self):
+        """Test the with-block of the StateHandler locks the state
+        """
+        state['a'] = 123
+        with tempfile.NamedTemporaryFile() as temp:
+            def other_op():
+                """Function to run in another process"""
+                StateHandler.STATE_LOCK_TIMEOUT = 0.001
+                other_handler = StateHandler(temp.name, load=True)
+
+                self.assertRaises(RuntimeError,
+                                  other_handler.__enter__)
+
+            state.save(temp.name)
+            state.reset_instance()
+            with StateHandler(temp.name, load=True):
+                process = multiprocessing.Process(target=other_op)
+                process.start()
+                process.join()
 
 if __name__ == '__main__':
     unittest.main()
