@@ -156,5 +156,27 @@ class TestHierarchicalMapping(unittest.TestCase):
         m['a'] = 52
         self.assertEqual(m.get_or_set('a', 42), 52)
 
+    def test_base_keys(self):
+        """Test getting the base keys
+        """
+        m = HierarchicalOrderedDict()
+        m['a'] = 12
+        m['b'] = 13
+        m['c.d'] = 14
+        m['e.f.g'] = 15
+
+        base_keys = m.base_keys()
+        self.assertIn('a', base_keys)
+        self.assertIn('b', base_keys)
+        self.assertIn('c', base_keys)
+        self.assertIn('e', base_keys)
+        self.assertNotIn('c.d', base_keys)
+        self.assertNotIn('d', base_keys)
+        self.assertNotIn('e.f', base_keys)
+        self.assertNotIn('e.f.g', base_keys)
+        self.assertNotIn('f.g', base_keys)
+        self.assertNotIn('f', base_keys)
+        self.assertNotIn('g', base_keys)
+
 if __name__ == '__main__':
     unittest.main()

@@ -148,6 +148,11 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
         """Get a representation of the mapping"""
         return repr(list(iteritems(self)))
 
+    def base_keys(self):
+        """Returns the keys of the first level of the mapping
+        """
+        return self.base.keys()
+
     def get(self, key, default=None):
         """Get the key or return the default value if provided
         """
