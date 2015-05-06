@@ -38,6 +38,8 @@ DEFAULT_CONFIG_SPECS = ("[pyexperiment]\n"
                         "'ERROR','CRITICAL',default='DEBUG')\n"
                         "rotate_n_logs = integer(min=0, default=5)\n"
                         "print_timings = boolean(default=False)\n"
+                        "load_state = "
+                        "boolean(default=False)\n"
                         "save_state = "
                         "boolean(default=False)\n"
                         "state_filename = "
@@ -345,6 +347,10 @@ def main(commands=None,
 
     # Initialize the main logger based on the configuration
     init_log()
+
+    # If necessary, load the state
+    if conf['pyexperiment.load_state']:
+        load_state()
 
     # Run the command with the supplied arguments
     result = run_command(*arguments)
