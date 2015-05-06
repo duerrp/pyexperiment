@@ -307,6 +307,14 @@ def save_state():
                int(conf['pyexperiment.rotate_n_state_files']))
 
 
+def load_state():
+    """Loads the experiment's state
+    """
+    state.load(conf['pyexperiment.state_filename'],
+               lazy=True,
+               raise_error=False)
+
+
 def main(commands=None,
          config_spec="",
          tests=None,
