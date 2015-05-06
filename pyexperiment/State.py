@@ -23,6 +23,7 @@ import h5py
 import os
 import shutil
 from collections import OrderedDict
+from functools import partial
 
 from pyexperiment.utils.Singleton import Singleton
 from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
@@ -71,6 +72,34 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         self.lazy = True if filename is not None else False
         self.raise_ioerror_on_load = True
 
+    def __load_from_file(self, key):
+        """Try to get a value from disk
+        """
+        try:
+            with h5py.File(self.filename, "r") as h5file:
+                h5name = "state/" + "/".join(key.split(self.SECTION_SEPARATOR))
+                if not isinstance(h5file[h5name], h5py.Group):
+                    value = pickle.loads(h5file[h5name].value)
+                    self.__setitem__(key, value)
+                else:
+                    return h5file[h5name]
+        except IOError as err:
+            if self.raise_ioerror_on_load:
+                raise IOError(
+                    "Cannot load state from file '%s',"
+                    "(err: '%s')" % (
+                        self.filename, err))
+            else:
+                log.debug(
+                    "Tried to load state from '%s' "
+                    "but failed." % self.filename)
+                raise KeyError("Could not load key '%s' "
+                               "from file '%s', "
+                               "IOError ('%s')" % (
+                                   key, self.filename, err))
+
+        return value
+
     def __getitem__(self, key):
         """Get the state with specified key
         """
@@ -78,30 +107,27 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
             value = super(State, self).__getitem__(key)
             if value is UNLOADED:
                 raise KeyError("Value for '%s' not loaded yet" % key)
+            # Make sure all the values in the ordered dict are loaded
+            if self.lazy and isinstance(value, OrderedDict):
+                def is_descendant(superkey, key):
+                    """Returns true if key is a descendant of superkey
+                    """
+                    split_super = superkey.split(self.SECTION_SEPARATOR)
+                    split_key = key.split(self.SECTION_SEPARATOR)
+                    return split_key[:len(split_super)] == split_super
+
+                descendants = filter(partial(is_descendant, key),
+                                     self.keys())
+                for descendant in descendants:
+                    self.__load_from_file(descendant)
+
+                value = super(State, self).__getitem__(key)
+
         except KeyError:
             if self.lazy:
                 if self.filename is None:
                     raise
-                # Try to get the section from file
-                try:
-                    with h5py.File(self.filename, "r") as h5file:
-                        h5name = "state/" + "/".join(key.split("."))
-                        value = pickle.loads(h5file[h5name].value)
-                        self.__setitem__(key, value)
-                except IOError as err:
-                    if self.raise_ioerror_on_load:
-                        raise IOError(
-                            "Cannot load state from file '%s',"
-                            "(err: '%s')" % (
-                                self.filename, err))
-                    else:
-                        log.debug(
-                            "Tried to load state from '%s' "
-                            "but failed." % self.filename)
-                        raise KeyError("Could not load key '%s' "
-                                       "from file '%s', "
-                                       "IOError ('%s')" % (
-                                           key, self.filename, err))
+                value = self.__load_from_file(key)
             else:
                 raise
 

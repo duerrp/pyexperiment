@@ -62,6 +62,21 @@ class TestBasicState(StateTester):
         self.assertEqual(state['a.b'], 123)
         self.assertEqual(state['c.d.e'], 345)
 
+    def test_get_section(self):
+        """Test getting a section of the state
+        """
+        state['a.a'] = 12
+        state['a.b'] = 13
+        state['c'] = 24
+
+        self.assertIn('a', state)
+        section_a = state['a']
+        self.assertIn('a', section_a)
+        self.assertIn('b', section_a)
+        self.assertNotIn('c', section_a)
+        self.assertEqual(section_a['a'], 12)
+        self.assertEqual(section_a['b'], 13)
+
     def test_get_inexistent(self):
         """Test getting non-existent value
         """
@@ -253,6 +268,55 @@ class TestStateIO(StateTester):
             self.assertEqual(self.list_val, list_val)
             self.assertEqual(self.dict_val, dict_val)
             self.assertEqual(self.int_val, int_val)
+
+    def test_get_section_lazy(self):
+        """Test getting a section of the state lazily
+        """
+        state['a.a'] = 12
+        state['a.b'] = 13
+        state['c'] = 24
+
+        self.assertIn('a', state)
+        section_a = state['a']
+        self.assertIn('a', section_a)
+        self.assertIn('b', section_a)
+        self.assertNotIn('c', section_a)
+        self.assertEqual(section_a['a'], 12)
+        self.assertEqual(section_a['b'], 13)
+
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertNotIn('a', state)
+
+            state.load(temp.name)
+
+            self.assertIn('a', state)
+
+            section_a = state['a']
+
+            self.assertIn('a', section_a)
+            self.assertIn('b', section_a)
+            self.assertNotIn('c', section_a)
+            self.assertEqual(section_a['a'], 12)
+            self.assertEqual(section_a['b'], 13)
+
+    def test_get_section_lazy2(self):
+        """Test getting directly a section of the state lazily
+        """
+        state['a.b'] = 12
+
+        self.assertIn('a.b', state)
+        self.assertEqual(state['a.b'], 12)
+
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+
+            state.load(temp.name)
+
+            self.assertIn('a.b', state)
+            self.assertEqual(state['a.b'], 12)
 
     def test_lazy_really_lazy(self):
         """Test lazy loading is really lazy
