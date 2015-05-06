@@ -16,7 +16,6 @@ import sys
 from datetime import datetime
 import argparse
 import subprocess
-import lockfile
 try:
     import argcomplete
     AUTO_COMPLETION = True
@@ -26,6 +25,7 @@ except ImportError:
 from pyexperiment import conf
 from pyexperiment import log
 from pyexperiment import state
+from pyexperiment.State import StateHandler
 from pyexperiment.utils.printers import print_bold
 from pyexperiment.utils.interactive import embed_interactive
 
@@ -42,17 +42,12 @@ DEFAULT_CONFIG_SPECS = ("[pyexperiment]\n"
                         "save_state = boolean(default=False)\n"
                         "state_filename = "
                         "string(default=experiment_state.h5f)\n"
-                        "rotate_n_state_files = integer(min=0, default=5)\n"
-                        "lock_state_file = boolean(default=True)\n")
+                        "rotate_n_state_files = integer(min=0, default=5)\n")
 """Default specification for the experiment's configuration
 """
 
 DEFAULT_CONFIG_FILENAME = "./config.ini"
 """Default name for the configuration file
-"""
-
-STATE_LOCK_TIMEOUT = 10
-"""Timeout to acquire the state file's lock (if specified in the configuration)
 """
 
 TESTS = []
@@ -304,21 +299,6 @@ def configure(commands, config_specs, description):
     return actual_command, args.argument, args.interactive
 
 
-def save_state():
-    """Saves the state of the experiment
-    """
-    state.save(conf['pyexperiment.state_filename'],
-               int(conf['pyexperiment.rotate_n_state_files']))
-
-
-def load_state():
-    """Loads the experiment's state
-    """
-    state.load(conf['pyexperiment.state_filename'],
-               lazy=True,
-               raise_error=False)
-
-
 def main(commands=None,
          config_spec="",
          tests=None,
@@ -350,39 +330,22 @@ def main(commands=None,
     # Initialize the main logger based on the configuration
     init_log()
 
-    # If necessary, lock the state file
-    state_lock = None
-    if conf['pyexperiment.lock_state_file']:
-        state_file = conf['pyexperiment.state_filename']
-        state_lock = lockfile.FileLock(state_file)
-        try:
-            state_lock.acquire(timeout=STATE_LOCK_TIMEOUT)
-        except lockfile.LockTimeout:
-            print("Cannot acquire lock on state file ('%s'), "
-                  "check if another process is using it" % state_file)
-            return
+    # Handle the state safely
+    with StateHandler(filename=conf['pyexperiment.state_filename'],
+                      load=conf['pyexperiment.load_state'],
+                      save=conf['pyexperiment.save_state'],
+                      rotate_n_files=conf[
+                          'pyexperiment.rotate_n_state_files']):
 
-    # If necessary, load the state
-    if conf['pyexperiment.load_state']:
-        load_state()
+        # Run the command with the supplied arguments
+        result = run_command(*arguments)
 
-    # Run the command with the supplied arguments
-    result = run_command(*arguments)
+        if result is not None:
+            print(result)
 
-    if result is not None:
-        print(result)
-
-    # Drop to the interactive console if necessary, passing the result
-    if interactive:
-        embed_interactive(result=result)
-
-    # If necessary, save the state
-    if conf['pyexperiment.save_state']:
-        save_state()
-
-    # Release the state lock if we have it
-    if state_lock is not None:
-        state_lock.release()
+        # Drop to the interactive console if necessary, passing the result
+        if interactive:
+            embed_interactive(result=result)
 
     # After everything is done, print timings if necessary
     if (((isinstance(conf['pyexperiment.print_timings'], bool)

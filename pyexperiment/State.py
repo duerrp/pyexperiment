@@ -24,6 +24,7 @@ import os
 import shutil
 from collections import OrderedDict
 from functools import partial
+import lockfile
 
 from pyexperiment.utils.Singleton import Singleton
 from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
@@ -34,6 +35,11 @@ from pyexperiment.Logger import TimingLogger
 log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
     TimingLogger)
 """Pyexperiment's logger, re-wrapped here to avoid cyclical dependency
+"""
+
+STATE_LOCK_TIMEOUT = 10
+"""Maximal time allowed to acquire the state file's lock (if specified
+in the configuration)
 """
 
 
@@ -299,3 +305,61 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         if self.lazy:
             self.load(lazy=False)
         super(State, self).show()
+
+
+class StateHandler(object):
+    """Provides a save environment for using the state
+    """
+    def __init__(self,
+                 filename,
+                 load=False,
+                 save=False,
+                 rotate_n_files=0):
+        """Initializer
+        """
+        self.filename = filename
+        self.load = load
+        self.save = save
+        self.state_lock = None
+        self.rotate_n_files = int(rotate_n_files)
+
+    def lock(self):
+        """Lock the state file
+        """
+        self.state_lock = lockfile.FileLock(self.filename)
+        try:
+            self.state_lock.acquire(timeout=STATE_LOCK_TIMEOUT)
+        except lockfile.LockTimeout:
+            raise RuntimeError("Cannot acquire lock on state file ('%s'), "
+                               "check if another process is using it"
+                               % self.filename)
+
+    def unlock(self):
+        """Unlock the state file
+        """
+        self.state_lock.release()
+
+    def __enter__(self):
+        """Enter method for 'with' block
+        """
+        # If necessary, lock the state file and load the state
+        if self.load:
+            self.lock()
+            State.get_instance().load(self.filename,
+                                      lazy=True,
+                                      raise_error=False)
+
+    def __exit__(self, *args, **kwargs):
+        """Exit method for the 'with' block
+        """
+        # If necessary lock the state and save
+        if self.save:
+            if self.state_lock is None:
+                self.lock()
+
+            State.get_instance().save(self.filename,
+                                      self.rotate_n_files)
+
+        # Release the state lock if we have it
+        if self.state_lock is not None:
+            self.unlock()

@@ -139,27 +139,3 @@ class TestExperiment(unittest.TestCase):
 
         experiment.main(commands=[], tests=[])
         self.assertTrue(mock_interactive.call_count == 1)
-
-    def test_load_state(self):
-        """Test the experiment's load_state method
-        """
-        def custom_function():
-            """User function
-            """
-            experiment.load_state()
-
-        # Monkey patch arg parser here
-        argparse._sys.argv = [  # pylint: disable=W0212
-            "test", "custom_function"]
-
-        # Monkey patch the load function
-        my_state_load = mock.MagicMock()
-
-        buf = io.StringIO()
-
-        with mock.patch('pyexperiment.experiment.state.load', my_state_load):
-            with stdout_redirector(buf):
-                experiment.main(commands=[custom_function])
-
-        self.assertEqual(len(buf.getvalue()), 0)
-        self.assertTrue(my_state_load.called)
