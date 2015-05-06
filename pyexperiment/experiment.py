@@ -15,13 +15,13 @@ import unittest
 import sys
 from datetime import datetime
 import argparse
+import subprocess
+import lockfile
 try:
     import argcomplete
     AUTO_COMPLETION = True
 except ImportError:
     AUTO_COMPLETION = False
-
-import subprocess
 
 from pyexperiment import conf
 from pyexperiment import log
@@ -38,14 +38,12 @@ DEFAULT_CONFIG_SPECS = ("[pyexperiment]\n"
                         "'ERROR','CRITICAL',default='DEBUG')\n"
                         "rotate_n_logs = integer(min=0, default=5)\n"
                         "print_timings = boolean(default=False)\n"
-                        "load_state = "
-                        "boolean(default=False)\n"
-                        "save_state = "
-                        "boolean(default=False)\n"
+                        "load_state = boolean(default=False)\n"
+                        "save_state = boolean(default=False)\n"
                         "state_filename = "
                         "string(default=experiment_state.h5f)\n"
-                        "rotate_n_state_files = "
-                        "integer(min=0, default=5)\n")
+                        "rotate_n_state_files = integer(min=0, default=5)\n"
+                        "lock_state_file = boolean(default=True)\n")
 """Default specification for the experiment's configuration
 """  # pylint:disable=W0105
 
@@ -348,6 +346,18 @@ def main(commands=None,
     # Initialize the main logger based on the configuration
     init_log()
 
+    # If necessary, lock the state file
+    state_lock = None
+    if conf['pyexperiment.lock_state_file']:
+        lock_file = conf['pyexperiment.state_filename'] + ".lock"
+        state_lock = lockfile.FileLock(lock_file)
+        try:
+            state_lock.acquire(timeout=5)  # wait up to 5 seconds
+        except lockfile.LockTimeout:
+            print("Cannot acquire lock on state file ('%s'), "
+                  "check if another process is using it" % lockfile)
+            return
+
     # If necessary, load the state
     if conf['pyexperiment.load_state']:
         load_state()
@@ -365,6 +375,10 @@ def main(commands=None,
     # If necessary, save the state
     if conf['pyexperiment.save_state']:
         save_state()
+
+    # Release the state lock if we have it
+    if state_lock is not None:
+        state_lock.release()
 
     # After everything is done, print timings if necessary
     if (((isinstance(conf['pyexperiment.print_timings'], bool)

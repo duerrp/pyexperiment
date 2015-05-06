@@ -56,6 +56,7 @@ setup(
         'h5py',
         'matplotlib',
         'mock',
+        'lockfile',
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",
