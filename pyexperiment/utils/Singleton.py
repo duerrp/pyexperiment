@@ -47,7 +47,7 @@ class Singleton(object):
         """
         if cls.__singleton_instance is None:
             with cls.__singleton_lock:
-                if not cls.__singleton_instance:
+                if cls.__singleton_instance is None:
                     cls.__singleton_instance = cls()
         return cls.__singleton_instance
 
@@ -57,7 +57,7 @@ class Singleton(object):
         """
         if cls.__singleton_instance is not None:
             with cls.__singleton_lock:
-                if cls.__singleton_instance:
+                if cls.__singleton_instance is not None:
                     cls.__singleton_instance = None
 
 
