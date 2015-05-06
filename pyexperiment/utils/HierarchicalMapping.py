@@ -145,7 +145,7 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
         return len(list(iter(self)))
 
     def __repr__(self):
-        """Get a represntation of the mapping"""
+        """Get a representation of the mapping"""
         return repr(list(iteritems(self)))
 
     def get(self, key, default=None):
