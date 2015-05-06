@@ -17,15 +17,24 @@ from pyexperiment.utils.printers import print_blue
 
 CHECKERS = [
     ['pep8', './pyexperiment'],
-    ['pep8', './examples'],
     ['pep8', './tests'],
     ['pep8', './lint'],
+    ['pep8', './examples/minimal_cli'],
+    ['pep8', './examples/minimal_config'],
+    ['pep8', './examples/test_cli'],
+    ['pep8', './examples/example'],
+    ['pep8', './examples/minimal_logging'],
+    ['pep8', './examples/stopwatch'],
     ['pylint', './pyexperiment', '--reports=n', '--disable=I0011'],
     ['pylint', './tests', '--reports=n', '--disable=I0011',
      '--ignore-imports=y'],
     ['pylint', './lint', '--reports=n', '--disable=I0011'],
-    # ['pylint', './tests', '--reports=n'],
-    # ['pylint', './examples', '--reports=n']
+    ['pylint', './examples/minimal_cli', '--reports=n'],
+    ['pylint', './examples/minimal_config', '--reports=n', '--disable=I0011'],
+    ['pylint', './examples/test_cli', '--reports=n'],
+    ['pylint', './examples/example', '--reports=n', '--disable=I0011'],
+    ['pylint', './examples/minimal_logging', '--reports=n', '--disable=I0011'],
+    ['pylint', './examples/stopwatch', '--reports=n', '--disable=I0011'],
 ]
 """List of checkers to run and their arguments
 """

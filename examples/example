@@ -18,7 +18,7 @@ def example_function(argument):
     """An example function
     """
     log.debug("Call example function with argument: %s",
-                           argument)
+              argument)
     return argument**2
 
 

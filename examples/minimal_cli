@@ -17,12 +17,14 @@ from __future__ import absolute_import
 # Import the experiment module for its main function
 from pyexperiment import experiment
 
+
 # Define a couple function
 # The functions' docstrings will be used as help text in the cli
 def hello():
     """Prints 'hello'
     """
     print("Hello")
+
 
 def world():
     """Prints 'world'

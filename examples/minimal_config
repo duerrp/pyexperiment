@@ -38,15 +38,18 @@ CONFIG_SPEC = ("example = string(default=bar)\n"
 """The config spec defines the default key-value pair example: 'bar'
 """  # pylint:disable=W0105
 
+
 def simple():
     """Prints the configured value for 'example'
     """
     print(conf['example'])
 
+
 def nested():
     """Prints the configured value for 'example'
     """
     print(conf['level1.example'])
+
 
 if __name__ == '__main__':
     # Passing the functions to the main function will set up the
