@@ -197,7 +197,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                             save_level_to_group(value, next_group)
                         else:
                             # Check if we need to delete
-                            if key in group:
+                            if key in group and value is not UNLOADED:
                                 del group[key]
 
                             if value is not DELETED and value is not UNLOADED:

@@ -385,6 +385,24 @@ class TestStateIO(StateTester):
             state.load(temp.name)
             self.assertNotIn('a', state)
 
+    def test_saving_unloaded_value(self):
+        """Test saving does not delete unloaded values
+        """
+        state['a'] = 12
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertNotIn('a', state)
+            state.load(temp.name)
+            state['b'] = 12
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertNotIn('a', state)
+            self.assertNotIn('b', state)
+            state.load(temp.name)
+            self.assertIn('a', state)
+            self.assertIn('b', state)
+
 
 if __name__ == '__main__':
     unittest.main()
