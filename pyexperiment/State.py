@@ -84,7 +84,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                          and h5file[h5name].attrs['type'] == 'ndarray')):
                         value = h5file[h5name].value
                     else:  # must be a pickled array
-                        value = pickle.loads(h5file[h5name].value)
+                        value = pickle.loads(h5file[h5name].value.tostring())
                     self.__setitem__(key, value)
                 else:
                     return h5file[h5name]
@@ -203,7 +203,10 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         # Otherwise
         return True
 
-    def save(self, filename, rotate_n_state_files=0):
+    def save(self,
+             filename,
+             rotate_n_state_files=0,
+             compression_level=5):
         """Saves state to a h5f file, rotating if necessary
         """
         if not self.need_saving():
@@ -238,11 +241,17 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                                 else:
                                     # Pickle the data
                                     pickled_state = pickle.dumps(value)
-                                    state_array = np.array(pickled_state)
+                                    state_array = np.fromstring(pickled_state,
+                                                                dtype=np.uint8)
                                     ds_type = 'pickle'
+
                                 dataset = h5file.create_dataset(
                                     group.name + "/" + key,
-                                    data=state_array)
+                                    data=state_array,
+                                    compression='gzip',
+                                    compression_opts=compression_level,
+                                    shuffle=True,
+                                )
                                 dataset.attrs['type'] = ds_type
                             elif value is DELETED:
                                 del level[key]
@@ -293,7 +302,8 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                                  and value.attrs['type'] == 'ndarray')):
                                 level[key] = value.value
                             else:  # must be a pickled array
-                                level[key] = pickle.loads(value.value)
+                                level[key] = pickle.loads(
+                                    value.value.tostring())
                         else:
                             level[key] = UNLOADED
                 load(h5file['state'], self.base)
@@ -322,6 +332,10 @@ class StateHandler(object):
     STATE_LOCK_TIMEOUT = 10
     """Maximal time allowed to acquire the state file's lock (if specified
     in the configuration)
+    """
+
+    COMPRESSION_LEVEL = 5
+    """Compression level used for saving the state
     """
 
     def __init__(self,
@@ -372,7 +386,8 @@ class StateHandler(object):
                 self.lock()
 
             State.get_instance().save(self.filename,
-                                      self.rotate_n_files)
+                                      self.rotate_n_files,
+                                      compression_level=self.COMPRESSION_LEVEL)
 
         # Release the state lock if we have it
         if self.state_lock is not None:
