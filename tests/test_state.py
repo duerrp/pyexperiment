@@ -20,8 +20,8 @@ from pyexperiment import state
 from pyexperiment.utils.stdout_redirector import stdout_redirector
 
 
-class TestState(unittest.TestCase):
-    """Test pyexperiment's state
+class StateTester(unittest.TestCase):
+    """ABC for state's test fixures
     """
     def setUp(self):
         """Setup test fixure
@@ -42,6 +42,10 @@ class TestState(unittest.TestCase):
         state['dict'] = self.dict_val
         state['values.int'] = self.int_val
 
+
+class TestBasicState(StateTester):
+    """Test basic functionality of pyexperiment's state
+    """
     def test_set_get_first_level(self):
         """Test setting, getting state at the lowest level
         """
@@ -62,6 +66,119 @@ class TestState(unittest.TestCase):
         """
         self.assertRaises(KeyError, state.__getitem__, 'a')
 
+    def test_show(self):
+        """Test showing the state
+        """
+        state['a.b'] = 12
+        state['bla.bli'] = 13
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            state.show()
+
+        self.assertNotEqual(len(buf.getvalue()), 0)
+        self.assertRegexpMatches(buf.getvalue(), r"\[a\]")
+        self.assertRegexpMatches(buf.getvalue(), r"\[bla\]")
+        self.assertRegexpMatches(buf.getvalue(), r"b")
+        self.assertRegexpMatches(buf.getvalue(), r"bli")
+        self.assertRegexpMatches(buf.getvalue(), r"12")
+        self.assertRegexpMatches(buf.getvalue(), r"13")
+
+    def test_in_lazy(self):
+        """Test checking for an attribute in a lazily loaded state
+        """
+        self._setup_basic_state()
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertNotIn('list', state)
+            state.load(temp.name, lazy=True)
+            self.assertIn('list', state)
+
+    def test_delete_from_state(self):
+        """Test deleting a value from the state
+        """
+        self._setup_basic_state()
+        self.assertIn('list', state)
+        del state['list']
+        self.assertNotIn('list', state)
+
+    def test_show_lazy(self):
+        """Test showing the state lazily loaded
+        """
+        state['a.b'] = 12
+        buf = io.StringIO()
+
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state['a.b'] = 13
+            state.load(temp.name, lazy=True)
+
+            with stdout_redirector(buf):
+                state.show()
+            self.assertNotEqual(len(buf.getvalue()), 0)
+            self.assertRegexpMatches(buf.getvalue(), r"\[a\]")
+            self.assertRegexpMatches(buf.getvalue(), r"b")
+            self.assertRegexpMatches(buf.getvalue(), r"12")
+            if six.PY2:
+                self.assertNotRegexpMatches(buf.getvalue(), r"13")
+            elif six.PY3:
+                self.assertNotRegex(  # pylint: disable=E1101
+                    buf.getvalue(), r"13")
+
+    def test_show_nonexisting_noraise(self):
+        """Test showing a state that does not exist
+        """
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            state.show()
+
+        self.assertEqual(len(buf.getvalue()), 0)
+
+    def test_load_nonexisting(self):
+        """Test loading a state that does not exist with error flag default
+        """
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        os.remove(temp.name)
+        self.assertRaises(IOError, state.load, temp.name, lazy=False)
+
+    def test_load_nonexisting_lazy(self):
+        """Test loading a state that does not exist with error flag default
+        """
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        os.remove(temp.name)
+        self.assertRaises(IOError, state.load, temp.name, lazy=True)
+
+    def test_load_nonexisting_noraise(self):
+        """Test loading a state that does not exist with error flag True
+        """
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        os.remove(temp.name)
+        state.load(temp.name, lazy=False, raise_error=False)
+        self.assertEqual(len(state), 0)
+
+    def test_load_nonexist_lazy_noraise(self):
+        """Test loading a state that does not exist with error flag default
+        """
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        os.remove(temp.name)
+        state.load(temp.name, lazy=True, raise_error=False)
+
+        self.assertNotIn('foo', state)
+
+    def test_keys(self):
+        """Test getting the keys in a state
+        """
+        self._setup_basic_state()
+        self.assertEqual(len(state.keys()), 3)
+        self.assertIn('list', state.keys())
+        self.assertIn('dict', state.keys())
+        self.assertIn('values.int', state.keys())
+
+
+class TestStateIO(StateTester):
+    """Test save/load functionality of pyexperiment's state
+    """
     def test_save_load_file(self):
         """Test saving file and reloading yields identical values
         """
@@ -183,114 +300,6 @@ class TestState(unittest.TestCase):
 
         self.assertFalse(state.need_saving())
 
-    def test_show(self):
-        """Test showing the state
-        """
-        state['a.b'] = 12
-        state['bla.bli'] = 13
-
-        buf = io.StringIO()
-        with stdout_redirector(buf):
-            state.show()
-
-        self.assertNotEqual(len(buf.getvalue()), 0)
-        self.assertRegexpMatches(buf.getvalue(), r"\[a\]")
-        self.assertRegexpMatches(buf.getvalue(), r"\[bla\]")
-        self.assertRegexpMatches(buf.getvalue(), r"b")
-        self.assertRegexpMatches(buf.getvalue(), r"bli")
-        self.assertRegexpMatches(buf.getvalue(), r"12")
-        self.assertRegexpMatches(buf.getvalue(), r"13")
-
-    def test_in_lazy(self):
-        """Test checking for an attribute in a lazily loaded state
-        """
-        self._setup_basic_state()
-        with tempfile.NamedTemporaryFile() as temp:
-            state.save(temp.name)
-            state.reset_instance()
-            self.assertNotIn('list', state)
-            state.load(temp.name, lazy=True)
-            self.assertIn('list', state)
-
-    def test_delete_from_state(self):
-        """Test deleting a value from the state
-        """
-        self._setup_basic_state()
-        self.assertIn('list', state)
-        del state['list']
-        self.assertNotIn('list', state)
-
-    def test_show_lazy(self):
-        """Test showing the state lazily loaded
-        """
-        state['a.b'] = 12
-        buf = io.StringIO()
-
-        with tempfile.NamedTemporaryFile() as temp:
-            state.save(temp.name)
-            state['a.b'] = 13
-            state.load(temp.name, lazy=True)
-
-            with stdout_redirector(buf):
-                state.show()
-            self.assertNotEqual(len(buf.getvalue()), 0)
-            self.assertRegexpMatches(buf.getvalue(), r"\[a\]")
-            self.assertRegexpMatches(buf.getvalue(), r"b")
-            self.assertRegexpMatches(buf.getvalue(), r"12")
-            if six.PY2:
-                self.assertNotRegexpMatches(buf.getvalue(), r"13")
-            elif six.PY3:
-                self.assertNotRegex(  # pylint: disable=E1101
-                    buf.getvalue(), r"13")
-
-    def test_show_nonexisting_noraise(self):
-        """Test showing a state that does not exist
-        """
-        buf = io.StringIO()
-        with stdout_redirector(buf):
-            state.show()
-
-        self.assertEqual(len(buf.getvalue()), 0)
-
-    def test_load_nonexisting(self):
-        """Test loading a state that does not exist with error flag default
-        """
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        os.remove(temp.name)
-        self.assertRaises(IOError, state.load, temp.name, lazy=False)
-
-    def test_load_nonexisting_lazy(self):
-        """Test loading a state that does not exist with error flag default
-        """
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        os.remove(temp.name)
-        self.assertRaises(IOError, state.load, temp.name, lazy=True)
-
-    def test_load_nonexisting_noraise(self):
-        """Test loading a state that does not exist with error flag True
-        """
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        os.remove(temp.name)
-        state.load(temp.name, lazy=False, raise_error=False)
-        self.assertEqual(len(state), 0)
-
-    def test_load_nonexist_lazy_noraise(self):
-        """Test loading a state that does not exist with error flag default
-        """
-        temp = tempfile.NamedTemporaryFile(delete=False)
-        os.remove(temp.name)
-        state.load(temp.name, lazy=True, raise_error=False)
-
-        self.assertNotIn('foo', state)
-
-    def test_keys(self):
-        """Test getting the keys in a state
-        """
-        self._setup_basic_state()
-        self.assertEqual(len(state.keys()), 3)
-        self.assertIn('list', state.keys())
-        self.assertIn('dict', state.keys())
-        self.assertIn('values.int', state.keys())
 
 if __name__ == '__main__':
     unittest.main()
