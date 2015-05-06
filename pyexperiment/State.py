@@ -16,6 +16,7 @@ if True:  # Ugly, but makes pylint happy
     # pylint:disable=import-error
     from six.moves import cPickle as pickle
     from six.moves import range  # pylint: disable=redefined-builtin
+    from six.moves import filter  # pylint: disable=redefined-builtin
 
 import numpy as np
 import h5py
@@ -77,8 +78,6 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
             value = super(State, self).__getitem__(key)
             if value is UNLOADED:
                 raise KeyError("Value for '%s' not loaded yet" % key)
-            elif value is DELETED:
-                raise KeyError("Value for '%s' has been deleted" % key)
         except KeyError:
             if self.lazy:
                 if self.filename is None:
@@ -106,6 +105,9 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
             else:
                 raise
 
+        if value is DELETED:
+            raise KeyError("Value for '%s' has been deleted" % key)
+
         return value
 
     def __setitem__(self, key, value):
@@ -126,7 +128,10 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         if self.base is None:
             return super(State, self).__iter__()
 
-        return super(State, self).__iter__()
+        # Use filter with super's __getitem__ to exclude deleted keys
+        return filter(lambda x: super(State, self).__getitem__(x)
+                      is not DELETED,
+                      super(State, self).__iter__())
 
     def do_rollover(self, filename, rotate_n_state_files=0):
         """Rotate state files (as in logging module). Preserves the content of

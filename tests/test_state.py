@@ -12,6 +12,7 @@ import tempfile
 import os
 import io
 import six
+import shutil
 
 # For python2.x compatibility
 from six.moves import range  # pylint: disable=redefined-builtin, import-error
@@ -95,13 +96,37 @@ class TestBasicState(StateTester):
             state.load(temp.name, lazy=True)
             self.assertIn('list', state)
 
+    def test_setting_increases_length(self):
+        """Test setting items increases length
+        """
+        self.assertEqual(len(state), 0)
+        state['a'] = 12
+        self.assertEqual(len(state), 1)
+        state['c.d.f'] = 13
+        self.assertEqual(len(state), 2)
+
     def test_delete_from_state(self):
         """Test deleting a value from the state
         """
-        self._setup_basic_state()
+        state['list'] = [1, 2, 3]
         self.assertIn('list', state)
         del state['list']
         self.assertNotIn('list', state)
+
+    def test_delete_reduces_length(self):
+        """Test deleting a value from the state reduces the length
+        """
+        self._setup_basic_state()
+        no_items = len(state)
+        del state['list']
+        self.assertEqual(len(state), no_items - 1)
+
+    def test_delete_removes_key(self):
+        """Test deleting a value from the state removes the item
+        """
+        self._setup_basic_state()
+        del state['list']
+        self.assertNotIn('list', state.keys())
 
     def test_show_lazy(self):
         """Test showing the state lazily loaded
@@ -166,6 +191,11 @@ class TestBasicState(StateTester):
 
         self.assertNotIn('foo', state)
 
+    def test_empty_keys(self):
+        """Test getting the keys in an empty state
+        """
+        self.assertEqual(len(state.keys()), 0)
+
     def test_keys(self):
         """Test getting the keys in a state
         """
@@ -223,6 +253,42 @@ class TestStateIO(StateTester):
             self.assertEqual(self.list_val, list_val)
             self.assertEqual(self.dict_val, dict_val)
             self.assertEqual(self.int_val, int_val)
+
+    def test_lazy_really_lazy(self):
+        """Test lazy loading is really lazy
+        """
+        self._setup_basic_state()
+        temp = tempfile.NamedTemporaryFile(delete=False)
+        temp2 = tempfile.NamedTemporaryFile(delete=False)
+        state.save(temp.name)
+
+        # Write bogus info to state
+        state['list'] = 'foo'
+        state['values.int'] = 43
+
+        # This should only load the keys
+        state.load(temp.name, lazy=True)
+
+        self.assertEqual(len(state.keys()), 3)
+
+        # This should raise an error
+        shutil.move(temp.name, temp2.name)
+        self.assertRaises(IOError, state.__getitem__, 'list')
+        shutil.copyfile(temp2.name, temp.name)
+        # Now it should work
+        list_val = state['list']
+        self.assertEqual(self.list_val, list_val)
+
+        # This should raise another error
+        shutil.move(temp.name, temp2.name)
+        self.assertRaises(IOError, state.__getitem__, 'values.int')
+        shutil.copyfile(temp2.name, temp.name)
+        # This should work again
+        int_val = state['values.int']
+        self.assertEqual(self.int_val, int_val)
+
+        os.remove(temp.name)
+        os.remove(temp2.name)
 
     def test_save_rollover(self):
         """Test saving file with rollover
@@ -299,6 +365,25 @@ class TestStateIO(StateTester):
             self.assertNotEqual(os.stat(temp.name).st_size, 0)
 
         self.assertFalse(state.need_saving())
+
+    def test_saving_deleted_value(self):
+        """Test saving really deletes entry
+        """
+        state['a'] = 12
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertNotIn('a', state)
+            state.load(temp.name)
+            self.assertIn('a', state)
+            del state['a']
+
+            self.assertNotIn('a', state)
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertNotIn('a', state)
+            state.load(temp.name)
+            self.assertNotIn('a', state)
 
 
 if __name__ == '__main__':
