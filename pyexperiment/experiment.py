@@ -45,19 +45,23 @@ DEFAULT_CONFIG_SPECS = ("[pyexperiment]\n"
                         "rotate_n_state_files = integer(min=0, default=5)\n"
                         "lock_state_file = boolean(default=True)\n")
 """Default specification for the experiment's configuration
-"""  # pylint:disable=W0105
+"""
 
 DEFAULT_CONFIG_FILENAME = "./config.ini"
 """Default name for the configuration file
-"""  # pylint:disable=W0105
+"""
+
+STATE_LOCK_TIMEOUT = 10
+"""Timeout to acquire the state file's lock (if specified in the configuration)
+"""
 
 TESTS = []
 """List of all tests for the experiment. Filled by main.
-"""  # pylint:disable=W0105
+"""
 
 COMMANDS = []
 """List of all commands for the experiment. Filled by main.
-"""  # pylint:disable=W0105
+"""
 
 
 def init_log():
@@ -349,13 +353,13 @@ def main(commands=None,
     # If necessary, lock the state file
     state_lock = None
     if conf['pyexperiment.lock_state_file']:
-        lock_file = conf['pyexperiment.state_filename'] + ".lock"
-        state_lock = lockfile.FileLock(lock_file)
+        state_file = conf['pyexperiment.state_filename']
+        state_lock = lockfile.FileLock(state_file)
         try:
-            state_lock.acquire(timeout=5)  # wait up to 5 seconds
+            state_lock.acquire(timeout=STATE_LOCK_TIMEOUT)
         except lockfile.LockTimeout:
             print("Cannot acquire lock on state file ('%s'), "
-                  "check if another process is using it" % lockfile)
+                  "check if another process is using it" % state_file)
             return
 
     # If necessary, load the state
