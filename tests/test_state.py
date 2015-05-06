@@ -491,6 +491,26 @@ class TestStateEfficientIO(StateTester):
             state.load(temp.name, lazy=False)
             self.assertTrue((random == state['random']).all())
 
+    def test_saving_loading_np_array2(self):
+        """Test saving and loading numpy arrays of higher dimension
+        """
+        random1 = np.random.rand(321, 123)
+        random2 = np.random.randint(0, 100, (123, 345))
+        state['random1'] = random1
+        state['random2'] = random2
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertNotIn('random1', state)
+            self.assertNotIn('random2', state)
+            state.load(temp.name, lazy=False)
+            self.assertTrue((random1 == state['random1']).all())
+            self.assertTrue((random2 == state['random2']).all())
+            self.assertEqual(state['random1'].shape, random1.shape)
+            self.assertEqual(state['random2'].shape, random2.shape)
+            self.assertEqual(state['random1'].dtype, random1.dtype)
+            self.assertEqual(state['random2'].dtype, random2.dtype)
+
     def test_saving_loading_lazy_array(self):
         """Test saving and loading a numpy array
         """
@@ -580,6 +600,7 @@ class TestStateHandler(unittest.TestCase):
                 process = multiprocessing.Process(target=other_op)
                 process.start()
                 process.join()
+
 
 if __name__ == '__main__':
     unittest.main()
