@@ -17,11 +17,11 @@ class TestInteractive(unittest.TestCase):
     """Test the interactive utilities
     """
     def test_calling_ipython(self):
-        """Test calling embed_interactive calls ipython 2.0 if available
+        """Test calling embed_interactive calls ipython 3.0 if available
         """
         my_python = mock.MagicMock()
         with mock.patch('IPython.embed', my_python):
-            with mock.patch('IPython.__version__', '2.0.0'):
+            with mock.patch('IPython.__version__', '3.0.0'):
                 embed_interactive()
 
         self.assertTrue(my_python.called)

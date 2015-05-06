@@ -24,7 +24,7 @@ def embed_interactive(**kwargs):
         import IPython
         ipython_config = IPython.Config()
         ipython_config.TerminalInteractiveShell.confirm_exit = False
-        if IPython.__version__ == '1.2.1':
+        if int(IPython.__version__.split(".")[0]) < 3:
             IPython.embed(config=ipython_config,
                           banner1='',
                           user_ns=kwargs)
