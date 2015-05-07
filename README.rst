@@ -1,8 +1,7 @@
 pyexperiment
 ============
 
-|Development Status| |Version| |Python Version| |Build Status| |Coverage
-Status|
+|Version| |Python Version| |Build Status| |Coverage Status|
 
 There is no shortage of great Python libraries for command line
 interfaces, logging, configuration file management, persistent state, or
@@ -88,9 +87,9 @@ The pyexperiment package is licensed under an MIT licence (see the
 
 .. |Development Status| image:: https://pypip.in/status/pyexperiment/badge.svg
    :target: https://pypi.python.org/pypi/pyexperiment/
-.. |Version| image:: https://pypip.in/version/pyexperiment/badge.svg
+.. |Version| image:: https://img.shields.io/pypi/v/pyexperiment.svg
    :target: https://pypi.python.org/pypi/pyexperiment/
-.. |Python Version| image:: https://pypip.in/py_versions/pyexperiment/badge.svg
+.. |Python Version| image:: https://img.shields.io/badge/python--version-2.7%203.2%203.3%203.4-blue.svg
    :target: https://pypi.python.org/pypi/pyexperiment/
 .. |Build Status| image:: https://travis-ci.org/duerrp/pyexperiment.svg?branch=master
    :target: https://travis-ci.org/duerrp/pyexperiment
