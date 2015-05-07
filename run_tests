@@ -24,7 +24,12 @@ def main(argv):
         verbosity = 2
 
     suite = unittest.TestLoader().discover('tests')
-    unittest.TextTestRunner(verbosity=verbosity).run(suite)
+    return unittest.TextTestRunner(verbosity=verbosity).run(suite)
 
 if __name__ == "__main__":
-    main(sys.argv)
+    result = main(sys.argv)
+    if result.wasSuccessful():
+        exit(0)
+    else:
+        exit(1)
+
