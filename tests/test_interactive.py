@@ -10,6 +10,8 @@ from __future__ import absolute_import
 import unittest
 import mock
 import six
+import sys
+
 from pyexperiment.utils.interactive import embed_interactive
 
 
@@ -20,27 +22,33 @@ class TestInteractive(unittest.TestCase):
         """Test calling embed_interactive calls ipython 3.0 if available
         """
         my_python = mock.MagicMock()
-        with mock.patch('IPython.embed', my_python):
-            with mock.patch('IPython.__version__', '3.0.0'):
-                embed_interactive()
+        embed = mock.MagicMock()
+        my_python.__version__ = '3.0.0'
+        my_python.embed = embed
+        sys.modules['IPython'] = my_python
 
-        self.assertTrue(my_python.called)
+        embed_interactive()
+
+        self.assertTrue(embed.called)
         # New IPython should not be called with user_ns but local_ns
-        self.assertNotIn('user_ns', my_python.call_args[1])
-        self.assertIn('local_ns', my_python.call_args[1])
+        self.assertNotIn('user_ns', embed.call_args[1])
+        self.assertIn('local_ns', embed.call_args[1])
 
     def test_calling_old_ipython(self):
         """Test calling embed_interactive calls old ipython if available
         """
         my_python = mock.MagicMock()
-        with mock.patch('IPython.embed', my_python):
-            with mock.patch('IPython.__version__', '1.2.1'):
-                embed_interactive()
+        embed = mock.MagicMock()
+        my_python.__version__ = '1.2.1'
+        my_python.embed = embed
+        sys.modules['IPython'] = my_python
 
-        self.assertTrue(my_python.called)
+        embed_interactive()
+
+        self.assertTrue(embed.called)
         # Old IPython should be called with user_ns not local_ns
-        self.assertIn('user_ns', my_python.call_args[1])
-        self.assertNotIn('local_ns', my_python.call_args[1])
+        self.assertIn('user_ns', embed.call_args[1])
+        self.assertNotIn('local_ns', embed.call_args[1])
 
     def test_calling_without_ipython(self):
         """Test calling embed_interactive when no IPython is around
