@@ -29,10 +29,13 @@ import validate
 from pyexperiment.utils.Singleton import InitializeableSingleton
 from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
 from pyexperiment.Logger import TimingLogger
-from pyexperiment.utils.HierarchicalMapping \
-    import HierarchicalMapping
-from pyexperiment.utils.HierarchicalMapping \
-    import HierarchicalOrderedDict
+from pyexperiment.utils.HierarchicalMapping import HierarchicalMapping
+from pyexperiment.utils.HierarchicalMapping import HierarchicalOrderedDict
+from pyexperiment.utils.config_conversion import ohm_to_spec
+from pyexperiment.utils.config_conversion import convert_spec
+from pyexperiment.utils.config_conversion import conf_to_ohm
+from pyexperiment.utils.config_conversion import ohm_to_spec_list
+
 
 log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
     TimingLogger)
@@ -97,25 +100,38 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
         self.read_from_file = None
         self.filename = None
 
+        # Merge specs, giving precedence to user spec, then, before_init_spec,
+        # then default_spec
+        if ((spec == self.CONFIG_SPEC_PATH and
+             not os.path.isfile(self.CONFIG_SPEC_PATH))):
+            spec = None
+
+        user_spec_ohm = conf_to_ohm(convert_spec(spec))
+        before_init_spec_ohm = conf_to_ohm(
+            convert_spec(ohm_to_spec(self.DEFAULT_CONFIG)))
+        default_spec_ohm = conf_to_ohm(convert_spec(default_spec))
+
+        user_spec_ohm.merge(before_init_spec_ohm)
+        user_spec_ohm.merge(default_spec_ohm)
+        full_spec = ohm_to_spec_list(user_spec_ohm)
+
         # Load the configuration and overload it with the options
         if filename is not None:
             self.load(filename,
-                      spec,
-                      options,
-                      default_spec)
+                      full_spec,
+                      options)
         else:
             self.base = configobj.ConfigObj()
 
         # Unless the options are already there, overload them with the defaults
         # set before initialization
         for key, value in self.DEFAULT_CONFIG.items():
-            if key not in self.base:
-                self.base[key] = value
+            if key not in self:
+                self[key] = value
 
     @staticmethod
     def override_with_args(config,
-                           options=None,
-                           do_validate=True):
+                           options=None):
         """Override configuration with command line arguments and validate
         against specification.
         """
@@ -139,28 +155,28 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
                         split_key = split_key[1:]
                         depth += 1
                     config_level[split_key[0]] = value
-
-        # Validate it if necessary
-        if do_validate:
-            validator = validate.Validator()
-            result = config.validate(validator,
-                                     copy=True,
-                                     preserve_errors=True)
-
-            if not isinstance(result, bool):
-                raise ValueError("Configuration does not adhere"
-                                 " to the specification: %s" %
-                                 configobj.flatten_errors(config, result))
-            elif not result:
-                raise RuntimeError("Configuration validated to false.")
-
         return config
+
+    @staticmethod
+    def validate_config(config):
+        """Validate configuration
+        """
+        validator = validate.Validator()
+        result = config.validate(validator,
+                                 copy=True,
+                                 preserve_errors=True)
+
+        if not isinstance(result, bool):
+            raise ValueError("Configuration does not adhere"
+                             " to the specification: %s" %
+                             configobj.flatten_errors(config, result))
+        elif not result:
+            raise RuntimeError("Configuration validated to false.")
 
     def load(self,
              filename,
-             spec=CONFIG_SPEC_PATH,
-             options=None,
-             default_spec=None):
+             spec=None,
+             options=None):
         """Loads a configuration from filename (or string). Missing values
         will be read from the specification file or string.
         """
@@ -169,29 +185,17 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
         if read_from_file:
             self.filename = filename
 
-        # Check if spec is default, if yes, make sure it exists
-        if spec == self.CONFIG_SPEC_PATH:
-            if not os.path.isfile(spec):
-                log.debug("No config spec found at default location '%s'",
-                          self.CONFIG_SPEC_PATH)
-                spec = None
-
         # Create the configuration (overriding the default with user
         # specs if necessary)
-        user_config = configobj.ConfigObj(filename, configspec=spec)
-        user_config = self.override_with_args(
-            user_config,
-            options,
-            do_validate=spec is not None)
-        if default_spec is not None:
-            default_config = configobj.ConfigObj(filename,
-                                                 configspec=default_spec)
-            default_config = self.override_with_args(default_config, options)
+        config = configobj.ConfigObj(filename, configspec=spec)
+        config = self.override_with_args(
+            config,
+            options)
 
-            default_config.merge(user_config)
-            self.base = default_config
-        else:
-            self.base = user_config
+        if spec is not None:
+            self.validate_config(config)
+
+        self.base = config
 
         # Add some more info
         self.base.read_from_file = read_from_file

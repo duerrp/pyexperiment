@@ -71,7 +71,7 @@ class TestConf(unittest.TestCase):
         self.assertRaises(KeyError, conf.get, 'a')
 
     def test_initialize(self):
-        """Test using initializing uninitialized config
+        """Test initializing uninitialized config
         """
         conf['a'] = 12
         conf.initialize()
@@ -101,18 +101,19 @@ class TestConfFile(unittest.TestCase):
         os.remove(self.filename)
 
     def test_initialize_with_file(self):
-        """Test using initializing uninitialized config with a file
+        """Test initializing uninitialized config with a file
         """
         conf['a'] = 12
         conf['section_1.a'] = 13
         self.assertEqual(conf['a'], 12)
         self.assertEqual(conf['section_1.a'], 13)
+
         conf.initialize(self.filename)
         self.assertEqual(conf['a'], 12)
-        self.assertEqual(conf['section_1.a'], '12')
+        self.assertEqual(conf['section_1.a'], 12)
 
     def test_initialize_with_spec(self):
-        """Test using initializing uninitialized config with a spec
+        """Test initializing uninitialized config with a spec
         """
         spec = ("[section_1]\n"
                 "d = integer(min=0, default=5, max=12)")
@@ -125,7 +126,7 @@ class TestConfFile(unittest.TestCase):
         self.assertEqual(conf['section_1.d'], 5)
 
     def test_initialize_with_file_spec(self):
-        """Test using initializing uninitialized config with a file and spec
+        """Test initializing uninitialized config with a file and spec
         """
         spec = ("[section_1]\n"
                 "a = integer(min=0, default=5, max=12)")
@@ -222,8 +223,7 @@ class TestConfFile(unittest.TestCase):
         conf.load(self.filename)
         self.assertTrue('section_1.a' in conf)
         self.assertEqual(conf['section_1.a'], '12')
-        conf.override_with_args(conf.base, [('section_1.a', '13')],
-                                do_validate=False)
+        conf.override_with_args(conf.base, [('section_1.a', '13')])
         self.assertEqual(conf['section_1.a'], '13')
 
     def test_override_with_args_level(self):
@@ -232,16 +232,14 @@ class TestConfFile(unittest.TestCase):
         conf.load(self.filename)
         conf['section_1.section_12.a'] = '15'
         self.assertEqual(conf['section_1.section_12.a'], '15')
-        conf.override_with_args(conf.base, [('section_1.section_12.a', '13')],
-                                do_validate=False)
+        conf.override_with_args(conf.base, [('section_1.section_12.a', '13')])
         self.assertEqual(conf['section_1.section_12.a'], '13')
 
     def test_override_with_args_level2(self):
         """Test adding config options from dictionary at new level
         """
         conf.load(self.filename)
-        conf.override_with_args(conf.base, [('section_1.section_12.a', '13')],
-                                do_validate=False)
+        conf.override_with_args(conf.base, [('section_1.section_12.a', '13')])
         self.assertEqual(conf['section_1.section_12.a'], '13')
 
     def test_override_with_args_spec(self):
@@ -249,11 +247,13 @@ class TestConfFile(unittest.TestCase):
         """
         spec = ("[section_1]\n"
                 "a = integer(min=0, default=5, max=13)")
+
         conf.load(self.filename,
                   spec=(
                       [option.encode() for option in spec.split('\n')]))
-        conf.override_with_args(conf.base, [('section_1.a', '13')],
-                                do_validate=True)
+        conf.override_with_args(conf.base, [('section_1.a', '13')])
+        self.assertEqual(conf['section_1.a'], '13')
+        conf.validate_config(conf.base)
         self.assertEqual(conf['section_1.a'], 13)
 
     def test_override_with_args_wrong(self):
@@ -268,12 +268,12 @@ class TestConfFile(unittest.TestCase):
         conf.load(self.filename,
                   spec=(
                       [option.encode() for option in spec.split('\n')]))
+        conf.override_with_args(conf.base, [('section_1.a', '13')])
         self.assertRaisesRegexp(
             ValueError,
             expected_error,
-            conf.override_with_args,
-            conf.base, [('section_1.a', '13')],
-            do_validate=True)
+            conf.validate_config,
+            conf.base)
 
     def test_load_with_spec(self):
         """Test loading a configuration with a specification
