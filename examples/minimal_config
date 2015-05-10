@@ -32,11 +32,9 @@ from __future__ import absolute_import
 from pyexperiment import experiment
 from pyexperiment import conf
 
-CONFIG_SPEC = ("example = string(default=bar)\n"
-               "[level1]\n"
-               "example = boolean(default=True)")
-"""The config spec defines the default key-value pair example: 'bar'
-"""  # pylint:disable=W0105
+# Setup defaults for configuration
+conf['example'] = 'bar'
+conf['level1.example'] = True
 
 
 def simple():
@@ -56,5 +54,4 @@ if __name__ == '__main__':
     # functions' names as first level commands. The (optional)
     # description text will appear in the help text.
     experiment.main(commands=[simple, nested],
-                    description="Welcome to the world of pyexperiment...",
-                    config_spec=CONFIG_SPEC)
+                    description="Welcome to the world of pyexperiment...")
