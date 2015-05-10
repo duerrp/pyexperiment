@@ -8,7 +8,7 @@ from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
 # For convenience, set up the basic tools here
 # pylint: disable=invalid-name
 from pyexperiment.Config import Config
-conf = SingletonIndirector(Config)
+conf = InitializeableSingletonIndirector(Config)
 
 from pyexperiment.Logger import TimingLogger
 log = InitializeableSingletonIndirector(TimingLogger)

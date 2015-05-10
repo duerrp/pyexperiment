@@ -1,8 +1,19 @@
 """Provides an easy way to configure a python application. Basically
+
 implements a singleton configuration at module level.
 
-Basic usage: Load the (singleton) configuration with load, access the
-values like you would in a dictionary.
+The configuration is based on the configobj library, but wrapped with
+convenience functions that make handling configurations much simpler.
+
+Basic usage: Load the (``Singleton``) configuration with load, access
+the values like you would in a dictionary.
+
+If the singleton is accessed before being loaded, it behaves like an
+``HierarchicalOrderedDict``. Values stored in this ``DEFAULT_CONFIG``,
+are used to override values not set by load, i.e., if load is called
+after values are set on an uninitialized configuration, the values in
+the configuration persist. Moreover, saving an uninitialized
+configuration will work as expected.
 
 Written by Peter Duerr.
 """
@@ -15,17 +26,30 @@ import os
 import configobj
 import validate
 
-from pyexperiment.utils.Singleton import Singleton
+from pyexperiment.utils.Singleton import InitializeableSingleton
+from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
+from pyexperiment.Logger import TimingLogger
 from pyexperiment.utils.HierarchicalMapping \
     import HierarchicalMapping
+from pyexperiment.utils.HierarchicalMapping \
+    import HierarchicalOrderedDict
+
+log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
+    TimingLogger)
+"""Pyexperiment's logger, re-wrapped here to avoid cyclical dependency
+"""
 
 
 class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
-             Singleton):
+             InitializeableSingleton):
     """Represents a singleton configuration object.
     """
     CONFIG_SPEC_PATH = 'configspec.ini'
     """Path of the file with the specification for configurations.
+    """
+
+    DEFAULT_CONFIG = HierarchicalOrderedDict()
+    """Default configuration, later used by initialize
     """
 
     @classmethod
@@ -34,21 +58,64 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
         """
         return isinstance(obj, configobj.Section)
 
+    @classmethod
+    def reset_instance(cls):
+        """Overloads reset_instance to reset the DEFAULT_CONFIG
+        """
+        cls.DEFAULT_CONFIG = HierarchicalOrderedDict()
+        super(Config, cls).reset_instance()
+
+    @classmethod
+    def _get_pseudo_instance(cls):
+        """Overloaded method returning the DEFAULT_CONFIG with added methods
+        """
+        def save_unitialized(filename):
+            """Saves an unitialized config
+            """
+            cls.initialize()
+            cls.get_instance().save(filename)
+
+        cls.DEFAULT_CONFIG.reset_instance = Config.reset_instance
+        cls.DEFAULT_CONFIG.load = cls.initialize
+        cls.DEFAULT_CONFIG.save = save_unitialized
+
+        return cls.DEFAULT_CONFIG
+
     def _new_section(self, parent, level):
         """Creates a new section Mapping
         """
         return configobj.Section(parent, level, self.base)
 
-    def __init__(self):
+    def __init__(self,
+                 filename=None,
+                 spec_filename=CONFIG_SPEC_PATH,
+                 options=None,
+                 default_spec=None):
         """Initializer
         """
-        # Members will be initialized by load later
         super(Config, self).__init__()
         self.read_from_file = None
         self.filename = None
 
+        # Load the configuration and overload it with the options
+        if filename is not None:
+            self.load(filename,
+                      spec_filename,
+                      options,
+                      default_spec)
+        else:
+            self.base = configobj.ConfigObj()
+
+        # Unless the options are already there, overload them with the defaults
+        # set before initialization
+        for key, value in self.DEFAULT_CONFIG.items():
+            if key not in self.base:
+                self.base[key] = value
+
     @staticmethod
-    def override_with_args(config, options=None):
+    def override_with_args(config,
+                           options=None,
+                           do_validate=True):
         """Override configuration with command line arguments and validate
         against specification.
         """
@@ -73,21 +140,24 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
                         depth += 1
                     config_level[split_key[0]] = value
 
-        # Validate it
-        validator = validate.Validator()
-        result = config.validate(validator, copy=True, preserve_errors=True)
+        # Validate it if necessary
+        if do_validate:
+            validator = validate.Validator()
+            result = config.validate(validator,
+                                     copy=True,
+                                     preserve_errors=True)
 
-        if not isinstance(result, bool):
-            raise ValueError("Configuration does not adhere"
-                             " to the specification: %s" %
-                             configobj.flatten_errors(config, result))
-        else:
-            if result:
-                return config
-            else:
-                raise RuntimeError("Something strange going on...")
+            if not isinstance(result, bool):
+                raise ValueError("Configuration does not adhere"
+                                 " to the specification: %s" %
+                                 configobj.flatten_errors(config, result))
+            elif not result:
+                raise RuntimeError("Configuration validated to false.")
 
-    def load(self, filename,
+        return config
+
+    def load(self,
+             filename,
              spec_filename=CONFIG_SPEC_PATH,
              options=None,
              default_spec=None):
@@ -99,10 +169,20 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
         if read_from_file:
             self.filename = filename
 
+        # Check if spec is default, if yes, make sure it exists
+        if spec_filename == self.CONFIG_SPEC_PATH:
+            if not os.path.isfile(spec_filename):
+                log.debug("No config spec found at default location '%s'",
+                          self.CONFIG_SPEC_PATH)
+                spec_filename = None
+
         # Create the configuration (overriding the default with user
         # specs if necessary)
         user_config = configobj.ConfigObj(filename, configspec=spec_filename)
-        user_config = self.override_with_args(user_config, options)
+        user_config = self.override_with_args(
+            user_config,
+            options,
+            do_validate=spec_filename is not None)
         if default_spec is not None:
             default_config = configobj.ConfigObj(filename,
                                                  configspec=default_spec)
@@ -121,10 +201,7 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
         """
         if self.base is None:
             raise RuntimeError(
-                "Configuration not initialized yet (call load first).")
+                "Configuration not initialized yet.")
         else:
-            if filename is None:
-                print("Too few arguments (provide filename for configuration)")
-                return
             with open(filename, 'wb') as outfile:
                 self.base.write(outfile)

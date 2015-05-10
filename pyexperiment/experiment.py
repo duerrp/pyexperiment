@@ -102,7 +102,7 @@ def show_config():
     conf.show()
 
 
-def save_config(filename=None):
+def save_config(filename):
     """Save a configuration file to a filename
     """
     conf.save(filename)
@@ -276,10 +276,12 @@ def configure(commands, config_specs, description):
     arg_parser = setup_arg_parser(commands, description)
     args = arg_parser.parse_args()
 
-    conf.load(args.config,
-              [option.encode() for option in config_specs.split('\n')],
-              args.option,
-              [option.encode() for option in DEFAULT_CONFIG_SPECS.split('\n')])
+    conf.initialize(args.config,
+                    [option.encode()
+                     for option in config_specs.split('\n')],
+                    args.option,
+                    [option.encode()
+                     for option in DEFAULT_CONFIG_SPECS.split('\n')])
 
     actual_command = None
     if args.command is not None:

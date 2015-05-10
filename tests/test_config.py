@@ -10,9 +10,7 @@ from __future__ import absolute_import
 import unittest
 import tempfile
 import os
-import io
 
-from pyexperiment.utils.stdout_redirector import stdout_redirector
 from pyexperiment import conf
 
 
@@ -38,8 +36,8 @@ class TestConf(unittest.TestCase):
         conf.reset_instance()
         os.remove(self.filename)
 
-    def test_uninitialized_conf(self):
-        """Test uninitialized config throws Exception
+    def test_empty_conf(self):
+        """Test empty config throws Exception
         """
         conf.reset_instance()
         self.assertRaises(KeyError, conf.__getitem__, 'a')
@@ -56,23 +54,16 @@ class TestConf(unittest.TestCase):
         self.assertEqual(c_conf, 'True')
 
     def test_save_no_config(self):
-        """Test saving unititialized config
+        """Test saving uninitialized config
         """
-        filename = tempfile.mkstemp()[1]
-        self.assertRaises(RuntimeError, conf.save, filename)
-        os.remove(filename)
-
-    def test_save_config_wo_filename(self):
-        """Test saving config without passing filename
-        """
-        buf = io.StringIO()
-        conf.load(self.filename, spec_filename="")
-
-        # Save should print something and return
-        with stdout_redirector(buf):
-            conf.save(None)
-
-        self.assertNotEqual(len(buf.getvalue()), 0)
+        conf['a'] = 12
+        with tempfile.NamedTemporaryFile() as temp:
+            conf.save(temp.name)
+            conf.reset_instance()
+            self.assertNotIn('a', conf)
+            conf.load(temp.name)
+            self.assertIn('a', conf)
+            self.assertEqual(int(conf['a']), 12)
 
     def test_save_load_config(self):
         """Test saving and reloading conf
@@ -209,3 +200,10 @@ class TestConf(unittest.TestCase):
             expected_error,
             conf.load, self.filename, spec_filename=(
                 [option.encode() for option in spec.split('\n')]))
+
+    def test_initialize(self):
+        """Test using initializing unitialized config
+        """
+        conf['a'] = 12
+        conf.initialize()
+        self.assertEqual(conf['a'], 12)
