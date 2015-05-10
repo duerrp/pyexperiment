@@ -202,8 +202,45 @@ class TestConf(unittest.TestCase):
                 [option.encode() for option in spec.split('\n')]))
 
     def test_initialize(self):
-        """Test using initializing unitialized config
+        """Test using initializing uninitialized config
         """
         conf['a'] = 12
         conf.initialize()
         self.assertEqual(conf['a'], 12)
+
+    def test_initialize_with_file(self):
+        """Test using initializing uninitialized config with a file
+        """
+        conf['a'] = 12
+        conf['section_1.a'] = 13
+        self.assertEqual(conf['a'], 12)
+        self.assertEqual(conf['section_1.a'], 13)
+        conf.initialize(self.filename)
+        self.assertEqual(conf['a'], 12)
+        self.assertEqual(conf['section_1.a'], '12')
+
+    def test_initialize_with_spec(self):
+        """Test using initializing uninitialized config with a spec
+        """
+        spec = ("[section_1]\n"
+                "d = integer(min=0, default=5, max=12)")
+
+        conf['section_1.d'] = 13
+        self.assertEqual(conf['section_1.d'], 13)
+        conf.initialize(self.filename, spec_filename=(
+            [option.encode() for option in spec.split('\n')]))
+
+        self.assertEqual(conf['section_1.d'], 5)
+
+    def test_initialize_with_file_spec(self):
+        """Test using initializing uninitialized config with a file and spec
+        """
+        spec = ("[section_1]\n"
+                "a = integer(min=0, default=5, max=12)")
+
+        conf['section_1.a'] = 13
+        self.assertEqual(conf['section_1.a'], 13)
+        conf.initialize(self.filename, spec_filename=(
+            [option.encode() for option in spec.split('\n')]))
+
+        self.assertEqual(conf['section_1.a'], 12)
