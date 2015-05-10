@@ -90,7 +90,7 @@ class InitializeableSingleton(Singleton):
         """Get the singleton instance if its initialized.
         Returns, the pseudo instance if not.
         """
-        if not cls.__singleton_instance:
+        if cls.__singleton_instance is None:
             return cls._get_pseudo_instance()
         else:
             return cls.__singleton_instance
@@ -99,9 +99,9 @@ class InitializeableSingleton(Singleton):
     def reset_instance(cls):
         """Reset the singleton instance if its initialized.
         """
-        if cls.__singleton_instance:
+        if cls.__singleton_instance is not None:
             with cls.__singleton_lock:
-                if cls.__singleton_instance:
+                if cls.__singleton_instance is not None:
                     cls.__singleton_instance = None
 
     @classmethod
