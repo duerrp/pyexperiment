@@ -88,7 +88,7 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
 
     def __init__(self,
                  filename=None,
-                 spec_filename=CONFIG_SPEC_PATH,
+                 spec=CONFIG_SPEC_PATH,
                  options=None,
                  default_spec=None):
         """Initializer
@@ -100,7 +100,7 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
         # Load the configuration and overload it with the options
         if filename is not None:
             self.load(filename,
-                      spec_filename,
+                      spec,
                       options,
                       default_spec)
         else:
@@ -158,7 +158,7 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
 
     def load(self,
              filename,
-             spec_filename=CONFIG_SPEC_PATH,
+             spec=CONFIG_SPEC_PATH,
              options=None,
              default_spec=None):
         """Loads a configuration from filename (or string). Missing values
@@ -170,19 +170,19 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
             self.filename = filename
 
         # Check if spec is default, if yes, make sure it exists
-        if spec_filename == self.CONFIG_SPEC_PATH:
-            if not os.path.isfile(spec_filename):
+        if spec == self.CONFIG_SPEC_PATH:
+            if not os.path.isfile(spec):
                 log.debug("No config spec found at default location '%s'",
                           self.CONFIG_SPEC_PATH)
-                spec_filename = None
+                spec = None
 
         # Create the configuration (overriding the default with user
         # specs if necessary)
-        user_config = configobj.ConfigObj(filename, configspec=spec_filename)
+        user_config = configobj.ConfigObj(filename, configspec=spec)
         user_config = self.override_with_args(
             user_config,
             options,
-            do_validate=spec_filename is not None)
+            do_validate=spec is not None)
         if default_spec is not None:
             default_config = configobj.ConfigObj(filename,
                                                  configspec=default_spec)

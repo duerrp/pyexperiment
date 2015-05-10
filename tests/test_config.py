@@ -119,7 +119,7 @@ class TestConfFile(unittest.TestCase):
 
         conf['section_1.d'] = 13
         self.assertEqual(conf['section_1.d'], 13)
-        conf.initialize(self.filename, spec_filename=(
+        conf.initialize(self.filename, spec=(
             [option.encode() for option in spec.split('\n')]))
 
         self.assertEqual(conf['section_1.d'], 5)
@@ -132,7 +132,7 @@ class TestConfFile(unittest.TestCase):
 
         conf['section_1.a'] = 13
         self.assertEqual(conf['section_1.a'], 13)
-        conf.initialize(self.filename, spec_filename=(
+        conf.initialize(self.filename, spec=(
             [option.encode() for option in spec.split('\n')]))
 
         self.assertEqual(conf['section_1.a'], 12)
@@ -250,7 +250,7 @@ class TestConfFile(unittest.TestCase):
         spec = ("[section_1]\n"
                 "a = integer(min=0, default=5, max=13)")
         conf.load(self.filename,
-                  spec_filename=(
+                  spec=(
                       [option.encode() for option in spec.split('\n')]))
         conf.override_with_args(conf.base, [('section_1.a', '13')],
                                 do_validate=True)
@@ -266,7 +266,7 @@ class TestConfFile(unittest.TestCase):
             r"\[\(\['section_1'\], 'a', "
             r"VdtValueTooBigError\('the value \"13\" is too big.',\)\)\]")
         conf.load(self.filename,
-                  spec_filename=(
+                  spec=(
                       [option.encode() for option in spec.split('\n')]))
         self.assertRaisesRegexp(
             ValueError,
@@ -281,7 +281,7 @@ class TestConfFile(unittest.TestCase):
         spec = ("[section_1]\n"
                 "a = integer(min=0, default=5)")
         conf.load(self.filename,
-                  spec_filename=(
+                  spec=(
                       [option.encode() for option in spec.split('\n')]))
         self.assertTrue('section_1.a' in conf)
         self.assertIsInstance(conf['section_1.a'], int)
@@ -300,5 +300,5 @@ class TestConfFile(unittest.TestCase):
         self.assertRaisesRegexp(
             ValueError,
             expected_error,
-            conf.load, self.filename, spec_filename=(
+            conf.load, self.filename, spec=(
                 [option.encode() for option in spec.split('\n')]))
