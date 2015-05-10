@@ -131,3 +131,81 @@ class TestSingleton(unittest.TestCase):
 
         indirect.reset_instance()
         self.assertEqual(SingletonTest.get_instance().memory, [])
+
+    def test_singleton_indirector_repr(self):
+        """Test calling the repr method on SingletonIndirector
+        """
+        class FooSingleton(Singleton):
+            """Singleton test class
+            """
+            def __repr__(self):
+                """Returns foo
+                """
+                return "foo"
+        singleton = SingletonIndirector(FooSingleton)
+        self.assertEqual(singleton.__repr__(), "foo")
+
+    def test_singleton_indirector_dir(self):
+        """Test calling the dir method on SingletonIndirector
+        """
+        class FooSingleton(Singleton):
+            """Singleton test class
+            """
+            @staticmethod
+            def bla():
+                """Returns foo
+                """
+                return "foo"
+
+        singleton = SingletonIndirector(FooSingleton)
+        self.assertIn('bla', dir(singleton))
+
+    def test_iter_singleton_indirector(self):
+        """Test iterating over singleton
+        """
+        class FooSingleton(Singleton, list):
+            """Iterable Singleton
+            """
+            pass
+
+        singleton = SingletonIndirector(FooSingleton)
+
+        for i in range(10):
+            singleton.append(i)
+
+        for item, expected in zip(singleton, range(10)):
+            self.assertEqual(item, expected)
+
+    def test_next_singleton_indirector(self):
+        """Test using a singleton as an iterator
+        """
+        class FooSingleton(Singleton):
+            """Singleton Iterator
+            """
+            def __init__(self):
+                """Initializer
+                """
+                self.state = 0
+
+            def __iter__(self):
+                """Make FooSingleton an iterator...
+                """
+                return self
+
+            def __next__(self):
+                """Returns the next value
+                """
+                if self.state < 3:
+                    self.state += 1
+                    return self.state
+                else:
+                    raise StopIteration
+
+            def next(self):
+                """For python 2.x compatibility"""
+                return self.__next__()
+
+        singleton = SingletonIndirector(FooSingleton)
+
+        for item, expected in zip(singleton, range(1, 4)):
+            self.assertEqual(item, expected)
