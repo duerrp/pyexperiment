@@ -190,6 +190,13 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
 
         show_section(self.base, " ")
 
+    def merge(self, other):
+        """Merge in another mapping, giving precedence to self
+        """
+        for key, value in other.items():
+            if not key in self:
+                self[key] = value
+
 
 class HierarchicalOrderedDict(  # pylint: disable=too-many-ancestors
         HierarchicalMapping):

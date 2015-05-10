@@ -178,5 +178,88 @@ class TestHierarchicalMapping(unittest.TestCase):
         self.assertNotIn('f', base_keys)
         self.assertNotIn('g', base_keys)
 
+    def test_merge_empty(self):
+        """Test merging in empty mapping
+        """
+        m = HierarchicalOrderedDict()
+        m['a'] = 12
+        m['b'] = 13
+        m['c.d'] = 14
+        m['e.f.g'] = 15
+        items = list(m.items())
+
+        m_2 = HierarchicalOrderedDict()
+        m.merge(m_2)
+        self.assertEqual(len(m), 4)
+        for key, value in items:
+            m[key] = value
+
+    def test_merge_same(self):
+        """Test merging mapping with same keys
+        """
+        m = HierarchicalOrderedDict()
+        m['a'] = 12
+        m['b'] = 13
+        m['c.d'] = 14
+        m['e.f.g'] = 15
+        items = list(m.items())
+
+        m_2 = HierarchicalOrderedDict()
+        m_2['a'] = 12
+        m_2['b'] = 13
+        m_2['c.d'] = 14
+        m_2['e.f.g'] = 15
+        m.merge(m_2)
+        self.assertEqual(len(m), 4)
+        for key, value in items:
+            m[key] = value
+
+    def test_merge_other_keys(self):
+        """Test merging in mapping with other keys
+        """
+        m = HierarchicalOrderedDict()
+        m['a'] = 12
+        m['b'] = 13
+        m['c.d'] = 14
+        m['e.f.g'] = 15
+        items = list(m.items())
+
+        m_2 = HierarchicalOrderedDict()
+        m_2['k'] = 13
+        m_2['l.m.n'] = 'bla'
+        items2 = list(m_2.items())
+
+        m.merge(m_2)
+
+        self.assertEqual(len(m), 6)
+        for key, value in items + items2:
+            m[key] = value
+
+    def test_merge_overlapping(self):
+        """Test merging in mapping with overlapping keys
+        """
+        m = HierarchicalOrderedDict()
+        m['a'] = 12
+        m['b'] = 13
+        m['c.d'] = 14
+        m['e.f.g'] = 15
+        items = list(m.items())
+
+        m_2 = HierarchicalOrderedDict()
+        m_2['c.d'] = 10
+        m_2['k'] = 13
+        m_2['l.m.n'] = 'bla'
+        items2 = list(m_2.items())
+
+        m.merge(m_2)
+
+        self.assertEqual(len(m), 6)
+        for key, value in items:
+            m[key] = value
+        for key, value in items2:
+            if key not in [item[0] for item in items]:
+                m[key] = value
+
+
 if __name__ == '__main__':
     unittest.main()
