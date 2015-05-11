@@ -129,33 +129,11 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
             if key not in self:
                 self[key] = value
 
-    @staticmethod
-    def override_with_args(config,
-                           options=None):
-        """Override configuration with command line arguments and validate
-        against specification.
+    def override_with_args(self, options):
+        """Override configuration with option dictionary
         """
-        # Override options with command line arguments
-        if options is not None:
-            for key, value in options:
-                config_level = config
-                split_key = key.split('.')
-                if len(split_key) == 1:
-                    config[key] = value
-                else:
-                    depth = 1
-                    while len(split_key) > 1:
-                        if not split_key[0] in config_level:
-                            config_level[split_key[0]] \
-                                = configobj.Section(
-                                    config_level, depth, config, {})
-                        else:
-                            pass
-                        config_level = config_level[split_key[0]]
-                        split_key = split_key[1:]
-                        depth += 1
-                    config_level[split_key[0]] = value
-        return config
+        for key, value in options:
+            self[key] = value
 
     @staticmethod
     def validate_config(config):
@@ -187,15 +165,15 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
 
         # Create the configuration (overriding the default with user
         # specs if necessary)
-        config = configobj.ConfigObj(filename, configspec=spec)
-        config = self.override_with_args(
-            config,
-            options)
+        self.base = configobj.ConfigObj(filename, configspec=spec)
 
+        # Override options
+        if options is not None:
+            self.override_with_args(options)
+
+        # Validate the configuration
         if spec is not None:
-            self.validate_config(config)
-
-        self.base = config
+            self.validate_config(self.base)
 
         # Add some more info
         self.base.read_from_file = read_from_file

@@ -223,7 +223,7 @@ class TestConfFile(unittest.TestCase):
         conf.load(self.filename)
         self.assertTrue('section_1.a' in conf)
         self.assertEqual(conf['section_1.a'], '12')
-        conf.override_with_args(conf.base, [('section_1.a', '13')])
+        conf.override_with_args([('section_1.a', '13')])
         self.assertEqual(conf['section_1.a'], '13')
 
     def test_override_with_args_level(self):
@@ -232,14 +232,14 @@ class TestConfFile(unittest.TestCase):
         conf.load(self.filename)
         conf['section_1.section_12.a'] = '15'
         self.assertEqual(conf['section_1.section_12.a'], '15')
-        conf.override_with_args(conf.base, [('section_1.section_12.a', '13')])
+        conf.override_with_args([('section_1.section_12.a', '13')])
         self.assertEqual(conf['section_1.section_12.a'], '13')
 
     def test_override_with_args_level2(self):
         """Test adding config options from dictionary at new level
         """
         conf.load(self.filename)
-        conf.override_with_args(conf.base, [('section_1.section_12.a', '13')])
+        conf.override_with_args([('section_1.section_12.a', '13')])
         self.assertEqual(conf['section_1.section_12.a'], '13')
 
     def test_override_with_args_spec(self):
@@ -251,7 +251,7 @@ class TestConfFile(unittest.TestCase):
         conf.load(self.filename,
                   spec=(
                       [option.encode() for option in spec.split('\n')]))
-        conf.override_with_args(conf.base, [('section_1.a', '13')])
+        conf.override_with_args([('section_1.a', '13')])
         self.assertEqual(conf['section_1.a'], '13')
         conf.validate_config(conf.base)
         self.assertEqual(conf['section_1.a'], 13)
@@ -268,7 +268,7 @@ class TestConfFile(unittest.TestCase):
         conf.load(self.filename,
                   spec=(
                       [option.encode() for option in spec.split('\n')]))
-        conf.override_with_args(conf.base, [('section_1.a', '13')])
+        conf.override_with_args([('section_1.a', '13')])
         self.assertRaisesRegexp(
             ValueError,
             expected_error,
