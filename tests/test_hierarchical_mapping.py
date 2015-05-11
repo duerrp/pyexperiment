@@ -93,6 +93,30 @@ class TestHierarchicalMapping(unittest.TestCase):
             m[key] = i
         self.assertEqual(list(m.keys()), keys)
 
+    def test_section_keys(self):
+        """Test the section_keys method on the mapping
+        """
+        m = HierarchicalOrderedDict()
+        self.assertEqual(len(list(m.section_keys())), 0)
+
+        # New keys
+        keys = ['a', 'b.c', 'd.e.f', 'g.h', 'j.k.l.m']
+        for i, key in enumerate(keys):
+            m[key] = i
+
+        self.assertIn('b', m.section_keys())
+        self.assertIn('d.e', m.section_keys())
+        self.assertIn('g', m.section_keys())
+        self.assertIn('j.k.l', m.section_keys())
+        self.assertNotIn('a', m.section_keys())
+        self.assertNotIn('c', m.section_keys())
+        self.assertNotIn('b.c', m.section_keys())
+        self.assertNotIn('e', m.section_keys())
+        self.assertNotIn('e.f', m.section_keys())
+        self.assertNotIn('d.e.f', m.section_keys())
+        self.assertNotIn('h', m.section_keys())
+        self.assertNotIn('m', m.section_keys())
+
     def test_contains(self):
         """Test the HierarchicalOrderedDict with `in`
         """

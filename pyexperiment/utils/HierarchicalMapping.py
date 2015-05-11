@@ -153,6 +153,19 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
         """
         return self.base.keys()
 
+    def section_keys(self):
+        """Returns the keys of the sections (and subsections) of the mapping
+        """
+        seen = set()
+        seen_add = seen.add
+        for element in (key.split(self.SECTION_SEPARATOR)
+                        for key in self.keys()):
+            if len(element) > 1:
+                section = self.SECTION_SEPARATOR.join(element[:-1])
+                if section not in seen:
+                    seen_add(section)
+                    yield section
+
     def get(self, key, default=None):
         """Get the key or return the default value if provided
         """
