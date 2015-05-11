@@ -150,7 +150,7 @@ You will notice that by default, pyexperiment does not log to a file
 and it will only print messages at, or above the 'WARNING' level. If
 you would like to see more (or less) messages, you can change the
 logging level by running the analyzer with an additional argument
-e.g., ``-o verbosity DEBUG``. In general, any configuration option can
+e.g., ``--verbosity DEBUG``. In general, any configuration option can
 be set from the command line with ``-o [level[.level2.[...]]].key
 value``.
 

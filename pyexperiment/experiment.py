@@ -259,7 +259,14 @@ def setup_arg_parser(commands, description):
         '-i',
         '--interactive',
         action='store_true',
-        help='Drop to interactive prompt after COMMAND')
+        help='drop to interactive prompt after COMMAND')
+
+    arg_parser.add_argument(
+        '--verbosity',
+        type=str,
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        action='store',
+        help="choose the console logger's verbosity")
 
     if AUTO_COMPLETION:
         argcomplete.autocomplete(arg_parser)
@@ -275,6 +282,13 @@ def configure(commands, config_specs, description):
     """
     arg_parser = setup_arg_parser(commands, description)
     args = arg_parser.parse_args()
+
+    # Handle verbosity
+    if args.verbosity is not None:
+        if args.option is None:
+            args.option = []
+        args.option.append(('pyexperiment.verbosity',
+                            args.verbosity))
 
     conf.initialize(args.config,
                     [option.encode()

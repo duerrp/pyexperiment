@@ -1,18 +1,17 @@
 #!/usr/bin/env python
 """Illustrates pyexperiment's logging features with a minimal example.
 
-Running `minimal_logging run` will log to the console at the INFO
-level, `minimal_logging run -o verbosity DEBUG` will log to the
-console at the DEBUG level, `minimal_logging run -o log_to_file 1 -o
-log_filename log.txt -o log_file_verbosity DEBUG` will log at the INFO
-level in the console and at the DEBUG level in the file log.txt (which
-will rotate up to 5 backup copies).
+Running `minimal_logging run` will log to the console at the INFO level,
+`minimal_logging run --verbosity DEBUG` will log to the console at the
+DEBUG level, `minimal_logging run -o log_to_file 1 -o log_filename
+log.txt -o log_file_verbosity DEBUG` will log at the INFO level in the
+console and at the DEBUG level in the file log.txt (which will rotate up
+to 5 backup copies).
 
 Running `minimal_logging timed` to get timing statistics of a for loop
 (change the log level to DEBUG to get more details).
 
 Written by Peter Duerr
-
 """
 
 # Sensible imports from the future (optional)
@@ -32,7 +31,7 @@ from pyexperiment import log
 
 
 def run():
-    """Logs some messages. Set the level, e.g, to DEBUG with -o verbosity DEBUG
+    """Logs some messages. Set the level, e.g, to DEBUG with --verbosity DEBUG
     """
     log.debug("Debug Message...")
     log.info("Info Message")

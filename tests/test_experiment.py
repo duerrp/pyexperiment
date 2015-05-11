@@ -13,10 +13,13 @@ import argparse
 import io
 import mock
 import tempfile
+import logging
 
 from pyexperiment import experiment
 from pyexperiment.utils.stdout_redirector import stdout_redirector
 from pyexperiment import state
+from pyexperiment import conf
+from pyexperiment import Logger
 
 
 class TestExperiment(unittest.TestCase):
@@ -273,3 +276,68 @@ class TestExperiment(unittest.TestCase):
                 experiment.main()
             self.assertRegexpMatches(buf.getvalue(), r"foo")
             self.assertRegexpMatches(buf.getvalue(), r"42")
+
+    def test_main_overrides_option(self):
+        """Test running main called with -o works as expected
+        """
+        called = [False]
+
+        def foo_fun():
+            """Foo function
+            """
+            called[0] = True
+            self.assertEqual(conf['bla'], 'foo')
+
+        conf['bla'] = 'bla'
+        # Monkey patch arg parser
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "-o", "bla", "foo", "foo_fun"]
+
+        self.assertFalse(called[0])
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(commands=[foo_fun])
+
+        self.assertTrue(called[0])
+        self.assertEqual(conf['bla'], 'foo')
+
+    def test_main_overrides_verbosity(self):
+        """Test running main called with --verbosity works as expected
+        """
+        log_stream = io.StringIO()
+        Logger.CONSOLE_STREAM_HANDLER = logging.StreamHandler(log_stream)
+
+        called = [False]
+
+        def foo_fun():
+            """Foo function
+            """
+            called[0] = True
+
+        # Monkey patch arg parser
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "--verbosity", "DEBUG", "foo_fun"]
+
+        self.assertFalse(called[0])
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(commands=[foo_fun])
+
+        self.assertTrue(called[0])
+        self.assertEqual(conf['pyexperiment.verbosity'], 'DEBUG')
+
+        called[0] = False
+        # Monkey patch arg parser
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "--verbosity", "WARNING", "foo_fun"]
+
+        self.assertFalse(called[0])
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(commands=[foo_fun])
+
+        self.assertTrue(called[0])
+        self.assertEqual(conf['pyexperiment.verbosity'], 'WARNING')
