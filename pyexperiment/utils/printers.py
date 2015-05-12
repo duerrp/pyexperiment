@@ -31,20 +31,14 @@ COLORS = {
     }
 
 
-def wrap_seq(seq, string):
-    """Wraps string in special sequence
-    """
-    return seq + string + RESET_SEQ
-
-
-def colorize(string, color):
+def colorize(string, color_s):
     """Colorize a string
     """
     # pylint:disable=no-value-for-parameter, assignment-from-no-return
-    return wrap_seq(color, string)
+    return color_s + string + RESET_SEQ
 
 
-def print_color(color, string, *args):
+def _print_color(color, string, *args):
     """Prints string in color to stdout
     """
     print(colorize(string % args, color))
@@ -54,6 +48,18 @@ for color_name, color_seq in COLORS.items():
     def create_printer(color):
         """Creates the printer for the corresponding color
         """
-        return lambda string, *args: print_color(color, string, *args)
+        return lambda string, *args: _print_color(color, string, *args)
 
     vars()['print_' + color_name] = create_printer(color_seq)
+
+
+if __name__ == '__main__':
+    MESSAGE = "\tstring: '%s', int: '%d', float: '%f'"
+    ARGUMENTS = ("foo".encode(), 123, 2.71)
+    for name, printer in ((name, fun) for name, fun in vars().items()
+                          if name.startswith('print_') and callable(fun)):
+        print('%s("%s", %s)' % (
+            name,
+            MESSAGE[1:], ",".join((repr(arg) for arg in ARGUMENTS))))
+        printer(MESSAGE, *ARGUMENTS)
+        print()
