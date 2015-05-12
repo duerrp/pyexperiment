@@ -233,3 +233,26 @@ class HierarchicalOrderedDict(  # pylint: disable=too-many-ancestors
         """
         super(HierarchicalOrderedDict, self).__init__()
         self.base = OrderedDict()
+
+
+class HierarchicalDict(  # pylint: disable=too-many-ancestors
+        HierarchicalMapping):
+    """Instance of the ``HierarchicalMapping`` based on ``dict``
+    """
+    @classmethod
+    def _new_section(cls, _parent, _level):
+        """Creates a new section Mapping
+        """
+        return dict()
+
+    @classmethod
+    def _is_section(cls, obj):
+        """Returns true if obj is a section
+        """
+        return isinstance(obj, dict)
+
+    def __init__(self):
+        """Initializer
+        """
+        super(HierarchicalDict, self).__init__()
+        self.base = dict()

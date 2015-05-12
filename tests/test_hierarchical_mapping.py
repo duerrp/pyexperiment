@@ -10,186 +10,116 @@ from __future__ import absolute_import
 
 import unittest
 
-from pyexperiment.utils.HierarchicalMapping \
-    import HierarchicalMapping
-
-from pyexperiment.utils.HierarchicalMapping \
-    import HierarchicalOrderedDict
+from pyexperiment.utils.HierarchicalMapping import HierarchicalOrderedDict
+from pyexperiment.utils.HierarchicalMapping import HierarchicalDict
 
 
-class TestHierarchicalMapping(unittest.TestCase):
-    """Test the HierarchicalMapping
+class TestHierarchicalOrderedDict(unittest.TestCase):
+    """Test the ``HierarchicalOrderedDict``
     """
     def setUp(self):
-        """Setup the test fixure
+        """Set up the test fixture
         """
-        pass
-
-    def tearDown(self):
-        """Tear down the test fixure
-        """
-        pass
+        self.hod = HierarchicalOrderedDict()
 
     def test_len_empty_mapping(self):
         """Test if the empty mapping is really empty
         """
-        m = HierarchicalOrderedDict()
-        self.assertEqual(len(m), 0)
+        self.assertEqual(len(self.hod), 0)
 
     def test_insert_retrieve_base_level(self):
         """Make sure we can use the container at the base
         """
-        m = HierarchicalOrderedDict()
-        m['a'] = 12
+        self.hod['a'] = 12
 
-        self.assertEqual(m['a'], 12)
+        self.assertEqual(self.hod['a'], 12)
 
     def test_retrieve_second_level(self):
         """Make sure we can use the container at the second level
         """
-        m = HierarchicalOrderedDict()
-        m['hello.world'] = 12
-        self.assertEqual(m['hello.world'], 12)
+        self.hod['hello.world'] = 12
+        self.assertEqual(self.hod['hello.world'], 12)
 
     def test_len_after_first_level(self):
         """Test if the length is correct after inserting at the first level
         """
-        m = HierarchicalOrderedDict()
-        self.assertEqual(len(m), 0)
+        self.assertEqual(len(self.hod), 0)
 
         # New keys should increase the length
         for i, key in enumerate(['a', 'b', 'c', 'd', 'e', 'f']):
-            m[key] = 1
-            self.assertEqual(len(m), i + 1)
+            self.hod[key] = i**2
+            self.assertEqual(len(self.hod), i + 1)
 
         # Existing keys should keep the length
         for key in ['a', 'b', 'c', 'd', 'e', 'f']:
-            m[key] = 1
-            self.assertEqual(len(m), 5 + 1)
+            self.hod[key] = 12
+            self.assertEqual(len(self.hod), 5 + 1)
 
     def test_inserting_higher_levels(self):
         """Test if the length is correct after inserting at the first level
         """
-        m = HierarchicalOrderedDict()
-        self.assertEqual(len(m), 0)
+        self.assertEqual(len(self.hod), 0)
 
         # New keys should increase the length
         i = 0
         for key1 in ['a', 'b', 'c', 'd', 'e', 'f']:
             for key2 in ['a', 'b', 'c', 'd', 'e', 'f']:
                 i += 1
-                m[key1 + '.' + key2] = i
-                self.assertEqual(len(m), i)
+                self.hod[key1 + '.' + key2] = i
+                self.assertEqual(len(self.hod), i)
 
     def test_keys(self):
         """Test the keys method on the mapping
         """
-        m = HierarchicalOrderedDict()
-        self.assertEqual(len(m), 0)
+        self.assertEqual(len(self.hod), 0)
 
         # New keys
         keys = ['a', 'b', 'c', 'd', 'e', 'f']
         for i, key in enumerate(keys):
-            m[key] = i
-        self.assertEqual(list(m.keys()), keys)
-
-    def test_section_keys(self):
-        """Test the section_keys method on the mapping
-        """
-        m = HierarchicalOrderedDict()
-        self.assertEqual(len(list(m.section_keys())), 0)
-
-        # New keys
-        keys = ['a', 'b.c', 'd.e.f', 'g.h', 'j.k.l.m']
-        for i, key in enumerate(keys):
-            m[key] = i
-
-        self.assertIn('b', m.section_keys())
-        self.assertIn('d.e', m.section_keys())
-        self.assertIn('g', m.section_keys())
-        self.assertIn('j.k.l', m.section_keys())
-        self.assertNotIn('a', m.section_keys())
-        self.assertNotIn('c', m.section_keys())
-        self.assertNotIn('b.c', m.section_keys())
-        self.assertNotIn('e', m.section_keys())
-        self.assertNotIn('e.f', m.section_keys())
-        self.assertNotIn('d.e.f', m.section_keys())
-        self.assertNotIn('h', m.section_keys())
-        self.assertNotIn('m', m.section_keys())
+            self.hod[key] = i
+        self.assertEqual(list(self.hod.keys()), keys)
 
     def test_contains(self):
         """Test the HierarchicalOrderedDict with `in`
         """
-        m = HierarchicalOrderedDict()
-        self.assertEqual(len(m), 0)
+        self.assertEqual(len(self.hod), 0)
 
-        self.assertFalse('a' in m)
-        m['a'] = 1
-        self.assertTrue('a' in m)
+        self.assertFalse('a' in self.hod)
+        self.hod['a'] = 1
+        self.assertTrue('a' in self.hod)
 
-        self.assertFalse('b.c.d' in m)
-        m['b.c.d'] = 1
-        self.assertTrue('b.c.d' in m)
-
-    def test_other_base(self):
-        """Test the HierarchicalOrderedDict with another base
-        """
-        class DotSeparatedDict(  # pylint: disable=too-many-ancestors
-                HierarchicalMapping):
-            """Example instance of the HierarchicalMapping
-            """
-            @classmethod
-            def _new_section(cls, _parent, _level):
-                """Creates a new section Mapping
-                """
-                return dict()
-
-            @classmethod
-            def _is_section(cls, obj):
-                """Returns true if obj is a section
-                """
-                return isinstance(obj, dict)
-
-            def __init__(self):
-                """Initializer
-                """
-                super(DotSeparatedDict, self).__init__()
-                self.base = dict()
-
-        m = DotSeparatedDict()
-        m['a.b.c'] = 3
-        self.assertEqual(len(m), 1)
-        self.assertEqual(m['a.b.c'], 3)
+        self.assertFalse('b.c.d' in self.hod)
+        self.hod['b.c.d'] = 1
+        self.assertTrue('b.c.d' in self.hod)
 
     def test_get(self):
         """Test getting values with and without default values
         """
-        m = HierarchicalOrderedDict()
-        self.assertRaises(KeyError, m.get, 'a')
-        self.assertEqual(m.get('a', 42), 42)
-        m['a'] = 123
-        self.assertEqual(m.get('a', 42), 123)
+        self.assertRaises(KeyError, self.hod.get, 'a')
+        self.assertEqual(self.hod.get('a', 42), 42)
+        self.hod['a'] = 123
+        self.assertEqual(self.hod.get('a', 42), 123)
 
     def test_get_or_set(self):
         """Test get_or_setting values
         """
-        m = HierarchicalOrderedDict()
-        self.assertRaises(KeyError, m.get, 'a')
-        self.assertEqual(m.get_or_set('a', 42), 42)
-        self.assertEqual(m.get('a'), 42)
-        m['a'] = 52
-        self.assertEqual(m.get_or_set('a', 42), 52)
+        self.hod = HierarchicalOrderedDict()
+        self.assertRaises(KeyError, self.hod.get, 'a')
+        self.assertEqual(self.hod.get_or_set('a', 42), 42)
+        self.assertEqual(self.hod.get('a'), 42)
+        self.hod['a'] = 52
+        self.assertEqual(self.hod.get_or_set('a', 42), 52)
 
     def test_base_keys(self):
         """Test getting the base keys
         """
-        m = HierarchicalOrderedDict()
-        m['a'] = 12
-        m['b'] = 13
-        m['c.d'] = 14
-        m['e.f.g'] = 15
+        self.hod = HierarchicalOrderedDict()
+        self.hod['a'] = 12
+        self.hod['b'] = 13
+        self.hod['c.d'] = 14
+        self.hod['e.f.g'] = 15
 
-        base_keys = m.base_keys()
+        base_keys = self.hod.base_keys()
         self.assertIn('a', base_keys)
         self.assertIn('b', base_keys)
         self.assertIn('c', base_keys)
@@ -205,69 +135,68 @@ class TestHierarchicalMapping(unittest.TestCase):
     def test_merge_empty(self):
         """Test merging in empty mapping
         """
-        m = HierarchicalOrderedDict()
-        m['a'] = 12
-        m['b'] = 13
-        m['c.d'] = 14
-        m['e.f.g'] = 15
-        items = list(m.items())
+        self.hod = HierarchicalOrderedDict()
+        self.hod['a'] = 12
+        self.hod['b'] = 13
+        self.hod['c.d'] = 14
+        self.hod['e.f.g'] = 15
+        items = list(self.hod.items())
 
         m_2 = HierarchicalOrderedDict()
-        m.merge(m_2)
-        self.assertEqual(len(m), 4)
+        self.hod.merge(m_2)
+        self.assertEqual(len(self.hod), 4)
         for key, value in items:
-            m[key] = value
+            self.hod[key] = value
 
     def test_merge_same(self):
         """Test merging mapping with same keys
         """
-        m = HierarchicalOrderedDict()
-        m['a'] = 12
-        m['b'] = 13
-        m['c.d'] = 14
-        m['e.f.g'] = 15
-        items = list(m.items())
+        self.hod = HierarchicalOrderedDict()
+        self.hod['a'] = 12
+        self.hod['b'] = 13
+        self.hod['c.d'] = 14
+        self.hod['e.f.g'] = 15
+        items = list(self.hod.items())
 
         m_2 = HierarchicalOrderedDict()
         m_2['a'] = 12
         m_2['b'] = 13
         m_2['c.d'] = 14
         m_2['e.f.g'] = 15
-        m.merge(m_2)
-        self.assertEqual(len(m), 4)
+        self.hod.merge(m_2)
+        self.assertEqual(len(self.hod), 4)
         for key, value in items:
-            m[key] = value
+            self.hod[key] = value
 
     def test_merge_other_keys(self):
         """Test merging in mapping with other keys
         """
-        m = HierarchicalOrderedDict()
-        m['a'] = 12
-        m['b'] = 13
-        m['c.d'] = 14
-        m['e.f.g'] = 15
-        items = list(m.items())
+        self.hod = HierarchicalOrderedDict()
+        self.hod['a'] = 12
+        self.hod['b'] = 13
+        self.hod['c.d'] = 14
+        self.hod['e.f.g'] = 15
+        items = list(self.hod.items())
 
         m_2 = HierarchicalOrderedDict()
         m_2['k'] = 13
         m_2['l.m.n'] = 'bla'
         items2 = list(m_2.items())
 
-        m.merge(m_2)
+        self.hod.merge(m_2)
 
-        self.assertEqual(len(m), 6)
+        self.assertEqual(len(self.hod), 6)
         for key, value in items + items2:
-            m[key] = value
+            self.hod[key] = value
 
     def test_merge_overlapping(self):
         """Test merging in mapping with overlapping keys
         """
-        m = HierarchicalOrderedDict()
-        m['a'] = 12
-        m['b'] = 13
-        m['c.d'] = 14
-        m['e.f.g'] = 15
-        items = list(m.items())
+        self.hod['a'] = 12
+        self.hod['b'] = 13
+        self.hod['c.d'] = 14
+        self.hod['e.f.g'] = 15
+        items = list(self.hod.items())
 
         m_2 = HierarchicalOrderedDict()
         m_2['c.d'] = 10
@@ -275,14 +204,66 @@ class TestHierarchicalMapping(unittest.TestCase):
         m_2['l.m.n'] = 'bla'
         items2 = list(m_2.items())
 
-        m.merge(m_2)
+        self.hod.merge(m_2)
 
-        self.assertEqual(len(m), 6)
+        self.assertEqual(len(self.hod), 6)
         for key, value in items:
-            m[key] = value
+            self.hod[key] = value
         for key, value in items2:
             if key not in [item[0] for item in items]:
-                m[key] = value
+                self.hod[key] = value
+
+    def test_section_keys(self):
+        """Test the section_keys method on the mapping
+        """
+        self.assertEqual(len(list(self.hod.section_keys())), 0)
+
+        # New keys
+        keys = ['a', 'b.c', 'd.e.f', 'g.h', 'j.k.l.m']
+        for i, key in enumerate(keys):
+            self.hod[key] = i
+
+        self.assertIn('b', self.hod.section_keys())
+        self.assertIn('d.e', self.hod.section_keys())
+        self.assertIn('g', self.hod.section_keys())
+        self.assertIn('j.k.l', self.hod.section_keys())
+        self.assertNotIn('a', self.hod.section_keys())
+        self.assertNotIn('c', self.hod.section_keys())
+        self.assertNotIn('b.c', self.hod.section_keys())
+        self.assertNotIn('e', self.hod.section_keys())
+        self.assertNotIn('e.f', self.hod.section_keys())
+        self.assertNotIn('d.e.f', self.hod.section_keys())
+        self.assertNotIn('h', self.hod.section_keys())
+        self.assertNotIn('m', self.hod.section_keys())
+
+
+class TestHierarchicalDict(unittest.TestCase):
+    """Test the ``HierarchicalMapping`` based on ``dict``.
+    """
+    def setUp(self):
+        """Set up the fixture
+        """
+        self.hdict = HierarchicalDict()
+
+    def test_len(self):
+        """Test the ``HierarchicalDict``'s len method
+        """
+        self.assertEqual(len(self.hdict), 0)
+
+        self.hdict['a.b.c'] = 3
+        self.assertEqual(len(self.hdict), 1)
+
+        self.hdict['d'] = 4
+        self.assertEqual(len(self.hdict), 2)
+
+        del self.hdict['d']
+        self.assertEqual(len(self.hdict), 1)
+
+    def test_insert_retrieve(self):
+        """Test inserting and retrieving element of ``HierarchicalDict``
+        """
+        self.hdict['a.b.c'] = 12
+        self.assertEqual(self.hdict['a.b.c'], 12)
 
 
 if __name__ == '__main__':
