@@ -30,6 +30,7 @@ from pyexperiment.utils.Singleton import Singleton
 from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
 from pyexperiment.utils.HierarchicalMapping \
     import HierarchicalOrderedDict
+from pyexperiment.utils import sentinel
 from pyexperiment.Logger import TimingLogger
 
 log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
@@ -38,24 +39,8 @@ log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
 """
 
 
-class _Deleted(object):  # pylint: disable=too-few-public-methods
-    """Sentinel for deleted state values
-    """
-    def __repr__(self):
-        """Represent deleted values"""
-        return 'deleted state'
-DELETED = _Deleted()
-del _Deleted
-
-
-class _Unloaded(object):  # pylint: disable=too-few-public-methods
-    """Sentinel for values that have to be loaded first
-    """
-    def __repr__(self):
-        """Represent unloaded values"""
-        return 'state not loaded yet'
-UNLOADED = _Unloaded()
-del _Unloaded
+DELETED = sentinel.create('DELETED', 'Deleted State')
+UNLOADED = sentinel.create('UNLOADED', 'Unloaded State')
 
 
 class State(Singleton,  # pylint: disable=too-many-ancestors
