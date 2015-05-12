@@ -371,8 +371,8 @@ class TestStateIO(StateTester):
 
             for i in range(10):
                 # Write bogus info to state
-                state['a'] = i**2
-                state['b'] = i**3
+                state['a'] = i ** 2
+                state['b'] = i ** 3
                 state['c'] = 42 + i
 
                 state.save(temp.name, rotate_n_state_files=2)

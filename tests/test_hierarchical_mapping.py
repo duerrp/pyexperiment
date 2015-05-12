@@ -47,7 +47,7 @@ class TestHierarchicalOrderedDict(unittest.TestCase):
 
         # New keys should increase the length
         for i, key in enumerate(['a', 'b', 'c', 'd', 'e', 'f']):
-            self.hod[key] = i**2
+            self.hod[key] = i ** 2
             self.assertEqual(len(self.hod), i + 1)
 
         # Existing keys should keep the length

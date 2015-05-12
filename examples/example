@@ -19,7 +19,7 @@ def example_function(argument):
     """
     log.debug("Call example function with argument: %s",
               argument)
-    return argument**2
+    return argument ** 2
 
 
 def ex_1():
