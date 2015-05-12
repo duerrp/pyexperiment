@@ -23,14 +23,14 @@ class TestLogger(unittest.TestCase):
     """Test basic logging
     """
     def setUp(self):
-        """Setup test fixure
+        """Setup test fixture
         """
         self.log_stream = io.StringIO()
         Logger.CONSOLE_STREAM_HANDLER = logging.StreamHandler(self.log_stream)
         log.reset_instance()
 
     def tearDown(self):
-        """Teardown test fixure
+        """Teardown test fixture
         """
         Logger.CONSOLE_STREAM_HANDLER = logging.StreamHandler()
         log.close()

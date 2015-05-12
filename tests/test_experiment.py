@@ -26,12 +26,12 @@ class TestExperiment(unittest.TestCase):
     """Test the experiment module
     """
     def setUp(self):
-        """Setup the test fixure
+        """Setup the test fixture
         """
         pass
 
     def tearDown(self):
-        """Tear down the test fixure
+        """Tear down the test fixture
         """
         pass
 

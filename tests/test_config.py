@@ -18,7 +18,7 @@ class TestConf(unittest.TestCase):
     """Test the conf module's basic functions
     """
     def tearDown(self):
-        """Tear down the test fixure
+        """Tear down the test fixture
         """
         conf.reset_instance()
 
@@ -88,14 +88,14 @@ class TestConfFile(unittest.TestCase):
                    "c = True")
 
     def setUp(self):
-        """Setup the test fixure
+        """Setup the test fixture
         """
         self.filename = tempfile.mkstemp()[1]
         with open(self.filename, 'w') as outfile:
             outfile.write(self.TEST_CONFIG)
 
     def tearDown(self):
-        """Tear down the test fixure
+        """Tear down the test fixture
         """
         conf.reset_instance()
         os.remove(self.filename)

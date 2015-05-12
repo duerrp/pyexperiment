@@ -17,12 +17,12 @@ class TestPlot(unittest.TestCase):
     """Test the plot module
     """
     def setUp(self):
-        """Setup the test fixure
+        """Setup the test fixture
         """
         pass
 
     def tearDown(self):
-        """Tear down the test fixure
+        """Tear down the test fixture
         """
         pass
 

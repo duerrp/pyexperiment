@@ -20,12 +20,12 @@ class TestStdoutRedirector(unittest.TestCase):
     """Test the stdout_redirector module
     """
     def setUp(self):
-        """Setup the test fixure
+        """Setup the test fixture
         """
         pass
 
     def tearDown(self):
-        """Tear down the test fixure
+        """Tear down the test fixture
         """
         pass
 

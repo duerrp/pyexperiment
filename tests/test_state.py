@@ -25,22 +25,22 @@ from pyexperiment.utils.stdout_redirector import stdout_redirector
 
 
 class StateTester(unittest.TestCase):
-    """ABC for state's test fixures
+    """ABC for state's test fixtures
     """
     def setUp(self):
-        """Setup test fixure
+        """Setup test fixture
         """
         self.list_val = [1, 2, 'a', 1.2]
         self.dict_val = {'a': 1, 1: 2.3}
         self.int_val = 123
 
     def tearDown(self):
-        """Teardown test fixure
+        """Teardown test fixture
         """
         state.reset_instance()
 
     def _setup_basic_state(self):
-        """Setup test fixure
+        """Setup test fixture
         """
         state['list'] = self.list_val
         state['dict'] = self.dict_val
