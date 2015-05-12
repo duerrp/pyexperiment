@@ -42,22 +42,22 @@ from pyexperiment.utils import printers
 CONSOLE_FORMAT = ("[%(levelname)-19s] [%(relativeCreated)s]"
                   " $BOLD%(message)s$RESET")
 """The format used for logging to the console
-"""  # pylint:disable=W0105
+"""
 
 FILE_FORMAT_STD_MSG_LEN = 50
 """How much space should be reserved for a normal message in the log
 file.
-"""  # pylint:disable=W0105
+"""
 
 FILE_FORMAT = ("[%(relativeCreated)10.5fs] [%(levelname)-1s]"
                " %(message)-50s (%(filename)s:%(lineno)d) %(processName)s "
                "- %(threadName)s")
 """The format used for logging to file
-"""  # pylint:disable=W0105
+"""
 
 CONSOLE_STREAM_HANDLER = logging.StreamHandler()
 """The stream handler for the console (can be mocked for testing)
-"""  # pylint:disable=W0105
+"""
 
 
 class ColorFormatter(logging.Formatter):
@@ -75,11 +75,11 @@ class ColorFormatter(logging.Formatter):
     def _setup_log_level_colors():
         """Returns a dictionary with the colors associated to each log level.
         """
-        return {'WARNING': printers.MAGENTA,
-                'INFO': printers.WHITE,
-                'DEBUG': printers.BLUE,
-                'CRITICAL': printers.YELLOW,
-                'ERROR': printers.RED}
+        return {'WARNING': printers.COLORS['magenta'],
+                'INFO': printers.COLORS['white'],
+                'DEBUG': printers.COLORS['blue'],
+                'CRITICAL': printers.COLORS['yellow'],
+                'ERROR': printers.COLORS['red']}
 
     def format(self, record):
         """Format the log
@@ -215,7 +215,7 @@ class Logger(logging.Logger, InitializeableSingleton):
                 message = message.replace(
                     "$RESET",
                     printers.RESET_SEQ).replace("$BOLD",
-                                                printers.BOLD_SEQ)
+                                                printers.COLORS['bold'])
             else:
                 message = message.replace("$RESET", "").replace("$BOLD", "")
             return message
@@ -324,7 +324,8 @@ class TimingLogger(Logger):
 
         if len(self.timings.items()) > 0:
             # Announce timings
-            printers.print_blue("Timing Summary:")
+            printers.print_blue(  # pylint: disable=no-member
+                "Timing Summary:")
 
             # Iterate over all saved timings
             for msg, times in self.timings.items():
@@ -343,7 +344,8 @@ class TimingLogger(Logger):
 
                 print(message)
         else:
-            printers.print_blue("No timings stored...")
+            printers.print_blue(  # pylint: disable=no-member
+                "No timings stored...")
 
     def _process_timings(self, data):
         """Aggregates the timing data in the dict

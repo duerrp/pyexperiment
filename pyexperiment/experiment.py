@@ -26,7 +26,8 @@ from pyexperiment import conf
 from pyexperiment import log
 from pyexperiment import state
 from pyexperiment.State import StateHandler
-from pyexperiment.utils.printers import print_bold
+from pyexperiment.utils.printers import print_bold  # pylint: disable=E0611
+
 from pyexperiment.utils.interactive import embed_interactive
 
 DEFAULT_CONFIG_SPECS = ("[pyexperiment]\n"

@@ -13,7 +13,7 @@ from subprocess import Popen, PIPE
 import sys
 from datetime import datetime
 
-from pyexperiment.utils.printers import print_blue
+from pyexperiment.utils.printers import print_blue  # pylint: disable=E0611
 
 CHECKERS = [
     ['pep8', './pyexperiment'],
@@ -57,10 +57,10 @@ if __name__ == "__main__":
                     message += elem
                     ERROR = True
             if not message == "":
-                print_blue(header)
-                print_blue("=" * len(header))
+                print_blue(header)  # pylint: disable=no-member
+                print_blue("=" * len(header))  # pylint: disable=no-member
                 print(message)
-                print_blue("=" * len(header))
+                print_blue("=" * len(header))  # pylint: disable=no-member
 
         TOC = datetime.now()
         print("\n" + ''.join(['-']*70))

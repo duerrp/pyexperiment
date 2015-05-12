@@ -8,42 +8,40 @@ from __future__ import unicode_literals
 from __future__ import division
 from __future__ import absolute_import
 
-from functools import partial
-
 
 RESET_SEQ = "\033[0m"
 """Sequence used to reset console formatting
-"""  # pylint:disable=W0105
+"""
 
 COLOR_SEQ = "\033[1;%dm"
 """Sequence used to set color for console formatting
-"""  # pylint:disable=W0105
+"""
 
-BOLD_SEQ = "\033[1m"
-"""Sequence used to set bold for console formatting
-"""  # pylint:disable=W0105
+# Foreground colors defined as 30 + index, bold
+COLORS = {
+    'black': COLOR_SEQ % 30,
+    'red': COLOR_SEQ % 31,
+    'green': COLOR_SEQ % 32,
+    'yellow': COLOR_SEQ % 33,
+    'blue': COLOR_SEQ % 34,
+    'magenta': COLOR_SEQ % 35,
+    'cyan': COLOR_SEQ % 36,
+    'white': COLOR_SEQ % 37,
+    'bold': "\033[1m"
+    }
 
-# Foreground colors defined as 30 + index
-BLACK = 30
-RED = 31
-GREEN = 32
-YELLOW = 33
-BLUE = 34
-MAGENTA = 35
-CYAN = 36
-WHITE = 37
 
-
-def wrap_seq(string, seq, reset=RESET_SEQ):
+def wrap_seq(seq, string):
     """Wraps string in special sequence
     """
-    return seq + string + reset
+    return seq + string + RESET_SEQ
 
 
 def colorize(string, color):
     """Colorize a string
     """
-    return wrap_seq(string, COLOR_SEQ % color)
+    # pylint:disable=no-value-for-parameter, assignment-from-no-return
+    return wrap_seq(color, string)
 
 
 def print_color(color, string, *args):
@@ -52,41 +50,10 @@ def print_color(color, string, *args):
     print(colorize(string % args, color))
 
 
-def print_bold(msg, *args):
-    """Prints message in bold to stdout
-    """
-    print(wrap_seq(msg % args, BOLD_SEQ))
+for color_name, color_seq in COLORS.items():
+    def create_printer(color):
+        """Creates the printer for the corresponding color
+        """
+        return lambda string, *args: print_color(color, string, *args)
 
-# pylint:disable=C0103
-print_black = partial(print_color, BLACK)
-"""Prints message in black to stdout
-"""  # pylint:disable=W0105
-
-print_red = partial(print_color, RED)
-
-"""Prints message in red to stdout
-"""  # pylint:disable=W0105
-print_green = partial(print_color, GREEN)
-# pylint:disable=C0103
-"""Prints message in green to stdout
-"""  # pylint:disable=W0105
-print_yellow = partial(print_color, YELLOW)
-# pylint:disable=C0103
-"""Prints message in yellow to stdout
-"""  # pylint:disable=W0105
-print_blue = partial(print_color, BLUE)
-# pylint:disable=C0103
-"""Prints message in blue to stdout
-"""  # pylint:disable=W0105
-print_magenta = partial(print_color, MAGENTA)
-# pylint:disable=C0103
-"""Prints message in magenta to stdout
-"""  # pylint:disable=W0105
-print_cyan = partial(print_color, CYAN)
-# pylint:disable=C0103
-"""Prints message in cyan to stdout
-"""  # pylint:disable=W0105
-print_white = partial(print_color, WHITE)
-# pylint:disable=C0103
-"""Prints message in white to stdout
-"""  # pylint:disable=W0105
+    vars()['print_' + color_name] = create_printer(color_seq)

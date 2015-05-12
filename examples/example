@@ -7,8 +7,8 @@ import unittest
 
 from pyexperiment import experiment
 from pyexperiment import log
-from pyexperiment.utils.printers import print_red
-from pyexperiment.utils.printers import print_blue
+from pyexperiment.utils.printers import print_red  # pylint: disable=E0611
+from pyexperiment.utils.printers import print_blue  # pylint: disable=E0611
 
 # Python 2.x compatibility
 from six.moves import range  # pylint: disable=redefined-builtin, import-error
