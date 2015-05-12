@@ -22,6 +22,7 @@ from six import iteritems
 
 from collections import MutableMapping
 from collections import OrderedDict
+from toolz import count
 
 
 class HierarchicalMapping(  # pylint: disable=too-many-ancestors
@@ -142,7 +143,7 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
 
     def __len__(self):
         """Returns the number of entries in the mapping"""
-        return len(list(iter(self)))
+        return count(iter(self))
 
     def __repr__(self):
         """Get a representation of the mapping"""
