@@ -168,6 +168,8 @@ class TestBasicState(StateTester):
             elif six.PY3:
                 self.assertNotRegex(  # pylint: disable=E1101
                     buf.getvalue(), r"13")
+            else:
+                raise RuntimeError("Python version not supported")
 
     def test_show_nonexisting_noraise(self):
         """Test showing a state that does not exist

@@ -70,8 +70,10 @@ class TestInteractive(unittest.TestCase):
 
         if six.PY2:
             builtins_name = '__builtin__.__import__'
-        if six.PY3:
+        elif six.PY3:
             builtins_name = 'builtins.__import__'
+        else:
+            raise RuntimeError("Python version not supported")
 
         with mock.patch(builtins_name, myimport):
             with mock.patch('code.InteractiveConsole', my_python):
