@@ -10,7 +10,9 @@ RUN apt-get update && \
     libfreetype6-dev \
     libpng12-dev \
     python-dev \
-    python-pip
+    python-pip \
+    python3-dev \
+    python3-pip
 
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -19,6 +21,8 @@ ADD requirements.txt /tmp/requirements.txt
 
 RUN pip install Cython
 RUN pip install -r /tmp/requirements.txt
+RUN pip3 install Cython
+RUN pip3 install -r /tmp/requirements.txt
 
 # Generate UTF-8 locale
 RUN locale-gen en_US.UTF-8
