@@ -18,6 +18,20 @@ from pyexperiment.utils.interactive import embed_interactive
 class TestInteractive(unittest.TestCase):
     """Test the interactive utilities
     """
+    def setUp(self):
+        """Set up the test fixture
+        """
+        if 'IPython' in sys.modules:
+            self.old_ipython = sys.modules['IPython']
+        else:
+            self.old_ipython = None
+
+    def tearDown(self):
+        """Tear down the test fixture
+        """
+        if self.old_ipython is not None:
+            sys.modules['IPython'] = self.old_ipython
+
     def test_calling_ipython(self):
         """Test calling embed_interactive calls ipython 3.0 if available
         """
