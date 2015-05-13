@@ -32,6 +32,7 @@ from pyexperiment.utils.HierarchicalMapping \
     import HierarchicalOrderedDict
 from pyexperiment.utils import sentinel
 from pyexperiment.Logger import TimingLogger
+from pyexperiment.utils.functional import starts_with
 
 log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
     TimingLogger)
@@ -104,7 +105,8 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                     """
                     split_super = superkey.split(self.SECTION_SEPARATOR)
                     split_key = key.split(self.SECTION_SEPARATOR)
-                    return split_key[:len(split_super)] == split_super
+
+                    return starts_with(split_super, split_key)
 
                 descendants = filter(partial(is_descendant, key),
                                      self.keys())
