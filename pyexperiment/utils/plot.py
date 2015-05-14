@@ -11,17 +11,28 @@ import matplotlib
 from matplotlib import pyplot as plt
 
 
+_SETUP_DONE = False
+"""Flag indicating that matplotlib has already been set up
+"""
+
+
 def setup_matplotlib(font_size=14,
                      label_size=14,
                      use_tex=True,
-                     linewidth=2):
+                     linewidth=2,
+                     override_setup=True):
     """Setup basic style for matplotlib figures
     """
+    # Global should be ok here
+    global _SETUP_DONE  # pylint: disable=global-statement
+    if not override_setup and _SETUP_DONE:
+        return False
+
     font_size = int(font_size)
     font = {'family': 'normal',
             'weight': 'normal',
             'size': font_size}
-    # ** is elegant here
+
     matplotlib.rc('font', **font)
 
     matplotlib.rc('text', usetex=use_tex)
@@ -30,6 +41,9 @@ def setup_matplotlib(font_size=14,
     label_size = int(label_size)
     matplotlib.rc('xtick', labelsize=label_size)
     matplotlib.rc('ytick', labelsize=label_size)
+
+    _SETUP_DONE = True
+    return True
 
 
 def quit_figure_on_key(key, figure=None):
@@ -52,6 +66,8 @@ def setup_figure(name='pyexperiment'):
     """Setup a figure that can be closed by pressing 'q' and saved by
     pressing 's'.
     """
+    setup_matplotlib(override_setup=False)
+
     fig = plt.figure()
     fig.canvas.set_window_title(name)
     quit_figure_on_key('q', fig)

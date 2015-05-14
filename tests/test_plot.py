@@ -16,23 +16,32 @@ from pyexperiment.utils import plot
 class TestPlot(unittest.TestCase):
     """Test the plot module
     """
-    def setUp(self):
-        """Setup the test fixture
-        """
-        pass
-
     def tearDown(self):
         """Tear down the test fixture
         """
-        pass
+        # Some tests may leave matplotlib 'configured'
+        plot._SETUP_DONE = False  # pylint: disable=protected-access
 
-    def test_setup_matplotlib(self):
-        """Test setting up matplotlib returns
+    def test_setup_does_not_override(self):
+        """Test setting up matplotlib
         """
-        self.assertIsNone(plot.setup_matplotlib())
+        self.assertTrue(plot.setup_matplotlib(override_setup=False))
+        self.assertFalse(plot.setup_matplotlib(override_setup=False))
+
+    def test_setup_does_override(self):
+        """Test setting up matplotlib
+        """
+        self.assertTrue(plot.setup_matplotlib(override_setup=True))
+        self.assertTrue(plot.setup_matplotlib(override_setup=True))
 
     def test_setup_figure(self):
-        """Test setting up a fiugre
+        """Test setting up a figure
         """
         fig = plot.setup_figure()
         self.assertIsNotNone(fig)
+
+    def test_setup_fig_setup_matplotlib(self):
+        """Test setting up a figure sets up matplotlib as well
+        """
+        _fig = plot.setup_figure()
+        self.assertFalse(plot.setup_matplotlib(override_setup=False))
