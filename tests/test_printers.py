@@ -98,3 +98,26 @@ def create_printer_test(color_):
 
 for color in printers.COLORS.keys():
     vars()['Test' + color.title()] = create_printer_test(color)
+
+
+class TestPrinterExamples(unittest.TestCase):
+    """Test the print_examples function of pyexperiment.utils.printers
+    """
+    def test_examples_print_something(self):
+        """Make sure calling print_examples prints something
+        """
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            printers.print_examples()
+
+        self.assertTrue(len(buf.getvalue()) > 0)
+
+    def test_example_messsage_with_args(self):
+        """Make sure print_examples interpolates message with arguments
+        """
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            printers.print_examples("Foo %d", 3 + 4)
+
+        self.assertRegexpMatches(
+            buf.getvalue(), r'.*%s.*' % "Foo 7")

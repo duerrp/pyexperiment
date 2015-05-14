@@ -53,13 +53,18 @@ for color_name, color_seq in COLORS.items():
     vars()['print_' + color_name] = create_printer(color_seq)
 
 
-if __name__ == '__main__':
-    MESSAGE = "\tstring: '%s', int: '%d', float: '%f'"
-    ARGUMENTS = ("foo".encode(), 123, 2.71)
-    for name, printer in ((name, fun) for name, fun in vars().items()
-                          if name.startswith('print_') and callable(fun)):
+def print_examples(message=None, *args):
+    """Print an example message with every available printer
+    """
+    if message is None:
+        message = "string: '%s', int: '%d', float: '%f'"
+        args = ("foo".encode(), 123, 2.71)
+
+    for name, printer in ((name, fun) for name, fun in globals().items()
+                          if ((name.startswith('print_')
+                               and not name == 'print_examples'
+                               and callable(fun)))):
         print('%s("%s", %s)' % (
             name,
-            MESSAGE[1:], ",".join((repr(arg) for arg in ARGUMENTS))))
-        printer(MESSAGE, *ARGUMENTS)
-        print()
+            message, ",".join((repr(arg) for arg in args))))
+        printer("\t" + message + "\n", *args)
