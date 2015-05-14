@@ -89,3 +89,9 @@ class TestSentinel(unittest.TestCase):
         b_copy = deepcopy(self.sentinel_b)
         self.assertEqual(a_copy, self.sentinel_a)
         self.assertEqual(b_copy, self.sentinel_b)
+
+    def test_sentinel_description(self):
+        """Test the repr of the sentinel
+        """
+        sen = sentinel.create('A', 'description')
+        self.assertEqual(repr(sen), 'description')
