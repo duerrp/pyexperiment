@@ -22,7 +22,7 @@ from six import iteritems
 
 from collections import MutableMapping
 from collections import OrderedDict
-from toolz import count
+from toolz import count, thread_first
 
 
 class HierarchicalMapping(  # pylint: disable=too-many-ancestors
@@ -147,7 +147,7 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
 
     def __repr__(self):
         """Get a representation of the mapping"""
-        return repr(list(iteritems(self)))
+        return thread_first(self, iteritems, list, repr)
 
     def base_keys(self):
         """Returns the keys of the first level of the mapping

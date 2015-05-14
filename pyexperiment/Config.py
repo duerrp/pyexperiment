@@ -25,6 +25,7 @@ from __future__ import absolute_import
 import os
 import configobj
 import validate
+from toolz import thread_first
 
 from pyexperiment.utils.Singleton import InitializeableSingleton
 from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
@@ -106,10 +107,14 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
              not os.path.isfile(self.CONFIG_SPEC_PATH))):
             spec = None
 
-        user_spec_ohm = conf_to_ohm(convert_spec(spec))
-        before_init_spec_ohm = conf_to_ohm(
-            convert_spec(ohm_to_spec(self.DEFAULT_CONFIG)))
-        default_spec_ohm = conf_to_ohm(convert_spec(default_spec))
+        user_spec_ohm = thread_first(spec, convert_spec, conf_to_ohm)
+        before_init_spec_ohm = thread_first(self.DEFAULT_CONFIG,
+                                            ohm_to_spec,
+                                            convert_spec,
+                                            conf_to_ohm)
+        default_spec_ohm = thread_first(default_spec,
+                                        convert_spec,
+                                        conf_to_ohm)
 
         user_spec_ohm.merge(before_init_spec_ohm)
         user_spec_ohm.merge(default_spec_ohm)
