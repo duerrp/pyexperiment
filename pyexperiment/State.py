@@ -247,9 +247,8 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                 self.changed = []
 
         except IOError as err:
-            raise IOError("Cannot save state to file '%s', (err: '%s')",
-                          filename,
-                          err)
+            raise IOError("Cannot save state to file '%s', (err: '%s')" % (
+                filename, err))
 
     def load(self,
              filename=None,

@@ -61,7 +61,7 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
         try:
             split_name = key.split(self.SECTION_SEPARATOR)
         except AttributeError() as err:
-            raise KeyError("Key must be a string ('%s')", err)
+            raise KeyError("Key must be a string ('%s')" % err)
         level = 0
         section = self.base
         # Iterate through the sections
@@ -72,8 +72,9 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
             except KeyError as err:
                 if not create:
                     raise KeyError(
-                        "Section '%s' does not exist"
-                        " ('%s')" % (split_name[level], err))
+                        "Section '%s' does not exist in '%s'" % (
+                            split_name[level],
+                            self.SECTION_SEPARATOR.join(split_name[:level])))
                 else:
                     section[split_name[level]] = self._new_section(section,
                                                                    level)
@@ -90,10 +91,9 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
         # At the last section, get the value
         try:
             value = section[subkey]
-        except KeyError as err:
+        except KeyError as _err:
             raise KeyError(
-                "Key does not exist '%s' ('%s')",
-                key, err)
+                "Key '%s' does not exist" % key)
         return value
 
     def __setitem__(self, key, value):
@@ -103,12 +103,7 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
             raise KeyError("Mapping has not been initialized")
         section, subkey = self.__descend_sections(key, create=True)
         # At the last section, set the value
-        try:
-            section[subkey] = value
-        except KeyError as err:
-            raise KeyError(
-                "Key does not exist '%s' ('%s')",
-                key, err)
+        section[subkey] = value
 
     def __delitem__(self, key):
         """Delete an item
@@ -117,10 +112,9 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
         # At the last section, set the value
         try:
             del section[subkey]
-        except KeyError as err:
+        except KeyError as _err:
             raise KeyError(
-                "Key does not exist '%s' ('%s')",
-                key, err)
+                "Key does not exist '%s'" % key)
 
     def __iter__(self):
         """Need to define __iter__ to make it a MutableMapping
