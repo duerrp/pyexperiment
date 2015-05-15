@@ -73,3 +73,16 @@ class TestOhmToSpec(unittest.TestCase):
         self.assert_equal_encoded_list(
             ohm_to_spec(default),
             ["[a]", "b = float(default=1.2)"])
+
+    def test_level2_spec(self):
+        """Test generating a spec with two levels
+        """
+        default = HierarchicalOrderedDict()
+        default['a.b'] = 1.2
+        default['a.c.d'] = 3
+        self.assert_equal_encoded_list(
+            ohm_to_spec(default),
+            ["[a]",
+             "b = float(default=1.2)",
+             "[[c]]",
+             "d = integer(default=3)"])

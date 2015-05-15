@@ -9,6 +9,7 @@ from __future__ import absolute_import
 
 import configobj
 from collections import defaultdict
+from itertools import count as count_up
 
 from pyexperiment.utils.HierarchicalMapping import HierarchicalOrderedDict
 
@@ -58,10 +59,9 @@ def ohm_to_spec_list(ohm, value_transform=lambda x: x):
 
     for key, value in ohm.items():
         split_key = key.split(ohm.SECTION_SEPARATOR)
-        level = 1
         index = None
         if len(split_key) > 1:
-            for part in split_key[:-1]:
+            for level, part in zip(count_up(1), split_key[:-1]):
                 section_header = (level * level_start +
                                   part +
                                   level*level_stop).encode()
@@ -70,6 +70,7 @@ def ohm_to_spec_list(ohm, value_transform=lambda x: x):
                     continue
                 else:
                     spec += [section_header]
+                    index = spec.index(section_header)
 
         spec_entry = (split_key[-1] +
                       " = " +

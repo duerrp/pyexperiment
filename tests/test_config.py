@@ -287,6 +287,23 @@ class TestConfFile(unittest.TestCase):
         self.assertIsInstance(conf['section_1.a'], int)
         self.assertEqual(conf['section_1.a'], 12)
 
+    def test_load_with_nested_spec(self):
+        """Test loading a configuration with a nested specification
+        """
+        spec = ("[section_1]\n"
+                "[[section_a]]\n"
+                "a = integer(min=0, default=5)")
+        conf.load(self.filename,
+                  spec=(
+                      [option.encode() for option in spec.split('\n')]))
+        self.assertTrue('section_1.section_a.a' in conf)
+        self.assertIsInstance(conf['section_1.section_a.a'], int)
+        self.assertEqual(conf['section_1.section_a.a'], 5)
+
+        self.assertTrue('section_1.a' in conf)
+        self.assertIsInstance(conf['section_1.a'], str)
+        self.assertEqual(conf['section_1.a'], '12')
+
     def test_load_with_wrong_spec(self):
         """Test loading a configuration that does not adhere to the specs
         """
