@@ -32,9 +32,10 @@ CHECKERS = [
     ['pylint', './examples/minimal_cli', '--reports=n'],
     ['pylint', './examples/minimal_config', '--reports=n', '--disable=I0011'],
     ['pylint', './examples/test_cli', '--reports=n'],
-    ['pylint', './examples/example', '--reports=n', '--disable=I0011'],
-    ['pylint', './examples/minimal_logging', '--reports=n', '--disable=I0011'],
-    ['pylint', './examples/stopwatch', '--reports=n', '--disable=I0011'],
+    ['pylint', './examples/example', '--reports=n', '--disable=I0011,E1101'],
+    ['pylint', './examples/minimal_logging', '--reports=n',
+     '--disable=I0011,E1101'],
+    ['pylint', './examples/stopwatch', '--reports=n', '--disable=I0011,E1101'],
 ]
 """List of checkers to run and their arguments
 """
