@@ -13,6 +13,8 @@ import io
 import logging
 import tempfile
 import os
+import time
+import re
 
 from pyexperiment import log
 from pyexperiment import Logger
@@ -134,3 +136,37 @@ class TestLogger(unittest.TestCase):
         log.close()
         # Something should be logged
         self.assertNotEqual(len(self.log_stream.getvalue()), 0)
+
+    def test_print_timings_correct(self):
+        """Test timing is about right
+        """
+        buf = io.StringIO()
+
+        # Nothing should be logged yet
+        self.assertEqual(len(self.log_stream.getvalue()), 0)
+
+        log.initialize()
+        # Still, nothing should be logged yet
+        self.assertEqual(len(self.log_stream.getvalue()), 0)
+
+        for _ in range(3):
+            with log.timed("Foo", level=logging.FATAL):
+                time.sleep(0.01)
+
+        with stdout_redirector(buf):
+            log.print_timings()
+
+        # Should print correct stats
+        self.assertRegexpMatches(buf.getvalue(), r'\'Foo\'')
+        self.assertRegexpMatches(buf.getvalue(), r'3 times')
+        self.assertRegexpMatches(buf.getvalue(), r'total = 0.03')
+        self.assertRegexpMatches(buf.getvalue(), r'median = 0.01')
+
+        log.close()
+        # Correct timings should be logged three times
+        self.assertRegexpMatches(self.log_stream.getvalue(), r'Foo')
+        self.assertEqual(len(re.findall(r'Foo',
+                                        self.log_stream.getvalue())), 3)
+        self.assertRegexpMatches(self.log_stream.getvalue(), r'took 0.01')
+        self.assertEqual(len(re.findall(r'took 0.01',
+                                        self.log_stream.getvalue())), 3)

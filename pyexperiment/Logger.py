@@ -333,9 +333,11 @@ class TimingLogger(Logger):
                 if no_timings > 1:
                     times_array = np.array(times)
                     message = ("\t'%s' (timed %d times): "
+                               "total = %0.6fs, "
                                "min = %0.6fs, max = %0.6fs, median = %0.6fs"
                                % (msg,
                                   no_timings,
+                                  np.sum(times_array),
                                   np.min(times_array),
                                   np.max(times_array),
                                   np.median(times_array)))
