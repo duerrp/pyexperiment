@@ -214,7 +214,8 @@ def format_command_help(commands):
                        + "".join(command.__doc__.replace(
                            "\n    ", " ").split(".")[0])
                        + "\n"
-                       for command in commands]))
+                       for command in commands
+                       if command.__doc__ is not None]))
     return string
 
 
