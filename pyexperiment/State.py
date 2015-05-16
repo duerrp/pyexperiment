@@ -27,15 +27,14 @@ from functools import partial
 import lockfile
 
 from pyexperiment.utils.Singleton import Singleton
-from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
+from pyexperiment.utils.Singleton import delegate_singleton
 from pyexperiment.utils.HierarchicalMapping \
     import HierarchicalOrderedDict
 from pyexperiment.utils import sentinel
 from pyexperiment.Logger import TimingLogger
 from pyexperiment.utils.functional import starts_with
 
-log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
-    TimingLogger)
+log = delegate_singleton(TimingLogger)  # pylint: disable=invalid-name
 """Pyexperiment's logger, re-wrapped here to avoid cyclical dependency
 """
 

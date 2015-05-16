@@ -28,7 +28,7 @@ import validate
 from toolz import thread_first
 
 from pyexperiment.utils.Singleton import InitializeableSingleton
-from pyexperiment.utils.Singleton import InitializeableSingletonIndirector
+from pyexperiment.utils.Singleton import delegate_singleton
 from pyexperiment.Logger import TimingLogger
 from pyexperiment.utils.HierarchicalMapping import HierarchicalMapping
 from pyexperiment.utils.HierarchicalMapping import HierarchicalOrderedDict
@@ -38,8 +38,7 @@ from pyexperiment.utils.config_conversion import conf_to_ohm
 from pyexperiment.utils.config_conversion import ohm_to_spec_list
 
 
-log = InitializeableSingletonIndirector(  # pylint: disable=invalid-name
-    TimingLogger)
+log = delegate_singleton(TimingLogger)  # pylint: disable=invalid-name
 """Pyexperiment's logger, re-wrapped here to avoid cyclical dependency
 """
 

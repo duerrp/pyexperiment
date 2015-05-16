@@ -12,15 +12,11 @@ abstract base class for classes that are only instantiated once, but
 need to provide an instance before being properly initialized (such as
 `pyexperiment.Logger.Logger`).
 
-The `SingletonIndirector` is a utility class that 'thunks' a
-`Singleton` so that calls to the singleton instance's methods don't
-need to be ugly chain calls. Similarly, the
-`InitializeableSingletonIndirector` provides 'thunking' for the
-`InitializeableSingleton`.
+The function `delegate_singleton` 'thunks' a `Singleton` so that calls
+to the singleton instance's methods don't need to be ugly chain calls.
 
 Written by Peter Duerr (Singleton inspired by Tornado's
 implementation)
-
 """
 from __future__ import print_function
 from __future__ import unicode_literals
@@ -28,6 +24,7 @@ from __future__ import division
 from __future__ import absolute_import
 
 import threading
+import inspect
 
 
 class Singleton(object):
@@ -112,72 +109,65 @@ class InitializeableSingleton(Singleton):
         cls.__singleton_instance = cls(*args, **kwargs)
 
 
-class SingletonIndirector(object):  # pylint: disable=too-few-public-methods
-    """Creates a class that mimics the Singleton lazily
-
-    This avoids calling obj.get_instance().attribute too often
+def delegate_special_methods(singleton):
+    """Decorator that delegates special methods to a singleton
     """
-    def __init__(self, singleton):
-        """Initializer
+    def _create_delegate(attr, singleton):
+        """Creates a thunk that calls the attribute on the singleton
         """
-        self.singleton = singleton
+        def f(*args, **kwargs):
+            """Calls the attribute on the singleton
+            """
+            ret = getattr(singleton.get_instance(),
+                          attr.__name__)(*args[1:], **kwargs)
+            return ret
+        return f
 
-    def __getattr__(self, attr):
-        """Call __getattr__ on the singleton instance
+    def decorator(cls):
+        """The decorator to be returned
         """
-        return getattr(self.singleton.get_instance(), attr)
-
-    def __repr__(self):
-        """Call __repr__ on the singleton instance
-        """
-        return repr(self.singleton.get_instance())
-
-    def __dir__(self):
-        """Get the methods of the underlying singleton
-        """
-        return dir(self.singleton.get_instance())
-
-    def __getitem__(self, *args):
-        """Call __getitem__ on the singleton instance
-        """
-        return self.singleton.get_instance().__getitem__(*args)
-
-    def __setitem__(self, *args):
-        """Call __setitem__ on the singleton instance
-        """
-        return self.singleton.get_instance().__setitem__(*args)
-
-    def __delitem__(self, *args):
-        """Call __delitem__ on the singleton instance
-        """
-        return self.singleton.get_instance().__delitem__(*args)
-
-    def __len__(self, *args):
-        """Call __len__ on the singleton instance
-        """
-        return len(self.singleton.get_instance())
-
-    def __contains__(self, *args):
-        """Call __contains__ on the singleton instance
-        """
-        return self.singleton.get_instance().__contains__(*args)
-
-    def __iter__(self, *args):
-        """Call __iter__ on the singleton instance
-        """
-        return self.singleton.get_instance().__iter__(*args)
-
-    def __next__(self, *args):
-        """Call __next__ on the singleton instance
-        """
-        return self.singleton.get_instance().__next__(*args)
+        for name, attr in inspect.getmembers(singleton):
+            if (name[:2], name[-2:]) != ('__', '__'):
+                continue
+            if name in ['__class__',
+                        '__init__',
+                        '__dict__',
+                        '__new__',
+                        '__doc__',
+                        '__setattr__',
+                        '__abstractmethods__',
+                        '__delattr__',
+                        '__getattribute__',
+                        '__dir__']:
+                continue
+            setattr(cls, name, _create_delegate(attr, singleton))
+        return cls
+    return decorator
 
 
-class InitializeableSingletonIndirector(  # pylint: disable=R0903
-        SingletonIndirector):
-    """Creates a class that mimics an InitializeableSingleton lazily
+def delegate_singleton(singleton):
+    """Creates an object that delegates all calls to the singleton
     """
-    def initialize(self, *args, **kwargs):
-        """Initializes the InitializeableSingleton
+    # pylint: disable=too-few-public-methods
+    @delegate_special_methods(singleton)
+    class SingletonDelegate(object):
+        """Passes attribute access to the singleton's instance
         """
-        return self.singleton.initialize(*args, **kwargs)
+        def __getattr__(self, attr):
+            """Call __getattr__ on the singleton instance
+            """
+            return getattr(singleton.get_instance(), attr)
+
+        @staticmethod
+        def __dir__():
+            """Pass __dir__
+            """
+            return dir(singleton.get_instance())
+
+        @staticmethod
+        def initialize(*args, **kwargs):
+            """Pass initialize
+            """
+            singleton.initialize(*args, **kwargs)
+
+    return SingletonDelegate()

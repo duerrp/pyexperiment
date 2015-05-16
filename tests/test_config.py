@@ -26,6 +26,9 @@ class TestConf(unittest.TestCase):
         """Test empty config throws Exception
         """
         conf.reset_instance()
+        self.assertRaises(KeyError, lambda: conf['a'])
+        # Equivalent, but just to be sure it still works through the delegated
+        # singleton
         self.assertRaises(KeyError, conf.__getitem__, 'a')
 
     def test_empty_initialized_conf(self):
@@ -33,7 +36,7 @@ class TestConf(unittest.TestCase):
         """
         conf.reset_instance()
         conf.initialize()
-        self.assertRaises(KeyError, conf.__getitem__, 'a')
+        self.assertRaises(KeyError, lambda: conf['a'])
 
     def test_save_no_config(self):
         """Test saving uninitialized config
@@ -65,7 +68,7 @@ class TestConf(unittest.TestCase):
     def test_get_default(self):
         """Test getting config values with a default argument
         """
-        self.assertRaises(KeyError, conf.__getitem__, 'a')
+        self.assertRaises(KeyError, lambda: conf['a'])
         self.assertRaises(KeyError, conf.get, 'a')
         self.assertEqual(conf.get('a', default=12), 12)
         self.assertRaises(KeyError, conf.get, 'a')
@@ -160,8 +163,7 @@ class TestConfFile(unittest.TestCase):
         # Destroy configuration
         conf.reset_instance()
         self.assertRaises(KeyError,
-                          conf.__getitem__,
-                          'section_1.a')
+                          lambda: conf['section_1.a'])
 
         conf.load(filename)
         a_conf = conf['section_1.a']
@@ -203,7 +205,7 @@ class TestConfFile(unittest.TestCase):
         """Test get_or_setting config values
         """
         conf.load(self.filename)
-        self.assertRaises(KeyError, conf.__getitem__, 'a')
+        self.assertRaises(KeyError, lambda: conf['a'])
         self.assertRaises(KeyError, conf.get, 'a')
         self.assertFalse('a' in conf)
         self.assertEqual(conf.get_or_set('a', 12), 12)

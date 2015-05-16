@@ -81,8 +81,8 @@ comma separated values, we can achieve this by defining `load` as
 
 Note that internally, the implementation of
 :class:`pyexperiment.State` uses a
-:class:`pyexperiment.utils.Singleton.Singleton` wrapped by a
-:class:`pyexperiment.utils.Singleton.SingletonIndirector`, so that
+:class:`pyexperiment.utils.Singleton.Singleton` wrapped by
+:func:`pyexperiment.utils.Singleton.delegate_singleton`, so that
 wherever you access the state you are accessing the same underlying
 data structure (in a thread safe way).
 

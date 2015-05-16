@@ -9,7 +9,12 @@ from __future__ import absolute_import
 
 
 import unittest
-from pyexperiment.utils.Singleton import Singleton, SingletonIndirector
+from itertools import count as count_up
+
+from pyexperiment.utils.Singleton import Singleton
+from pyexperiment.utils.Singleton import InitializeableSingleton
+from pyexperiment.utils.Singleton import delegate_singleton
+from pyexperiment.utils.HierarchicalMapping import HierarchicalOrderedDict
 
 
 class TestSingleton(unittest.TestCase):
@@ -54,10 +59,13 @@ class TestSingleton(unittest.TestCase):
 
         self.assertEqual(singleton_b.memory, [])
 
-    def test_indirector_calls(self):
-        """Test if the indirector calls the singleton correctly
-        """
 
+class TestDelegatedSingleton(unittest.TestCase):
+    """Test delegating singletons
+    """
+    def test_delegated_singleton_calls(self):
+        """Test if the delegated singleton calls the singleton correctly
+        """
         class SingletonTest(Singleton):
             """Singleton test class
             """
@@ -76,17 +84,17 @@ class TestSingleton(unittest.TestCase):
                 self.memory = []
                 return memory
 
-        indirect = SingletonIndirector(SingletonTest)
-        indirect.add(12)
+        delegated = delegate_singleton(SingletonTest)
+        delegated.add(12)
 
-        self.assertEqual(indirect.memory, [12])
+        self.assertEqual(delegated.memory, [12])
 
-        memory = indirect.reset()
+        memory = delegated.reset()
         self.assertEqual(memory, [12])
-        self.assertEqual(indirect.memory, [])
+        self.assertEqual(delegated.memory, [])
 
-    def test_indirector_get_instance(self):
-        """Test if the indirector can use get_instance
+    def test_delegated_get_instance(self):
+        """Test if the delegated singleton can use get_instance
         """
 
         class SingletonTest(Singleton):
@@ -102,15 +110,14 @@ class TestSingleton(unittest.TestCase):
                 """
                 return self.foo_str
 
-        indirect = SingletonIndirector(SingletonTest)
-        direct = indirect.get_instance()
+        delegated = delegate_singleton(SingletonTest)
+        direct = delegated.get_instance()
 
         self.assertEqual(direct.get_foo(), "foo")
 
-    def test_indirector_reset_instance(self):
-        """Test if the indirector can use reset_instance
+    def test_delegated_reset_instance(self):
+        """Test if the delegated singleton can use reset_instance
         """
-
         class SingletonTest(Singleton):
             """Singleton test class
             """
@@ -124,16 +131,16 @@ class TestSingleton(unittest.TestCase):
                 """
                 self.memory.append(number)
 
-        indirect = SingletonIndirector(SingletonTest)
-        indirect.add(12)
+        delegated = delegate_singleton(SingletonTest)
+        delegated.add(12)
 
         self.assertEqual(SingletonTest.get_instance().memory, [12])
 
-        indirect.reset_instance()
+        delegated.reset_instance()
         self.assertEqual(SingletonTest.get_instance().memory, [])
 
-    def test_singleton_indirector_repr(self):
-        """Test calling the repr method on SingletonIndirector
+    def test_delegate_singleton_repr(self):
+        """Test calling the repr method on a delegated singleton
         """
         class FooSingleton(Singleton):
             """Singleton test class
@@ -142,11 +149,12 @@ class TestSingleton(unittest.TestCase):
                 """Returns foo
                 """
                 return "foo"
-        singleton = SingletonIndirector(FooSingleton)
+
+        singleton = delegate_singleton(FooSingleton)
         self.assertEqual(singleton.__repr__(), "foo")
 
-    def test_singleton_indirector_dir(self):
-        """Test calling the dir method on SingletonIndirector
+    def test_delegate_singleton_dir(self):
+        """Test calling the dir method on a delegated singleton
         """
         class FooSingleton(Singleton):
             """Singleton test class
@@ -157,27 +165,27 @@ class TestSingleton(unittest.TestCase):
                 """
                 return "foo"
 
-        singleton = SingletonIndirector(FooSingleton)
+        singleton = delegate_singleton(FooSingleton)
         self.assertIn('bla', dir(singleton))
 
-    def test_iter_singleton_indirector(self):
-        """Test iterating over singleton
+    def test_delegate_singleton_iter(self):
+        """Test iterating over a delegated singleton
         """
         class FooSingleton(Singleton, list):
             """Iterable Singleton
             """
             pass
 
-        singleton = SingletonIndirector(FooSingleton)
+        singleton = delegate_singleton(FooSingleton)
 
         for i in range(10):
             singleton.append(i)
 
-        for item, expected in zip(singleton, range(10)):
+        for item, expected in zip(singleton, count_up()):
             self.assertEqual(item, expected)
 
-    def test_next_singleton_indirector(self):
-        """Test using a singleton as an iterator
+    def test_deletate_singleton_next(self):
+        """Test using a delegated singleton as an iterator
         """
         class FooSingleton(Singleton):
             """Singleton Iterator
@@ -205,7 +213,61 @@ class TestSingleton(unittest.TestCase):
                 """For python 2.x compatibility"""
                 return self.__next__()
 
-        singleton = SingletonIndirector(FooSingleton)
+        singleton = delegate_singleton(FooSingleton)
 
-        for item, expected in zip(singleton, range(1, 4)):
+        for item, expected in zip(singleton, count_up(1)):
             self.assertEqual(item, expected)
+
+    def test_delegate_hierarchical(self):
+        """Test using a singleton HierarchicalOrderedDict
+        """
+        # pylint: disable=too-many-ancestors
+        class SingletonDict(HierarchicalOrderedDict, Singleton):
+            """Singleton Iterator
+            """
+            pass
+
+        singleton = delegate_singleton(SingletonDict)
+        singleton['a'] = 12
+        singleton['b.c'] = 13
+
+        self.assertIn('a', singleton)
+        self.assertIn('b.c', singleton)
+        self.assertEqual(singleton['a'], 12)
+        self.assertEqual(singleton['b.c'], 13)
+
+    def test_delegate_initializable(self):
+        """Test using delegating an initializable singleton
+        """
+        memory = []
+
+        class InitSingleton(InitializeableSingleton):
+            """Initializable Singleton
+            """
+            def __init__(self):
+                """Initializer
+                """
+                self.memory = []
+
+            def append(self, value):
+                """Append to the memory
+                """
+                self.memory.append(value)
+
+            @classmethod
+            def _get_pseudo_instance(cls):
+                """Return the external memory
+                """
+                return memory
+
+        singleton = delegate_singleton(InitSingleton)
+        singleton.append(12)
+        singleton.append(13)
+
+        self.assertEqual(memory, [12, 13])
+        singleton.initialize()
+
+        singleton.append(14)
+        singleton.append(15)
+        self.assertEqual(memory, [12, 13])
+        self.assertEqual(singleton.memory, [14, 15])
