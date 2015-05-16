@@ -112,21 +112,21 @@ class InitializeableSingleton(Singleton):
 def delegate_special_methods(singleton):
     """Decorator that delegates special methods to a singleton
     """
-    def _create_delegate(attr, singleton):
+    def _create_delegate(name, singleton):
         """Creates a thunk that calls the attribute on the singleton
         """
         def f(*args, **kwargs):
             """Calls the attribute on the singleton
             """
             ret = getattr(singleton.get_instance(),
-                          attr.__name__)(*args[1:], **kwargs)
+                          name)(*args[1:], **kwargs)
             return ret
         return f
 
     def decorator(cls):
         """The decorator to be returned
         """
-        for name, attr in inspect.getmembers(singleton):
+        for name, _attr in inspect.getmembers(singleton):
             if (name[:2], name[-2:]) != ('__', '__'):
                 continue
             if name in ['__class__',
@@ -140,7 +140,7 @@ def delegate_special_methods(singleton):
                         '__getattribute__',
                         '__dir__']:
                 continue
-            setattr(cls, name, _create_delegate(attr, singleton))
+            setattr(cls, name, _create_delegate(name, singleton))
         return cls
     return decorator
 
