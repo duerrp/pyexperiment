@@ -1,15 +1,14 @@
 """Provide flat, point separated interface to nested mappings
 
 As the zen of python says, flat is better than nested. In many cases,
-however, it makes sense to store data in a nested data structure. For
-ease of use, the HierarchicalMapping defines an abstract base class
-for such mappings that can still be treated like an ordinary Mapping
-of strings to values, but with the advantage that the values for keys
-containing a level separator, e.g., "level1.level2.level3" are stored
-in a nested hierarchy of mappings.
+however, it makes sense to store data in a nested data structure. To
+bridge the gap, the HierarchicalMapping defines an abstract base class
+for data structures that can be treated like an ordinary mapping from
+strings to values, but with the advantage that the values for keys
+containing a level separator, e.g., "level1.level2.level3" are stored in
+a nested hierarchy of mappings.
 
 Written by Peter Duerr
-
 """
 
 from __future__ import print_function

@@ -1,4 +1,9 @@
-"""Some functional tools for pyexperiment
+"""Some functional tools for pyexperiment.
+
+The `shorter` function compares the length of two iterators (one of
+which may be of infinite length). The `starts_with` is similar to the
+String's `startswith` function, but for iterators. The `flatten`
+function will remove one level of nesting from a nested iterator.
 
 Written by Peter Duerr
 """

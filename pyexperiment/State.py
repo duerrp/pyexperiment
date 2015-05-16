@@ -1,9 +1,13 @@
-"""Handles persistent state for an experiment, allowing to save and
-restore from disk easily.
+"""Handles persistent state for an experiment.
 
-Python objects in general are stored in a dictionary that can be
-accessed with set_state and get_state. State can be stored to disk and
-reloaded with save_state and load_state respectively.
+Based on a `HierarchicalOrderedDict`, the `State` singleton handles
+global, persistent state, allowing to save and load state from h5f
+files. Numpy arrays are saved in native h5f format so that they can be
+loaded by other programs, other python objects are saved in pickled
+format.
+
+Lazy loading (by default), means that values of the state are not loaded
+until they are first accessed.
 
 Written by Peter Duerr
 """

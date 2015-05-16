@@ -1,4 +1,7 @@
-"""A factory for unique sentinel values
+"""A factory for unique sentinel values.
+
+`Sentinel` objects are unique in the sense that they are equal only to
+themselves. `Sentinel` objects can not be pickled.
 
 Written by Peter Duerr
 """

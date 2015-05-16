@@ -1,4 +1,11 @@
-"""Provides setup for matplotlib figures
+"""Provides setup utilities for matplotlib figures.
+
+The `setup_matplotlib` function will configure matplotlib's font size,
+line width, etc. Calls after the first call are ignored unless the
+override flag is set to True. The `setup_figure` function will call
+`setup_matplotlib` without overriding an existing setup, and then return
+the handle to a new figure, pre-configured with the 'q' key bound to
+close the figure.
 
 Written by Peter Duerr.
 """
