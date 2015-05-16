@@ -45,3 +45,9 @@ def starts_with(iter1, iter2):
                 return equal_so_far
         else:
             return False
+
+
+def flatten(seq):
+    """Flatten nested sequence
+    """
+    return (item for sublist in seq for item in sublist)

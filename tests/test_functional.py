@@ -15,7 +15,7 @@ if True:  # Ugly, but makes pylint happy
     from six.moves import range  # pylint: disable=redefined-builtin
 
 
-from pyexperiment.utils.functional import shorter, starts_with
+from pyexperiment.utils.functional import shorter, starts_with, flatten
 
 
 class TestShorter(unittest.TestCase):
@@ -78,3 +78,23 @@ class TestStartsWith(unittest.TestCase):
 
         self.assertTrue(starts_with([0], count()))
         self.assertFalse(starts_with(count(), [1, 2, 3]))
+
+
+class TestFlatten(unittest.TestCase):
+    """Test flattening
+    """
+    def test_flatten_empty_list(self):
+        """Test flattening empty list
+        """
+        self.assertEqual([], list(flatten([])))
+
+    def test_flatten_nested_list(self):
+        """Test flattening nested list
+        """
+        self.assertEqual([1, 2, 3, 4], list(flatten([[1], [2, 3], [4]])))
+
+    def test_flatten_double_list(self):
+        """Test flattening nested list
+        """
+        self.assertEqual([1, [2, 'b'], 3, 4],
+                         list(flatten([[1], [[2, 'b'], 3], [4]])))
