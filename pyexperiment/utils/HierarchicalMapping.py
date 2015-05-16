@@ -202,7 +202,7 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
         """Merge in another mapping, giving precedence to self
         """
         for key, value in other.items():
-            if not key in self:
+            if key not in self:
                 self[key] = value
 
 
