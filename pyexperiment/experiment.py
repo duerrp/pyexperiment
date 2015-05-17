@@ -51,8 +51,8 @@ DEFAULT_CONFIG_SPECS = ("[pyexperiment]\n"
                         "line_width = integer(min=1, default=4)\n"
                         "[[[seaborn]]]\n"
                         "enable = boolean(default=True)\n"
-                        "style = option('darkgrid', 'whitegrid', 'dark', "
-                        "'white', 'ticks', default='darkgrid')\n"
+                        "style = option('darkgrid','whitegrid','dark',"
+                        "'white','ticks',default='darkgrid')\n"
                         "palette_name = string(default=deep)\n"
                         "desat = float(min=0.0, max=1.0, default=0.6)\n")
 """Default specification for the experiment's configuration

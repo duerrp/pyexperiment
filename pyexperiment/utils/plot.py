@@ -82,7 +82,7 @@ def setup_plotting(options=None,
     matplotlib.rc('ytick', labelsize=label_size)
 
     if sns is not None:
-        sns.set_style(option_or_conf('seaborn.style', 'dark_grid'))
+        sns.set_style(option_or_conf('seaborn.style', 'darkgrid'))
         sns.set_palette(option_or_conf('seaborn.palette_name',
                                        'deep'),
                         desat=option_or_conf('seaborn.desat', 0.6))
