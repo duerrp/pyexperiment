@@ -324,8 +324,9 @@ def main(commands=None,
     """Parses command line arguments and configuration, then runs the
     appropriate command.
     """
+    tic = datetime.now()
     log.debug("Start: '%s'", " ".join(sys.argv))
-    log.debug("Time: '%s'", datetime.now())
+    log.debug("Time: '%s'", tic)
 
     commands = collect_commands(commands or [])
 
@@ -371,5 +372,10 @@ def main(commands=None,
           and conf['pyexperiment.print_timings'])
          or conf['pyexperiment.print_timings'] == 'True')):
         log.print_timings()
+
+    toc = datetime.now()
+    log.debug("End: '%s'", " ".join(sys.argv))
+    log.debug("Time: '%s'", toc)
+    log.debug("Took: %.3fs", (toc - tic).total_seconds())
 
     log.close()
