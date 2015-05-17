@@ -21,10 +21,8 @@ class TestInteractive(unittest.TestCase):
     def setUp(self):
         """Set up the test fixture
         """
-        if 'IPython' in sys.modules:
-            self.old_ipython = sys.modules['IPython']
-        else:
-            self.old_ipython = None
+        import IPython  # pylint: disable=unused-variable
+        self.old_ipython = sys.modules['IPython']
 
     def tearDown(self):
         """Tear down the test fixture
