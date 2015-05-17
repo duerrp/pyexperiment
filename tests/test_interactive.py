@@ -21,8 +21,11 @@ class TestInteractive(unittest.TestCase):
     def setUp(self):
         """Set up the test fixture
         """
-        import IPython  # pylint: disable=unused-variable
-        self.old_ipython = sys.modules['IPython']
+        try:
+            import IPython  # pylint: disable=unused-variable
+            self.old_ipython = sys.modules['IPython']
+        except ImportError:
+            self.old_ipython = None
 
     def tearDown(self):
         """Tear down the test fixture
