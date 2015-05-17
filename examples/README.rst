@@ -257,8 +257,7 @@ only when they are needed.
 Plotting
 ~~~~~~~~
 
-Finally, let's add two utilities from the plotting module with ``from
-pyexperiment.utils.plot import setup_matplotlib`` and ``from
+Finally, let's add the `setup_figure` function with ``from
 pyexperiment.utils.plot import setup_figure`` as well as pyplot (with
 ``from matplotlib import pyplot as plt``) and write the plotter:
 
@@ -268,9 +267,7 @@ pyexperiment.utils.plot import setup_figure`` as well as pyplot (with
        """Plots the data saved in the state
        """
        state.load(conf['pyexperiment.state_filename'])
-       data = state['data']
-
-       setup_matplotlib()
+       data = state['data']       
 
        fig = setup_figure('Time Series Data')
        plt.plot(data)
