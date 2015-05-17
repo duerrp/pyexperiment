@@ -123,12 +123,15 @@ class AsyncPlot(object):
     """Plot asynchronously in a different process
     """
     @staticmethod
-    def plot_process(queue, name):
+    def plot_process(queue, name, labels=None):
         """Grabs data from the queue and plots it in a named figure
         """
         # Set up the figure and display it
         fig = setup_figure(name)
         plt.show(block=False)
+        if labels is not None:
+            plt.xlabel(labels[0])
+            plt.ylabel(labels[1])
 
         while True:
             # Get all the data currently on the queue
@@ -146,12 +149,14 @@ class AsyncPlot(object):
                     plt.plot(*datum)
                 plt.pause(0.015)
 
-    def __init__(self, name='pyexperiment'):
+    def __init__(self,
+                 name='pyexperiment',
+                 labels=None):
         """Initializer
         """
         self.queue = Queue()
         self.process = Process(target=self.plot_process,
-                               args=(self.queue, name))
+                               args=(self.queue, name, labels))
         self.process.start()
 
     def plot(self, *data):
