@@ -43,7 +43,18 @@ DEFAULT_CONFIG_SPECS = ("[pyexperiment]\n"
                         "save_state = boolean(default=False)\n"
                         "state_filename = "
                         "string(default=experiment_state.h5f)\n"
-                        "rotate_n_state_files = integer(min=0, default=5)\n")
+                        "rotate_n_state_files = integer(min=0, default=5)\n"
+                        "[[plot]]\n"
+                        "font_size = integer(min=1, default=14)\n"
+                        "label_size = integer(min=1, default=14)\n"
+                        "use_tex = boolean(default=True)\n"
+                        "line_width = integer(min=1, default=4)\n"
+                        "[[[seaborn]]]\n"
+                        "enable = boolean(default=True)\n"
+                        "style = option('darkgrid', 'whitegrid', 'dark', "
+                        "'white', 'ticks', default='darkgrid')\n"
+                        "palette_name = string(default=deep)\n"
+                        "desat = float(min=0.0, max=1.0, default=0.6)\n")
 """Default specification for the experiment's configuration
 """
 

@@ -1,11 +1,11 @@
 """Provides setup utilities for matplotlib figures.
 
-The `setup_matplotlib` function will configure matplotlib's font size,
-line width, etc. Calls after the first call are ignored unless the
-override flag is set to True. The `setup_figure` function will call
-`setup_matplotlib` without overriding an existing setup, and then return
-the handle to a new figure, pre-configured with the 'q' key bound to
-close the figure.
+The `setup_plotting` function will configure basic plot options,
+such as font size, line width, etc. Calls after the first call are
+ignored unless the override flag is set to True. The `setup_figure`
+function will call `setup_plotting` without overriding an existing
+setup, and then return the handle to a new figure, pre-configured with
+the 'q' key bound to close the figure.
 
 The `AsyncPlot` class provides a simple way to plot some datapoints in
 a separate process without blocking the execution of the main program.
@@ -24,38 +24,68 @@ from __future__ import absolute_import
 
 import matplotlib
 from matplotlib import pyplot as plt
+
 from multiprocessing import Process, Queue
+
+from pyexperiment import conf
+from pyexperiment import log
 
 _SETUP_DONE = False
 """Flag indicating that matplotlib has already been set up
 """
 
 
-def setup_matplotlib(font_size=14,
-                     label_size=14,
-                     use_tex=True,
-                     linewidth=2,
-                     override_setup=True):
+def setup_plotting(options=None,
+                   override_setup=True):
     """Setup basic style for matplotlib figures
     """
+    if options is None:
+        options = {}
+
+    def option_or_conf(key, default):
+        """Get a value from a dictionary, the configuration or a default value
+        """
+        prefix = 'pyexperiment.plot'
+        if key in options:
+            return options['key']
+        elif prefix + conf.SECTION_SEPARATOR + key in conf:
+            return conf[prefix + conf.SECTION_SEPARATOR + key]
+        else:
+            return default
+
+    # Import seaborn if required
+    sns = None
+    if option_or_conf('seaborn.enable', True):
+        try:
+            import seaborn as sns
+        except ImportError:
+            log.warning("Cannot import seaborn. Proceeding without.")
+
     # Global should be ok here
     global _SETUP_DONE  # pylint: disable=global-statement
     if not override_setup and _SETUP_DONE:
         return False
 
-    font_size = int(font_size)
+    font_size = int(option_or_conf('font_size', 14))
     font = {'family': 'normal',
             'weight': 'normal',
             'size': font_size}
 
     matplotlib.rc('font', **font)
 
-    matplotlib.rc('text', usetex=use_tex)
-    matplotlib.rc('lines', linewidth=linewidth)
+    matplotlib.rc('text', usetex=bool(option_or_conf('use_tex', True)))
+    matplotlib.rc('lines', linewidth=int(option_or_conf('line_width', 4)))
+    matplotlib.rc('figure', facecolor='white')
 
-    label_size = int(label_size)
+    label_size = int(option_or_conf('label_size', 14))
     matplotlib.rc('xtick', labelsize=label_size)
     matplotlib.rc('ytick', labelsize=label_size)
+
+    if sns is not None:
+        sns.set_style(option_or_conf('seaborn.style', 'dark_grid'))
+        sns.set_palette(option_or_conf('seaborn.palette_name',
+                                       'deep'),
+                        desat=option_or_conf('seaborn.desat', 0.6))
 
     _SETUP_DONE = True
     return True
@@ -81,7 +111,7 @@ def setup_figure(name='pyexperiment'):
     """Setup a figure that can be closed by pressing 'q' and saved by
     pressing 's'.
     """
-    setup_matplotlib(override_setup=False)
+    setup_plotting(override_setup=False)
 
     fig = plt.figure()
     fig.canvas.set_window_title(name)
@@ -127,7 +157,8 @@ class AsyncPlot(object):
     def plot(self, *data):
         """Plots the data in the separate process
         """
-        self.queue.put(data)
+        if self.process.is_alive():
+            self.queue.put(data)
 
     def close(self):
         """Close the figure, join the process

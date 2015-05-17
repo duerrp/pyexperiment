@@ -11,7 +11,8 @@ from __future__ import absolute_import
 import unittest
 import mock
 from multiprocessing import Queue
-from threading import Timer
+from threading import Thread
+from time import sleep
 
 from pyexperiment.utils import plot
 
@@ -22,20 +23,20 @@ class TestPlot(unittest.TestCase):
     def tearDown(self):
         """Tear down the test fixture
         """
-        # Some tests may leave matplotlib 'configured'
+        # Some tests may leave pl 'configured'
         plot._SETUP_DONE = False  # pylint: disable=protected-access
 
     def test_setup_does_not_override(self):
-        """Test setting up matplotlib
+        """Test setting up plotting
         """
-        self.assertTrue(plot.setup_matplotlib(override_setup=False))
-        self.assertFalse(plot.setup_matplotlib(override_setup=False))
+        self.assertTrue(plot.setup_plotting(override_setup=False))
+        self.assertFalse(plot.setup_plotting(override_setup=False))
 
     def test_setup_does_override(self):
-        """Test setting up matplotlib
+        """Test setting up plotting with override
         """
-        self.assertTrue(plot.setup_matplotlib(override_setup=True))
-        self.assertTrue(plot.setup_matplotlib(override_setup=True))
+        self.assertTrue(plot.setup_plotting(override_setup=True))
+        self.assertTrue(plot.setup_plotting(override_setup=True))
 
     def test_setup_figure(self):
         """Test setting up a figure
@@ -43,11 +44,11 @@ class TestPlot(unittest.TestCase):
         fig = plot.setup_figure()
         self.assertIsNotNone(fig)
 
-    def test_setup_fig_setup_matplotlib(self):
-        """Test setting up a figure sets up matplotlib as well
+    def test_setup_fig_setup_plotting(self):
+        """Test setting up a figure sets up plotting as well
         """
         _fig = plot.setup_figure()
-        self.assertFalse(plot.setup_matplotlib(override_setup=False))
+        self.assertFalse(plot.setup_plotting(override_setup=False))
 
 
 class TestAsyncPlot(unittest.TestCase):
@@ -56,7 +57,7 @@ class TestAsyncPlot(unittest.TestCase):
     def tearDown(self):
         """Tear down the test fixture
         """
-        # Some tests may leave matplotlib 'configured'
+        # Some tests may leave plotting 'configured'
         plot._SETUP_DONE = False  # pylint: disable=protected-access
 
     def test_starts_process(self):
@@ -94,8 +95,16 @@ class TestAsyncPlot(unittest.TestCase):
         """
         queue = Queue()
         queue.put((1, 2, 'k'))
-        Timer(0.1, queue.put, (None,)).start()
 
+        def drop_poison_pill():
+            """Puts None on the queue after it is empty
+            """
+            while not queue.empty():
+                sleep(0.01)
+            sleep(0.01)
+            queue.put(None)
+
+        Thread(target=drop_poison_pill).start()
         with mock.patch('pyexperiment.utils.plot.plt') as plt:
             plot.AsyncPlot.plot_process(queue, name="test_plot")
 

@@ -25,8 +25,8 @@ short experiment. Importing pyexperiment will give you:
 -  *Persistent state* with platform independent, configurable,
    (optionally rotating) state files that are compatible with many other
    programs (based on h5py).
--  A sensible setup for *plotting* with configurable defaults (based on
-   matplotlib).
+-  A sensible setup for *plotting* (based on matplotlib, and optionally
+   seaborn), with configurable defaults and asynchronous plotting.
 -  Many other bits and pieces that might come in handy...
 
 As a design principle, pyexperiment's components come ready to use
@@ -61,6 +61,7 @@ see in the `requirements.txt
 -  toolz
 -  IPython (optional, adds --interactive command)
 -  argcomplete (optional, adds activate_autocompletion command)
+-  seaborn (optional, adds more plotting options)
    
 If you install (the h5py dependency) from pypi, you may need to install
 libhdf5 first, e.g., by running ``sudo apt-get install libhdf5-dev``.
