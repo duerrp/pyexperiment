@@ -355,6 +355,7 @@ class StateHandler(object):
         """Unlock the state file
         """
         self.state_lock.release()
+        self.state_lock = None
 
     def __enter__(self):
         """Enter method for 'with' block
@@ -369,15 +370,18 @@ class StateHandler(object):
     def __exit__(self, *args, **kwargs):
         """Exit method for the 'with' block
         """
-        # If necessary lock the state and save
-        if self.save:
-            if self.state_lock is None:
-                self.lock()
+        try:
+            # If necessary lock the state and save
+            if self.save:
+                if self.state_lock is None:
+                    self.lock()
 
-            State.get_instance().save(self.filename,
-                                      self.rotate_n_files,
-                                      compression_level=self.COMPRESSION_LEVEL)
+                State.get_instance().save(
+                    self.filename,
+                    self.rotate_n_files,
+                    compression_level=self.COMPRESSION_LEVEL)
 
-        # Release the state lock if we have it
-        if self.state_lock is not None:
-            self.unlock()
+        finally:
+            # Release the state lock if we have it
+            if self.state_lock is not None:
+                self.unlock()
