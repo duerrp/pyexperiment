@@ -139,6 +139,12 @@ class AsyncPlot(object):
             while not queue.empty():
                 data.append(queue.get())
 
+            # If there is no data, no need to plot, instead wait for a
+            # while
+            if len(data) == 0:
+                plt.pause(0.015)
+                continue
+
             # Check if poison pill (None) arrived or the figure was closed
             if None in data or not plt.fignum_exists(fig.number):
                 # If yes, leave the process
