@@ -84,7 +84,7 @@ def setup_plotting(options=None,
     if sns is not None:
         sns.set_style(option_or_conf('seaborn.style', 'darkgrid'))
         sns.set_palette(option_or_conf('seaborn.palette_name',
-                                       'deep'),
+                                       'colorblind'),
                         desat=option_or_conf('seaborn.desat', 0.6))
 
     _SETUP_DONE = True
