@@ -60,6 +60,35 @@ class TestSingleton(unittest.TestCase):
         self.assertEqual(singleton_b.memory, [])
 
 
+class TestInitializableSingleton(unittest.TestCase):
+    """Test the InitializableSingleton class
+    """
+    def test_initializable_subclass(self):
+        """Test that subclasses of InitializableSingleton return same instance
+        """
+        class SingletonTest(InitializeableSingleton):
+            """Singleton test class
+            """
+            @classmethod
+            def _get_pseudo_instance(cls):
+                return None
+
+        singleton_a = SingletonTest.get_instance()
+        singleton_b = SingletonTest.get_instance()
+        self.assertEqual(singleton_a, singleton_b)
+
+    def test_need_pseudo_instance(self):
+        """Test that subclasses without _get_pseudo_instance raise error
+        """
+        # pylint: disable=abstract-method
+        class SingletonTest(InitializeableSingleton):
+            """Singleton test class
+            """
+            pass
+
+        self.assertRaises(NotImplementedError, SingletonTest.get_instance)
+
+
 class TestDelegatedSingleton(unittest.TestCase):
     """Test delegating singletons
     """
