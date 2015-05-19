@@ -12,7 +12,6 @@ from __future__ import division
 from __future__ import absolute_import
 
 import inspect
-import six
 
 
 def create(name, description=''):
@@ -27,12 +26,7 @@ def create(name, description=''):
         def __init__(self):
             """Initializer
             """
-            if six.PY2:
-                self.name = name.encode()
-            elif six.PY3:
-                self.name = name
-            else:
-                raise RuntimeError("Python version not supported...")
+            self.name = str(name)
             self.__name__ = self.name
             self.__class__.__name__ = self.name
             # Allow no instances
