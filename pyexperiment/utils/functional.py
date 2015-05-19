@@ -32,8 +32,6 @@ def shorter(iter1, iter2):
         if item2 is not NONE:
             if item1 is NONE:
                 return True
-            else:
-                continue
         else:
             return False
 
