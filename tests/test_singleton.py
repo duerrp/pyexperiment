@@ -12,7 +12,7 @@ import unittest
 from itertools import count as count_up
 
 from pyexperiment.utils.Singleton import Singleton
-from pyexperiment.utils.Singleton import InitializeableSingleton
+from pyexperiment.utils.Singleton import DefaultSingleton
 from pyexperiment.utils.Singleton import delegate_singleton
 from pyexperiment.utils.HierarchicalMapping import HierarchicalOrderedDict
 
@@ -60,13 +60,13 @@ class TestSingleton(unittest.TestCase):
         self.assertEqual(singleton_b.memory, [])
 
 
-class TestInitializableSingleton(unittest.TestCase):
-    """Test the InitializableSingleton class
+class TestDefaultSingleton(unittest.TestCase):
+    """Test the DefaultSingleton class
     """
-    def test_initializable_subclass(self):
-        """Test that subclasses of InitializableSingleton return same instance
+    def test_default_subclass(self):
+        """Test that subclasses of DefaultSingleton return same instance
         """
-        class SingletonTest(InitializeableSingleton):
+        class SingletonTest(DefaultSingleton):
             """Singleton test class
             """
             @classmethod
@@ -81,7 +81,7 @@ class TestInitializableSingleton(unittest.TestCase):
         """Test that subclasses without _get_pseudo_instance raise error
         """
         # pylint: disable=abstract-method
-        class SingletonTest(InitializeableSingleton):
+        class SingletonTest(DefaultSingleton):
             """Singleton test class
             """
             pass
@@ -265,13 +265,13 @@ class TestDelegatedSingleton(unittest.TestCase):
         self.assertEqual(singleton['a'], 12)
         self.assertEqual(singleton['b.c'], 13)
 
-    def test_delegate_initializable(self):
-        """Test using delegating an initializable singleton
+    def test_delegate_default(self):
+        """Test using delegating a DefaultSingleton
         """
         memory = []
 
-        class InitSingleton(InitializeableSingleton):
-            """Initializable Singleton
+        class Default(DefaultSingleton):
+            """Default Singleton
             """
             def __init__(self):
                 """Initializer
@@ -289,7 +289,7 @@ class TestDelegatedSingleton(unittest.TestCase):
                 """
                 return memory
 
-        singleton = delegate_singleton(InitSingleton)
+        singleton = delegate_singleton(Default)
         singleton.append(12)
         singleton.append(13)
 

@@ -7,7 +7,7 @@ settings class such as :class:`pyexperiment.Config`). This design
 pattern is often criticized, but it is hard to beat in terms of
 simplicity.
 
-A variant of the `Singleton`, the `InitializableSingleton` provides an
+A variant of the `Singleton`, the `DefaultSingleton` provides an
 abstract base class for classes that are only instantiated once, but
 need to provide an instance before being properly initialized (such as
 `pyexperiment.Logger.Logger`).
@@ -58,10 +58,10 @@ class Singleton(object):
                     cls.__singleton_instance = None
 
 
-class InitializeableSingleton(Singleton):
+class DefaultSingleton(Singleton):
     """ABC for singleton that does not automatically initialize
 
-    If get_instance is called on an uninitialized InitializeableSingleton,
+    If get_instance is called on an uninitialized DefaultSingleton,
     a pseudo-instance is returned.
 
     Sub-classes need to implement the function `_get_pseudo_instance`

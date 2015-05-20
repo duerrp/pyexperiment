@@ -27,7 +27,7 @@ import configobj
 import validate
 from toolz import thread_first
 
-from pyexperiment.utils.Singleton import InitializeableSingleton
+from pyexperiment.utils.Singleton import DefaultSingleton
 from pyexperiment.utils.Singleton import delegate_singleton
 from pyexperiment.Logger import TimingLogger
 from pyexperiment.utils.HierarchicalMapping import HierarchicalMapping
@@ -44,7 +44,7 @@ log = delegate_singleton(TimingLogger)  # pylint: disable=invalid-name
 
 
 class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
-             InitializeableSingleton):
+             DefaultSingleton):
     """Represents a singleton configuration object.
     """
     CONFIG_SPEC_PATH = 'configspec.ini'

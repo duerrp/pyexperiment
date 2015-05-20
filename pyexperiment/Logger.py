@@ -33,7 +33,7 @@ from datetime import datetime
 from contextlib import contextmanager
 
 from pyexperiment.utils.Singleton import Singleton
-from pyexperiment.utils.Singleton import InitializeableSingleton
+from pyexperiment.utils.Singleton import DefaultSingleton
 from pyexperiment.utils.DelegateCall import DelegateCall
 
 from pyexperiment.utils import printers
@@ -189,7 +189,7 @@ class PreInitLogHandler(logging.Handler, Singleton):
         self.pre_init_logs.append(msg)
 
 
-class Logger(logging.Logger, InitializeableSingleton):
+class Logger(logging.Logger, DefaultSingleton):
     """Implements a multiprocessing-safe logger with timing and colored console
     output.
     """
