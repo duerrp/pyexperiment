@@ -10,8 +10,46 @@ from __future__ import absolute_import
 
 import unittest
 
+
+from pyexperiment.utils.HierarchicalMapping import HierarchicalMapping
 from pyexperiment.utils.HierarchicalMapping import HierarchicalOrderedDict
 from pyexperiment.utils.HierarchicalMapping import HierarchicalDict
+
+
+class TestHierarchicalMapping(unittest.TestCase):
+    """Test the HierarchicalMapping
+    """
+    def test_no_init_subclass(self):
+        """Make sure subclass raises error when base not initialized
+        """
+        # pylint: disable=too-few-public-methods
+        # pylint: disable=abstract-method
+        class Bad(HierarchicalMapping):
+            """Bad implementation of the mapping
+            """
+            pass
+
+        bad = Bad()
+        self.assertRaises(KeyError, bad.__setitem__, 'bla', 12)
+        self.assertRaises(KeyError, lambda: bad['foo'])
+
+    def test_insufficient_subclass(self):
+        """Make sure subclass without abstract methods raises error
+        """
+        # pylint: disable=too-few-public-methods
+        # pylint: disable=abstract-method
+        class Bad(HierarchicalMapping):
+            """Bad implementation of the mapping
+            """
+            def __init__(self):
+                super(Bad, self).__init__()
+                self.base = {}
+
+        bad = Bad()
+        self.assertRaises(NotImplementedError, bad.__setitem__, 'bla.bli', 12)
+        bad['bla'] = {}
+        self.assertRaises(KeyError, lambda: bad['bla.bli'])
+        self.assertRaises(NotImplementedError, lambda: list(iter(bad)))
 
 
 class TestHierarchicalOrderedDict(unittest.TestCase):
@@ -109,6 +147,11 @@ class TestHierarchicalOrderedDict(unittest.TestCase):
         self.assertEqual(self.hod.get('a'), 42)
         self.hod['a'] = 52
         self.assertEqual(self.hod.get_or_set('a', 42), 52)
+
+    def test_set_wrong_key(self):
+        """Test error is raised when keys are not strings
+        """
+        self.assertRaises(TypeError, self.hod.__setitem__, 12, 13)
 
     def test_base_keys(self):
         """Test getting the base keys
@@ -265,6 +308,32 @@ class TestHierarchicalDict(unittest.TestCase):
         self.hdict['a.b.c'] = 12
         self.assertEqual(self.hdict['a.b.c'], 12)
 
+    def test_delete(self):
+        """Test deleting elements of ``HierarchicalDict``
+        """
+        self.hdict['a.b.c'] = 12
+        self.assertIn('a.b.c', self.hdict)
+        del self.hdict['a.b.c']
+        self.assertNotIn('a.b.c', self.hdict)
+        self.assertIn('a.b', self.hdict)
+        self.assertIn('a', self.hdict)
+        del self.hdict['a.b']
+        self.assertNotIn('a.b.c', self.hdict)
+        self.assertNotIn('a.b', self.hdict)
+        self.assertIn('a', self.hdict)
+        del self.hdict['a']
+        self.assertNotIn('a.b.c', self.hdict)
+        self.assertNotIn('a.b', self.hdict)
+        self.assertNotIn('a', self.hdict)
+
+        self.assertRaises(KeyError, self.hdict.__delitem__, 'a')
+
+    def test_repr(self):
+        """Test the repr method
+        """
+        self.hdict['a.b.c'] = 12
+        self.assertRegexpMatches(r"'a.b.c'", repr(self.hdict))
+        self.assertRegexpMatches(r"12", repr(self.hdict))
 
 if __name__ == '__main__':
     unittest.main()

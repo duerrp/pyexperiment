@@ -59,8 +59,8 @@ class HierarchicalMapping(  # pylint: disable=too-many-ancestors
             raise KeyError("Cannot access key in empty mapping")
         try:
             split_name = key.split(self.SECTION_SEPARATOR)
-        except AttributeError() as err:
-            raise KeyError("Key must be a string ('%s')" % err)
+        except AttributeError as err:
+            raise TypeError("Key must be a string ('%s')" % err)
         level = 0
         section = self.base
         # Iterate through the sections
