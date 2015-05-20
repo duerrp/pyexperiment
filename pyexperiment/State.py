@@ -76,6 +76,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                         value = pickle.loads(h5file[h5name].value.tostring())
                     self.__setitem__(key, value)
                 else:
+                    # This should never happen
                     return h5file[h5name]
         except IOError as err:
             if self.raise_ioerror_on_load:

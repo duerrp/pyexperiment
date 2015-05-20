@@ -252,6 +252,11 @@ class TestStateIO(StateTester):
             self.assertEqual(self.dict_val, dict_val)
             self.assertEqual(self.int_val, int_val)
 
+    def test_load_wo_filenamee(self):
+        """Test loading state without passing a filename
+        """
+        self.assertRaises(RuntimeError, state.load)
+
     def test_save_load_file_lazy(self):
         """Test saving file and reloading lazily yields identical values
         """
