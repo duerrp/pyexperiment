@@ -1,0 +1,5 @@
+Error: Not enough arguments.
+usage: minimal_cli [-h] [-c CONFIG] [-o key value] [-i]
+                   [--verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+                   [{hello,world,help,test,show_tests,show_config,save_config,show_state,show_commands,activate_autocompletion}]
+                   [argument [argument ...]]
