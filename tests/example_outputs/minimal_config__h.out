@@ -1,12 +1,12 @@
-usage: minimal_cli [-h] [-c CONFIG] [-o key value] [-i]
-                   [--verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
-                   [{hello,world,help,test,show_tests,show_config,save_config,show_state,show_commands,activate_autocompletion}]
-                   [argument [argument ...]]
+usage: minimal_config [-h] [-c CONFIG] [-o key value] [-i]
+                      [--verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+                      [{simple,nested,help,test,show_tests,show_config,save_config,show_state,show_commands}]
+                      [argument [argument ...]]
 
 Welcome to the world of pyexperiment...
 
 positional arguments:
-  {hello,world,help,test,show_tests,show_config,save_config,show_state,show_commands,activate_autocompletion}
+  {simple,nested,help,test,show_tests,show_config,save_config,show_state,show_commands}
                         choose a command to run
   argument              argument to the command
 
@@ -22,8 +22,8 @@ optional arguments:
 
 possible commands:
 
-  hello:                Prints 'hello' 
-  world:                Prints 'world' 
+  simple:               Prints the configured value for 'example' 
+  nested:               Prints the configured value for 'example' 
   help:                 Shows help for a specified command
   test:                 Run tests for the experiment 
   show_tests:           Show available tests for the experiment 
@@ -31,4 +31,3 @@ possible commands:
   save_config:          Save a configuration file to a filename 
   show_state:           Shows the contents of the state loaded by the configuration or from the file specified as an argument
   show_commands:        Print the possible commands for the experiments     
-  activate_autocompletion:Activate auto completion for your experiment with zsh or bash

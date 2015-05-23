@@ -1,0 +1,10 @@
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmStart: './examples/minimal_logging --verbosity DEBUG run'[Xm
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmTime: 'XXXX-XX-XX XX:XX:XX.XXXXXX'[Xm
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmDebug Message...[Xm
+[[X;XXmINFO[Xm    ] [X.XXXs] [XmInfo Message[Xm
+[[X;XXmWARNING[Xm ] [X.XXXs] [XmWarning Message[Xm
+[[X;XXmERROR[Xm   ] [X.XXXs] [XmError Message[Xm
+[[X;XXmCRITICAL[Xm] [X.XXXs] [XmFatal Message[Xm
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmEnd: './examples/minimal_logging --verbosity DEBUG run'[Xm
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmTime: 'XXXX-XX-XX XX:XX:XX.XXXXXX'[Xm
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmTook: X.XXXs[Xm
