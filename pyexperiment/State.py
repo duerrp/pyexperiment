@@ -75,9 +75,6 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                     else:  # must be a pickled array
                         value = pickle.loads(h5file[h5name].value.tostring())
                     self.__setitem__(key, value)
-                else:
-                    # This should never happen
-                    return h5file[h5name]
         except IOError as err:
             if self.raise_ioerror_on_load:
                 raise IOError(
@@ -147,9 +144,6 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
     def __iter__(self):
         """Overload HierarchicalOrderedDict's __iter__
         """
-        if self.base is None:
-            return super(State, self).__iter__()
-
         # Use filter with super's __getitem__ to exclude deleted keys
         return filter(lambda x: super(State, self).__getitem__(x)
                       is not DELETED,
@@ -254,6 +248,24 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
             raise IOError("Cannot save state to file '%s', (err: '%s')" % (
                 filename, err))
 
+    def __setup_sections_from_file(self, filename):
+        """Convert groups from h5 file to sections of the mapping
+        """
+        with h5py.File(filename, 'r') as h5file:
+            log.info("Loading sections from file '%s'", filename)
+
+            def load_sections(group, level):
+                """Loads sections of h5 file as Ordered dicts
+                """
+                for key, value in group.items():
+                    if isinstance(value, h5py.Group):
+                        if key not in level:
+                            level[key] = OrderedDict()
+                        load_sections(value, level[key])
+                    else:
+                        level[key] = UNLOADED
+            load_sections(h5file['state'], self.base)
+
     def load(self,
              filename=None,
              lazy=True,
@@ -276,28 +288,10 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
             filename = self.filename
 
         try:
-            with h5py.File(filename, 'r') as h5file:
-                log.info("Loading state from file '%s'", filename)
-
-                def load(group, level):
-                    """Loads a whole h5 file as an Ordered dict
-                    """
-                    for key, value in group.items():
-                        if isinstance(value, h5py.Group):
-                            if key not in level:
-                                level[key] = OrderedDict()
-                            load(value, level[key])
-                        elif not lazy:
-                            if (('type' in value.attrs
-                                 and value.attrs['type'] == 'ndarray')):
-                                level[key] = value.value
-                            else:  # must be a pickled array
-                                level[key] = pickle.loads(
-                                    value.value.tostring())
-                        else:
-                            level[key] = UNLOADED
-                load(h5file['state'], self.base)
-
+            self.__setup_sections_from_file(filename)
+            if not self.lazy:
+                for key in self.keys():
+                    self.__load_from_file(key)
         except IOError as err:
             if self.raise_ioerror_on_load:
                 raise IOError(
@@ -367,6 +361,8 @@ class StateHandler(object):
             State.get_instance().load(self.filename,
                                       lazy=True,
                                       raise_error=False)
+
+        return self
 
     def __exit__(self, *args, **kwargs):
         """Exit method for the 'with' block

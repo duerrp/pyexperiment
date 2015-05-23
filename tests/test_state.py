@@ -15,6 +15,8 @@ import six
 import shutil
 import multiprocessing
 import numpy as np
+import lockfile
+from time import sleep
 
 # For python2.x compatibility
 from six.moves import range  # pylint: disable=redefined-builtin, import-error
@@ -224,6 +226,11 @@ class TestBasicState(StateTester):
         self.assertIn('list', state.keys())
         self.assertIn('dict', state.keys())
         self.assertIn('values.int', state.keys())
+
+    def test_iterate_uninitialized(self):
+        """Make sure iterating uninitialized state returns empty generator
+        """
+        self.assertEqual(list(iter(state)), [])
 
 
 class TestStateIO(StateTester):
@@ -607,6 +614,31 @@ class TestStateHandler(unittest.TestCase):
                 process = multiprocessing.Process(target=other_op)
                 process.start()
                 process.join()
+
+    def test_other_process_locks(self):
+        """Test locking the state in another process locks
+        """
+        with tempfile.NamedTemporaryFile() as temp:
+            def other_op(queue):
+                """Lock the lockfile, then wait for poison pill
+                """
+                lockfile.FileLock(temp.name).acquire()
+                while queue.empty():
+                    sleep(0.01)
+                lockfile.FileLock(temp.name).release()
+
+            queue = multiprocessing.Queue()
+            process = multiprocessing.Process(target=other_op,
+                                              args=(queue,))
+            process.start()
+
+            while not lockfile.FileLock(temp.name).is_locked():
+                sleep(0.01)
+            StateHandler.STATE_LOCK_TIMEOUT = 0.001
+            handler = StateHandler(temp.name, load=False)
+            self.assertRaises(RuntimeError, handler.lock)
+            queue.put(None)
+            process.join()
 
 
 if __name__ == '__main__':
