@@ -91,11 +91,11 @@ class TestExamples(unittest.TestCase):
         stderr_diff = [dl for dl in (difflib.Differ().compare(
             stderr.splitlines(),
             expected_stderr.splitlines())) if not dl[0] == ' ']
-        self.assertEqual(str(stdout),
-                         str(expected_stdout),
+        self.assertEqual(remove_whitespace(str(stdout)),
+                         remove_whitespace(str(expected_stdout)),
                          stdout_diff)
-        self.assertEqual(str(stderr),
-                         str(expected_stderr),
+        self.assertEqual(remove_whitespace(str(stderr)),
+                         remove_whitespace(str(expected_stderr)),
                          stderr_diff)
 
 
@@ -139,6 +139,7 @@ def invariant_output(string):
 
     * Replaces all numbers in a string with the 'X' character
     * Removes all appearances of activate_autocompletion
+    * Removes all newlines and whitespace from the string
     """
     numbers_regexp = r'\d'
     activate_autocomp_regexp = (r'((\n?[ ]*)|,)'
@@ -147,6 +148,15 @@ def invariant_output(string):
     return thread_last(string,
                        (re.sub, numbers_regexp, 'X'),
                        (re.sub, activate_autocomp_regexp, ''))
+
+
+def remove_whitespace(string):
+    """Removes spaces, tabs and newlines from the string
+    """
+    return thread_last(string,
+                       (re.sub, r'\t*', ''),
+                       (re.sub, r' *', ''),
+                       (re.sub, r'\n*', ''))
 
 
 def generate_expected():
