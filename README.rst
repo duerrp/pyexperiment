@@ -18,6 +18,7 @@ and a configurable message can be written with as little code as this:
 
    def store(number):
        """Store a number"""
+       log.debug("Storing number: %s", number)
        state['number'] = number
 
    def show():
@@ -25,7 +26,7 @@ and a configurable message can be written with as little code as this:
        if 'number' in state:
            print(conf['message'] + str(state['number']))
        else:
-           log.fatal("No number stored yet")
+           print("No number stored yet")
 
    if __name__ == '__main__':
        experiment.main(commands=[store, show])
