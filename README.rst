@@ -3,10 +3,11 @@ pyexperiment
 
 |Version| |Python Version| |Build Status| |Coverage Status|
 
-Pyexperiment facilitates the development of small experiments in
-Python with minimal boilerplate code.
-For example, a script to store and show a number, complete with help,
-and a configurable message can be written with as little code as this:
+Pyexperiment facilitates the development of small experiments with
+minimal boilerplate code. For example, a program that stores and
+retrieves a string, complete with a CLI, help, logging, and a message
+configurable by a configuration file or command line parameter can be
+implemented like this:
 
 .. code-block:: python
 
@@ -14,19 +15,19 @@ and a configurable message can be written with as little code as this:
 
    conf['pyexperiment.save_state'] = True
    conf['pyexperiment.load_state'] = True
-   conf['message'] = "The number is: "
+   conf['message'] = "The string is: "
 
-   def store(number):
-       """Store a number"""
-       log.debug("Storing number: %s", number)
-       state['number'] = number
+   def store(string):
+       """Store a string"""
+       log.debug("Storing string: %s", string)
+       state['string'] = string 
 
    def show():
-       """Show the stored number"""
-       if 'number' in state:
-           print(conf['message'] + str(state['number']))
+       """Show the stored string"""
+       if 'string' in state:
+           print(conf['message'] + str(state['string']))
        else:
-           print("No number stored yet")
+           print("No string stored yet")
 
    if __name__ == '__main__':
        experiment.main(commands=[store, show])
