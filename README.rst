@@ -3,6 +3,35 @@ pyexperiment
 
 |Version| |Python Version| |Build Status| |Coverage Status|
 
+Pyexperiment facilitates the development of small experiments in
+Python with minimal boilerplate code.
+For example, a script to store and show a number, complete with help,
+configurable message can be written with as little code as this:
+
+.. code-block:: python
+   from pyexperiment import experiment, state, conf, log
+
+   conf['pyexperiment.save_state'] = True
+   conf['pyexperiment.load_state'] = True
+   conf['message'] = "The number is: "
+
+   def store(number):
+       """Store a number"""
+       state['number'] = number
+
+   def show():
+       """Show the stored number"""
+       if 'number' in state:
+           print(conf['message'] + str(state['number']))
+       else:
+           log.fatal("No number stored yet")
+
+   if __name__ == '__main__':
+       experiment.main(commands=[store, show])
+
+Motivation
+----------
+
 There is no shortage of great Python libraries for command line
 interfaces, logging, configuration file management, persistent state, or
 plotting. When writing small scripts for quick experiments though, it's
@@ -44,9 +73,9 @@ folder.
 Installation
 ------------
 
-The easiest way to install pyexperiment is from pypi, just call `pip
-install pyexperiment` (in a virtualenv, prepend `sudo` for system wide
-installation).
+The easiest way to install pyexperiment is from pypi, just call ``pip install
+--user pyexperiment`` (alternatively, use ``pip install pyexperiment`` in a
+virtualenv, or prependending `sudo` for system wide installation).
 
 The pyexperiment package has a few external dependencies (as you can
 see in the `requirements.txt
