@@ -9,6 +9,7 @@ For example, a script to store and show a number, complete with help,
 configurable message can be written with as little code as this:
 
 .. code-block:: python
+
    from pyexperiment import experiment, state, conf, log
 
    conf['pyexperiment.save_state'] = True
@@ -28,6 +29,7 @@ configurable message can be written with as little code as this:
 
    if __name__ == '__main__':
        experiment.main(commands=[store, show])
+
 
 Motivation
 ----------
