@@ -225,7 +225,9 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                                     ds_type = 'ndarray'
                                 else:
                                     # Pickle the data
-                                    pickled_state = pickle.dumps(value)
+                                    pickled_state = pickle.dumps(
+                                        value,
+                                        protocol=pickle.HIGHEST_PROTOCOL)
                                     state_array = np.fromstring(pickled_state,
                                                                 dtype=np.uint8)
                                     ds_type = 'pickle'

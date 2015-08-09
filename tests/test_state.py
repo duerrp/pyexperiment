@@ -17,6 +17,7 @@ import multiprocessing
 import numpy as np
 import lockfile
 from time import sleep
+from datetime import datetime
 
 # For python2.x compatibility
 from six.moves import range  # pylint: disable=redefined-builtin, import-error
@@ -536,6 +537,58 @@ class TestStateEfficientIO(StateTester):
             self.assertNotIn('random', state)
             state.load(temp.name)
             self.assertTrue((random == state['random']).all())
+
+    def test_saving_list_performance(self):
+        """Test saving a list and make sure it's reasonably fast
+        """
+        random = np.random.randint(0, 255, 1024*1024).tolist()
+        state['random'] = random
+        with tempfile.NamedTemporaryFile() as temp:
+            tic = datetime.now()
+            state.save(temp.name)
+            toc = datetime.now()
+            self.assertTrue((toc - tic).total_seconds() < 0.5)
+
+    def test_loading_list_performance(self):
+        """Test loading a list and make sure it's reasonably fast
+        """
+        random = np.random.randint(0, 255, 1024*1024).tolist()
+        state['random'] = random
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertNotIn('random', state)
+            tic = datetime.now()
+            state.load(temp.name)
+            toc = datetime.now()
+            self.assertTrue((toc - tic).total_seconds() < 0.5)
+
+    def test_saving_numpy_performance(self):
+        """Test saving a numpy array and make sure it's reasonably fast
+        """
+        random = np.array(
+            np.random.randint(0, 255, 1024*1024))
+        state['random'] = random
+        with tempfile.NamedTemporaryFile() as temp:
+            tic = datetime.now()
+            state.save(temp.name)
+            toc = datetime.now()
+            self.assertTrue((toc - tic).total_seconds() < 0.5)
+
+    def test_loading_numpy_performance(self):
+        """Test loading a numpy array and make sure it's reasonably fast
+        """
+        random = np.array(
+            np.random.randint(0, 255, 1024*1024))
+        state['random'] = random
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+            self.assertNotIn('random', state)
+            tic = datetime.now()
+            state.load(temp.name)
+            toc = datetime.now()
+            self.assertTrue((toc - tic).total_seconds() < 0.5)
 
 
 class TestStateHandler(unittest.TestCase):
