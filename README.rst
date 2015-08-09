@@ -6,7 +6,7 @@ pyexperiment
 Pyexperiment facilitates the development of small experiments in
 Python with minimal boilerplate code.
 For example, a script to store and show a number, complete with help,
-configurable message can be written with as little code as this:
+and a configurable message can be written with as little code as this:
 
 .. code-block:: python
 
