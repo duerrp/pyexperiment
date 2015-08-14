@@ -51,11 +51,11 @@ parameters simplify experimenting::
    $ ./numbers -v show
    [DEBUG   ] [0.069s] Start: './numbers -v show'
    [DEBUG   ] [0.069s] Time: '2015-08-14 14:23:00.027378'
-   [INFO    ] [0.075s] Loading sections from file 'experiment_state.h5f'
+   [INFO    ] [0.075s] Loading state from file 'experiment_state.h5f'
    The stored numbers are: [42.0, 3.14]
    [DEBUG   ] [0.076s] sum took 0.000025s
    The total is: 45.14
-   [DEBUG   ] [0.077s] Saving state to file: 'experiment_state.h5f'
+   [DEBUG   ] [0.078s] No need to save unchanged state
    [DEBUG   ] [0.078s] End: './numbers -v show'
    [DEBUG   ] [0.078s] Time: '2015-08-14 14:23:00.037124'
    [DEBUG   ] [0.078s] Took: 0.010s

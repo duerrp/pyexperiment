@@ -448,6 +448,40 @@ class TestStateIO(StateTester):
 
         self.assertFalse(state.need_saving())
 
+    def test_no_unnecessary_save_eager(self):
+        """Test saving the state does not save just after loading eagerly
+        """
+        self.assertFalse(state.need_saving())
+        state['bla'] = 'bla'
+        self.assertTrue(state.need_saving())
+
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            self.assertFalse(state.need_saving())
+            state.reset_instance()
+            self.assertFalse(state.need_saving())
+            state.load(temp.name, lazy=False)
+            self.assertFalse(state.need_saving())
+            self.assertEqual(state['bla'], 'bla')
+            self.assertFalse(state.need_saving())
+
+    def test_no_unnecessary_save_lazy(self):
+        """Test saving the state does not save just after loading lazily
+        """
+        self.assertFalse(state.need_saving())
+        state['bla'] = 'bla'
+        self.assertTrue(state.need_saving())
+
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            self.assertFalse(state.need_saving())
+            state.reset_instance()
+            self.assertFalse(state.need_saving())
+            state.load(temp.name, lazy=True)
+            self.assertFalse(state.need_saving())
+            self.assertEqual(state['bla'], 'bla')
+            self.assertFalse(state.need_saving())
+
     def test_saving_deleted_value(self):
         """Test saving really deletes entry
         """

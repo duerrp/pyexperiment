@@ -57,7 +57,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         super(State, self).__init__()
 
         # Keep track of changed values
-        self.changed = []
+        self.changed = set()
         self.filename = filename
         self.lazy = True if filename is not None else False
         self.raise_ioerror_on_load = True
@@ -75,6 +75,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                     else:  # must be a pickled array
                         value = pickle.loads(h5file[h5name].value.tostring())
                     self.__setitem__(key, value)
+                    self.changed.remove(key)
         except IOError as err:
             if self.raise_ioerror_on_load:
                 raise IOError(
@@ -133,7 +134,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         """Stores state with key and value
         """
         super(State, self).__setitem__(key, value)
-        self.changed.append(key)
+        self.changed.add(key)
 
     def __delitem__(self, key):
         """Delete a key from the state
@@ -179,10 +180,10 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         """Checks if state needs to be saved
         """
         if self.base is None or len(self.base.keys()) == 0:
-            log.debug("No need to save empty state...")
+            log.debug("No need to save empty state")
             return False
         if not self.changed:
-            log.debug("No need to save unchanged state...")
+            log.debug("No need to save unchanged state")
             return False
 
         # Otherwise
@@ -195,7 +196,6 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         """Saves state to a h5f file, rotating if necessary
         """
         if not self.need_saving():
-            log.debug("State does not need saving")
             return
         self.do_rollover(filename, rotate_n_state_files)
         log.debug("Saving state to file: '%s'", filename)
@@ -244,7 +244,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                                 del level[key]
 
                 save_level_to_group(self.base, state_grp)
-                self.changed = []
+                self.changed = set()
 
         except IOError as err:
             raise IOError("Cannot save state to file '%s', (err: '%s')" % (
@@ -254,7 +254,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         """Convert groups from h5 file to sections of the mapping
         """
         with h5py.File(filename, 'r') as h5file:
-            log.info("Loading sections from file '%s'", filename)
+            log.info("Loading state from file '%s'", filename)
 
             def load_sections(group, level):
                 """Loads sections of h5 file as Ordered dicts
@@ -276,7 +276,6 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         """
         # Reset state
         self.base = OrderedDict()
-        self.changed = []
         self.raise_ioerror_on_load = raise_error
         self.lazy = lazy
 
@@ -303,6 +302,8 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                 log.debug(
                     "Tried to load state from '%s' "
                     "but failed." % self.filename)
+
+        self.changed = set()
 
     def show(self):
         """Shows the state
