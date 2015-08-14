@@ -16,7 +16,6 @@ computes their sum:
    conf['pyexperiment.load_state'] = True
    conf['message'] = "The stored numbers are: "
    
-   
    def store(number):
        """Store a number"""
        if 'numbers' not in state:
@@ -26,7 +25,6 @@ computes their sum:
        log.debug("Store number: %s", number)
        state['numbers'].append(float(number))
    
-   
    def show():
        """Show the stored numbers and compute their sum"""
        print(conf['message'] + str(state['numbers']))
@@ -34,14 +32,13 @@ computes their sum:
            total = sum(state['numbers'])
        print("The total is: " + str(total))
    
-   
    if __name__ == '__main__':
        experiment.main(commands=[store, show])
 
 
 Pyexperiment's command line interface, logging, timing, persistent
 state, and user-defined configuration by file or command line
-parameters simplify experimenting with this code:::
+parameters simplify experimenting::
 
    $ ./numbers store 42
    $ ./numbers store 3.14
