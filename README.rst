@@ -3,32 +3,40 @@ pyexperiment
 
 |Version| |Python Version| |Build Status| |Coverage Status|
 
-Pyexperiment facilitates the development of small experiments with
-minimal boilerplate code. For example, a program that stores and
-retrieves a string, complete with a CLI, help, logging, and a message
-configurable by a configuration file or command line parameter can be
-implemented like this:
+Pyexperiment facilitates the development of small, reproducible
+experiments with minimal boilerplate code. Consider the following
+example, implementing a simple program complete with a comprehensive
+command line interface, help, logging, timing, and a user-defined
+message configurable by configuration file or command line parameter.
+
 
 .. code-block:: python
 
    from pyexperiment import experiment, state, conf, log
-
+   
    conf['pyexperiment.save_state'] = True
    conf['pyexperiment.load_state'] = True
-   conf['message'] = "The string is: "
-
-   def store(string):
-       """Store a string"""
-       log.debug("Storing string: %s", string)
-       state['string'] = string 
-
+   conf['message'] = "The stored numbers are: "
+   
+   
+   def store(number):
+       """Store a number"""
+       if 'numbers' not in state:
+           log.debug("Initialize state['numbers'] to empty list")
+           state['numbers'] = []
+   
+       log.debug("Store number: %s", number)
+       state['numbers'].append(float(number))
+   
+   
    def show():
-       """Show the stored string"""
-       if 'string' in state:
-           print(conf['message'] + str(state['string']))
-       else:
-           print("No string stored yet")
-
+       """Show the stored numbers and compute their sum"""
+       print(conf['message'] + str(state['numbers']))
+       with log.timed("sum"):
+           total = sum(state['numbers'])
+       print("The total is: " + str(total))
+   
+   
    if __name__ == '__main__':
        experiment.main(commands=[store, show])
 
@@ -69,8 +77,8 @@ Feel free to start a discussion on the
 `issues <https://github.com/duerrp/pyexperiment/issues>`__ page.
 
 For more documentation, see the automatically generated pages `here
-<https://pyexperiment.readthedocs.org>`__. For usage examples, check
-the `examples
+<https://pyexperiment.readthedocs.org>`__. For more usage examples,
+check the `examples
 <https://github.com/duerrp/pyexperiment/tree/master/examples>`__
 folder.
 
@@ -79,7 +87,7 @@ Installation
 
 The easiest way to install pyexperiment is from pypi, just call ``pip install
 --user pyexperiment`` (alternatively, use ``pip install pyexperiment`` in a
-virtualenv, or prependending `sudo` for system wide installation).
+virtualenv, or prepend `sudo` for system wide installation).
 
 The pyexperiment package has a few external dependencies (as you can
 see in the `requirements.txt

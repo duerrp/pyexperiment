@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+"""Example using pyexperiment to record numbers and plot them
+"""
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+
+from pyexperiment import experiment, state, conf, log
+
+conf['pyexperiment.save_state'] = True
+conf['pyexperiment.load_state'] = True
+conf['message'] = "The stored numbers are: "
+
+
+def store(number):
+    """Store a number"""
+    if 'numbers' not in state:
+        log.debug("Initialize state['numbers'] to empty list")
+        state['numbers'] = []
+
+    log.debug("Store number: %s", number)
+    state['numbers'].append(float(number))
+
+
+def show():
+    """Show the stored numbers and compute their sum"""
+    print(conf['message'] + str(state['numbers']))
+    with log.timed("sum"):
+        total = sum(state['numbers'])
+    print("The total is: " + str(total))
+
+
+if __name__ == '__main__':
+    experiment.main(commands=[store, show])
