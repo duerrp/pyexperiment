@@ -5,10 +5,8 @@ pyexperiment
 
 Pyexperiment facilitates the development of small, reproducible
 experiments with minimal boilerplate code. Consider the following
-example, implementing a simple program complete with a comprehensive
-command line interface, help, logging, timing, and a user-defined
-message configurable by configuration file or command line parameter.
-
+example, implementing a simple program that stores numbers and
+computes their sum:
 
 .. code-block:: python
 
@@ -39,6 +37,66 @@ message configurable by configuration file or command line parameter.
    
    if __name__ == '__main__':
        experiment.main(commands=[store, show])
+
+
+Pyexperiment's command line interface, logging, timing, persistent
+state, and user-defined configuration by file or command line
+parameters simplify experimenting with this code:::
+
+   $ ./numbers store 42
+   $ ./numbers store 3.14
+   $ ./numbers show
+   The stored numbers are: [42.0, 3.14]
+   The total is: 45.14
+   $ ./numbers -o message "Numbers: " show
+   Numbers: [42.0, 3.14]
+   The total is: 45.14
+   $ ./numbers -v show
+   [DEBUG   ] [0.069s] Start: './numbers -v show'
+   [DEBUG   ] [0.069s] Time: '2015-08-14 14:23:00.027378'
+   [INFO    ] [0.075s] Loading sections from file 'experiment_state.h5f'
+   The stored numbers are: [42.0, 3.14]
+   [DEBUG   ] [0.076s] sum took 0.000025s
+   The total is: 45.14
+   [DEBUG   ] [0.077s] Saving state to file: 'experiment_state.h5f'
+   [DEBUG   ] [0.078s] End: './numbers -v show'
+   [DEBUG   ] [0.078s] Time: '2015-08-14 14:23:00.037124'
+   [DEBUG   ] [0.078s] Took: 0.010s
+   $ ./numbers -h
+   usage: numbers [-h] [-c CONFIG] [-o key value] [-i]
+                  [--verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-v]
+                  [{store,show,help,test,show_tests,show_config,save_config,show_state,show_commands}]
+                  [argument [argument ...]]
+
+   Thanks for using numbers.
+
+   positional arguments:
+     {store,show,help,test,show_tests,show_config,save_config,show_state,show_commands}
+                           choose a command to run
+     argument              argument to the command
+
+   optional arguments:
+     -h, --help            show this help message and exit
+     -c CONFIG, --config CONFIG
+                           specify a configuration file
+     -o key value, --option key value
+                           override a configuration option
+     -i, --interactive     drop to interactive prompt after COMMAND
+     --verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+                           choose the console logger's verbosity
+     -v                    shortcut for --verbosity DEBUG
+
+   possible commands:
+
+     store:                Store a number
+     show:                 Show the stored numbers and compute their sum
+     help:                 Shows help for a specified command
+     test:                 Run tests for the experiment
+     show_tests:           Show available tests for the experiment
+     show_config:          Print the configuration
+     save_config:          Save a configuration file to a filename
+     show_state:           Shows the contents of the state loaded by the configuration or from the file specified as an argument
+     show_commands:        Print the possible commands for the experiments
 
 
 Motivation
