@@ -54,6 +54,7 @@ EXAMPLES = [
     ['./examples/minimal_logging', 'help', 'timed'],
     ['./examples/minimal_logging', 'run'],
     ['./examples/minimal_logging', '--verbosity', 'DEBUG', 'run'],
+    ['./examples/minimal_logging', '-v', 'run'],
     ['./examples/minimal_logging', '--verbosity', 'WARNING', 'run'],
     ['./examples/minimal_logging', '--verbosity', 'INFO', 'run'],
     ['./examples/minimal_logging', '--verbosity', 'ERROR', 'run'],

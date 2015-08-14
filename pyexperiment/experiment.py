@@ -281,6 +281,11 @@ def setup_arg_parser(commands, description):
         action='store',
         help="choose the console logger's verbosity")
 
+    arg_parser.add_argument(
+        '-v',
+        action='store_true',
+        help="shortcut for --verbosity DEBUG")
+
     if AUTO_COMPLETION:
         argcomplete.autocomplete(arg_parser)
 
@@ -302,6 +307,11 @@ def configure(commands, config_specs, description):
             args.option = []
         args.option.append(('pyexperiment.verbosity',
                             args.verbosity))
+    elif args.v:
+        if args.option is None:
+            args.option = []
+        args.option.append(('pyexperiment.verbosity',
+                            'DEBUG'))
 
     conf.initialize(args.config,
                     [option.encode()

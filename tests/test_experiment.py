@@ -341,3 +341,29 @@ class TestExperiment(unittest.TestCase):
 
         self.assertTrue(called[0])
         self.assertEqual(conf['pyexperiment.verbosity'], 'WARNING')
+
+    def test_main_verbosity_debug(self):
+        """Test running main called with -v works as expected
+        """
+        log_stream = io.StringIO()
+        Logger.CONSOLE_STREAM_HANDLER = logging.StreamHandler(log_stream)
+
+        called = [False]
+
+        def foo_fun():
+            """Foo function
+            """
+            called[0] = True
+
+        # Monkey patch arg parser
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "-v", "foo_fun"]
+
+        self.assertFalse(called[0])
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(commands=[foo_fun])
+
+        self.assertTrue(called[0])
+        self.assertEqual(conf['pyexperiment.verbosity'], 'DEBUG')

@@ -1,5 +1,5 @@
 Error: Not enough arguments.
 usage: minimal_config [-h] [-c CONFIG] [-o key value] [-i]
-                      [--verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+                      [--verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-v]
                       [{simple,nested,help,test,show_tests,show_config,save_config,show_state,show_commands}]
                       [argument [argument ...]]
