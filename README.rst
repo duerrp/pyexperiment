@@ -83,7 +83,7 @@ parameters simplify experimenting::
                            choose the console logger's verbosity
      -v                    shortcut for --verbosity DEBUG
 
-   possible commands:
+   available commands:
 
      store:                Store a number
      show:                 Show the stored numbers and compute their sum
@@ -93,7 +93,7 @@ parameters simplify experimenting::
      show_config:          Print the configuration
      save_config:          Save a configuration file to a filename
      show_state:           Shows the contents of the state loaded by the configuration or from the file specified as an argument
-     show_commands:        Print the possible commands for the experiments
+     show_commands:        Print the available commands
 
 
 Motivation

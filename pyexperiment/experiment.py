@@ -199,7 +199,7 @@ def collect_commands(commands):
                         show_state]
 
     def show_commands():
-        """Print the possible commands for the experiments
+        """Print the available commands
         """
         print_bold("Available commands:")
         all_commands = commands + default_commands + [show_commands]
@@ -219,7 +219,7 @@ def collect_commands(commands):
 def format_command_help(commands):
     """Format the docstrings of the commands.
     """
-    string = ("possible commands:\n\n" +
+    string = ("available commands:\n\n" +
               "".join(["  "
                        + "%-22s" % (command.__name__ + ':')
                        + "".join(command.__doc__.replace(

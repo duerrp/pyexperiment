@@ -21,7 +21,7 @@ optional arguments:
                         choose the console logger's verbosity
   -v                    shortcut for --verbosity DEBUG
 
-possible commands:
+available commands:
 
   simple:               Prints the configured value for 'example' 
   nested:               Prints the configured value for 'example' 
@@ -31,4 +31,4 @@ possible commands:
   show_config:          Print the configuration 
   save_config:          Save a configuration file to a filename 
   show_state:           Shows the contents of the state loaded by the configuration or from the file specified as an argument
-  show_commands:        Print the possible commands for the experiments     
+  show_commands:        Print the available commands     
