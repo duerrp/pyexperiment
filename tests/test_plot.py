@@ -83,25 +83,28 @@ class TestAsyncPlot(unittest.TestCase):
         with mock.patch('pyexperiment.utils.plot.Process') as _process:
             with mock.patch('pyexperiment.utils.plot.Queue') as queue:
                 async = plot.AsyncPlot()
-                async.plot("a", "b", "c")
+                async.plot("a", "b", "c", color='green')
                 async.plot(2, [1, 2])
 
         self.assertEqual(queue.mock_calls[0], mock.call())
-        self.assertEqual(queue.mock_calls[1], mock.call().put(("a", "b", "c")))
-        self.assertEqual(queue.mock_calls[2], mock.call().put((2, [1, 2])))
+        self.assertEqual(queue.mock_calls[1],
+                         mock.call().put(
+                             (("a", "b", "c"), {'color': 'green'})))
+        self.assertEqual(queue.mock_calls[2],
+                         mock.call().put(((2, [1, 2]), {})))
 
     def test_plot_process_target(self):
         """Tests the target function of the process synchronously
         """
         queue = Queue()
-        queue.put((1, 2, 'k'))
+        queue.put(((1, 2, 'k'), {}))
 
         def drop_poison_pill():
             """Puts None on the queue after it is empty
             """
             while not queue.empty():
                 sleep(0.01)
-            sleep(0.01)
+            sleep(0.2)
             queue.put(None)
 
         Thread(target=drop_poison_pill).start()

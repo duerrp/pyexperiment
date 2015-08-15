@@ -123,7 +123,11 @@ class AsyncPlot(object):
     """Plot asynchronously in a different process
     """
     @staticmethod
-    def plot_process(queue, name, labels=None):
+    def plot_process(queue,
+                     name,
+                     labels=None,
+                     x_scale='linear',
+                     y_scale='linear'):
         """Grabs data from the queue and plots it in a named figure
         """
         # Set up the figure and display it
@@ -132,6 +136,8 @@ class AsyncPlot(object):
         if labels is not None:
             plt.xlabel(labels[0])
             plt.ylabel(labels[1])
+        plt.xscale(x_scale)
+        plt.yscale(y_scale)
 
         while True:
             # Get all the data currently on the queue
@@ -141,7 +147,7 @@ class AsyncPlot(object):
 
             # If there is no data, no need to plot, instead wait for a
             # while
-            if len(data) == 0:
+            if len(data) == 0 and plt.fignum_exists(fig.number):
                 plt.pause(0.015)
                 continue
 
@@ -152,24 +158,30 @@ class AsyncPlot(object):
             else:
                 # Plot the data, then wait 15ms for the plot to update
                 for datum in data:
-                    plt.plot(*datum)
+                    plt.plot(*datum[0], **datum[1])
                 plt.pause(0.015)
 
     def __init__(self,
                  name='pyexperiment',
-                 labels=None):
+                 labels=None,
+                 x_scale='linear',
+                 y_scale='linear'):
         """Initializer
         """
         self.queue = Queue()
         self.process = Process(target=self.plot_process,
-                               args=(self.queue, name, labels))
+                               args=(self.queue,
+                                     name,
+                                     labels,
+                                     x_scale,
+                                     y_scale))
         self.process.start()
 
-    def plot(self, *data):
+    def plot(self, *args, **kwargs):
         """Plots the data in the separate process
         """
         if self.process.is_alive():
-            self.queue.put(data)
+            self.queue.put((args, kwargs))
 
     def close(self):
         """Close the figure, join the process

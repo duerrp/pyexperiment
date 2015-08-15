@@ -37,7 +37,8 @@ CHECKERS = [
     ['pylint', './examples/minimal_logging', '--reports=n',
      '--disable=I0011,E1101'],
     ['pylint', './examples/stopwatch', '--reports=n', '--disable=I0011,E1101'],
-    ['pylint', './examples/numbers', '--reports=n', '--disable=I0011,E1101'],
+    ['pylint', './examples/numbers', '--reports=n'],
+    ['pylint', './examples/optimize', '--reports=n'],
 ]
 """List of checkers to run and their arguments
 """
