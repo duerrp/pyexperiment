@@ -15,6 +15,7 @@ from threading import Thread
 from time import sleep
 
 from pyexperiment.utils import plot
+from pyexperiment.utils.coroutines import autostart_coroutine
 
 
 class TestPlot(unittest.TestCase):
@@ -104,11 +105,12 @@ class TestAsyncPlot(unittest.TestCase):
             """
             while not queue.empty():
                 sleep(0.01)
-            sleep(0.2)
+            sleep(0.5)
             queue.put(None)
 
         Thread(target=drop_poison_pill).start()
-        with mock.patch('pyexperiment.utils.plot.plt') as plt:
+        with mock.patch('pyexperiment.utils.plot.plt') as plt, \
+             mock.patch('pyexperiment.utils.plot.matplotlib'):
             plot.AsyncPlot.plot_process(queue, name="test_plot")
 
         self.assertTrue(plot._SETUP_DONE)  # pylint: disable=protected-access

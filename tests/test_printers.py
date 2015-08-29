@@ -79,7 +79,7 @@ class PrinterTest(object):
             buf.getvalue(), r'.*%s.*' % (message % arguments))
 
 
-def create_printer_test(color_):
+def create_printer_check(color_):
     """Factory for printer tests
     """
     class TestPrinters(unittest.TestCase, PrinterTest):
@@ -94,10 +94,11 @@ def create_printer_test(color_):
             """
             getattr(printers, 'print_' + color_)(message, *args)
 
+    TestPrinters.__name__ = str('Test' + color.title())
     return TestPrinters
 
 for color in printers.COLORS.keys():
-    vars()['Test' + color.title()] = create_printer_test(color)
+    vars()['Test' + color.title()] = create_printer_check(color)
 
 
 class TestPrinterExamples(unittest.TestCase):
