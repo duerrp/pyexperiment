@@ -15,7 +15,6 @@ from threading import Thread
 from time import sleep
 
 from pyexperiment.utils import plot
-from pyexperiment.utils.coroutines import autostart_coroutine
 
 
 class TestPlot(unittest.TestCase):
