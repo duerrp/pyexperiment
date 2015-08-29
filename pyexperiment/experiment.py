@@ -21,6 +21,7 @@ try:
     AUTO_COMPLETION = True
 except ImportError:
     AUTO_COMPLETION = False
+from contextlib import contextmanager
 
 from pyexperiment import conf
 from pyexperiment import log
@@ -71,8 +72,9 @@ COMMANDS = []
 """
 
 
-def init_log():
-    """Initialize the logger based on the configuration
+@contextmanager
+def logging_context():
+    """Initialize and close the logger based on the configuration
     """
     # Get options related to logging
     verbosity = conf['pyexperiment.verbosity']
@@ -90,6 +92,15 @@ def init_log():
                    filename=log_filename,
                    file_level=log_file_verbosity,
                    no_backups=rotate_n_logs)
+
+    # Give control back, but catch exceptions
+    try:
+        yield
+    except Exception as err:
+        # Reraise exception after the logger is closed
+        raise err
+    finally:
+        log.close()
 
 
 # Redefining help should be ok here
@@ -345,9 +356,9 @@ def main(commands=None,
     """Parses command line arguments and configuration, then runs the
     appropriate command.
     """
-    tic = datetime.now()
+    start_time = datetime.now()
     log.debug("Start: '%s'", " ".join(sys.argv))
-    log.debug("Time: '%s'", tic)
+    log.debug("Time: '%s'", start_time)
 
     commands = collect_commands(commands or [])
 
@@ -368,14 +379,13 @@ def main(commands=None,
     COMMANDS = commands
 
     # Initialize the main logger based on the configuration
-    init_log()
-
-    # Handle the state safely
-    with StateHandler(filename=conf['pyexperiment.state_filename'],
-                      load=conf['pyexperiment.load_state'],
-                      save=conf['pyexperiment.save_state'],
-                      rotate_n_files=conf[
-                          'pyexperiment.rotate_n_state_files']):
+    # and handle the state safely
+    with logging_context(), \
+        StateHandler(filename=conf['pyexperiment.state_filename'],
+                     load=conf['pyexperiment.load_state'],
+                     save=conf['pyexperiment.save_state'],
+                     rotate_n_files=conf[
+                         'pyexperiment.rotate_n_state_files']):
 
         # Run the command with the supplied arguments
         if run_command is not None:
@@ -388,15 +398,13 @@ def main(commands=None,
         if interactive:
             embed_interactive(result=result)
 
-    # After everything is done, print timings if necessary
-    if (((isinstance(conf['pyexperiment.print_timings'], bool)
-          and conf['pyexperiment.print_timings'])
-         or conf['pyexperiment.print_timings'] == 'True')):
-        log.print_timings()
+        # After everything is done, print timings if necessary
+        if (((isinstance(conf['pyexperiment.print_timings'], bool)
+              and conf['pyexperiment.print_timings'])
+             or conf['pyexperiment.print_timings'] == 'True')):
+            log.print_timings()
 
-    toc = datetime.now()
-    log.debug("End: '%s'", " ".join(sys.argv))
-    log.debug("Time: '%s'", toc)
-    log.debug("Took: %.3fs", (toc - tic).total_seconds())
-
-    log.close()
+        end_time = datetime.now()
+        log.debug("End: '%s'", " ".join(sys.argv))
+        log.debug("Time: '%s'", end_time)
+        log.debug("Took: %.3fs", (end_time - start_time).total_seconds())

@@ -367,3 +367,41 @@ class TestExperiment(unittest.TestCase):
 
         self.assertTrue(called[0])
         self.assertEqual(conf['pyexperiment.verbosity'], 'DEBUG')
+
+    def test_logger_after_exception(self):
+        """Test logger closing correctly after exception
+        """
+        log_stream = io.StringIO()
+        Logger.CONSOLE_STREAM_HANDLER = logging.StreamHandler(log_stream)
+
+        # Monkey patch log closing
+        close_old = Logger.Logger.close
+        called = [False]
+
+        def close(self):
+            """Close the logger and record it"""
+            close_old(self)
+            called[0] = True
+
+        Logger.Logger.close = close
+
+        def foo_fun():
+            """Foo function
+            """
+            raise RuntimeError
+
+        # Monkey patch arg parser
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "foo_fun"]
+
+        buf = io.StringIO()
+        try:
+            with stdout_redirector(buf):
+                experiment.main(commands=[foo_fun])
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError("RuntimeError not raised")
+        # Make sure logger is closed
+        self.assertTrue(called[0])
+        Logger.Logger.close = close_old
