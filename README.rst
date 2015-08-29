@@ -11,29 +11,33 @@ computes their sum:
 .. code-block:: python
 
    from pyexperiment import experiment, state, conf, log
-   
+
    conf['pyexperiment.save_state'] = True
    conf['pyexperiment.load_state'] = True
    conf['message'] = "The stored numbers are: "
-   
+
    def store(number):
        """Store a number"""
        if 'numbers' not in state:
            log.debug("Initialize state['numbers'] to empty list")
            state['numbers'] = []
-   
+
        log.debug("Store number: %s", number)
        state['numbers'].append(float(number))
-   
-   def show():
-       """Show the stored numbers and compute their sum"""
-       print(conf['message'] + str(state['numbers']))
-       with log.timed("sum"):
-           total = sum(state['numbers'])
-       print("The total is: " + str(total))
-   
+
+    def show():
+        """Show the stored numbers and compute their sum"""
+        if not 'numbers' in state:
+            print('No numbers stored yet')
+            return
+        print(conf['message'] + str(state['numbers']))
+        with log.timed("sum"):
+                total = sum(state['numbers'])
+        print("The total is: " + str(total))
+
    if __name__ == '__main__':
-       experiment.main(commands=[store, show])
+       experiment.main(default=show,
+                       commands=[store, show])
 
 
 Pyexperiment's command line interface, logging, timing, persistent
@@ -42,14 +46,14 @@ parameters simplify experimenting::
 
    $ ./numbers store 42
    $ ./numbers store 3.14
-   $ ./numbers show
+   $ ./numbers
    The stored numbers are: [42.0, 3.14]
    The total is: 45.14
-   $ ./numbers -o message "Numbers: " show
+   $ ./numbers -o message "Numbers: "
    Numbers: [42.0, 3.14]
    The total is: 45.14
-   $ ./numbers -v show
-   [DEBUG   ] [0.069s] Start: './numbers -v show'
+   $ ./numbers -v
+   [DEBUG   ] [0.069s] Start: './numbers -v'
    [DEBUG   ] [0.069s] Time: '2015-08-14 14:23:00.027378'
    [INFO    ] [0.075s] Loading state from file 'experiment_state.h5f'
    The stored numbers are: [42.0, 3.14]
@@ -69,7 +73,7 @@ parameters simplify experimenting::
 
    positional arguments:
      {store,show,help,test,show_tests,show_config,save_config,show_state,show_commands}
-                           choose a command to run
+                           choose a command to run, running show by default
      argument              argument to the command
 
    optional arguments:
@@ -86,7 +90,7 @@ parameters simplify experimenting::
    available commands:
 
      store:                Store a number
-     show:                 Show the stored numbers and compute their sum
+     show (default):       Show the stored numbers and compute their sum
      help:                 Shows help for a specified command
      test:                 Run tests for the experiment
      show_tests:           Show available tests for the experiment
@@ -158,7 +162,7 @@ see in the `requirements.txt
 -  IPython (optional, adds --interactive command)
 -  argcomplete (optional, adds activate_autocompletion command)
 -  seaborn (optional, adds more plotting options)
-   
+
 If you install (the h5py dependency) from pypi, you may need to install
 libhdf5 first, e.g., by running ``sudo apt-get install libhdf5-dev``.
 You may also find that you need to install cython first, e.g., by

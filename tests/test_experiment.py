@@ -25,16 +25,6 @@ from pyexperiment import Logger
 class TestExperiment(unittest.TestCase):
     """Test the experiment module
     """
-    def setUp(self):
-        """Setup the test fixture
-        """
-        pass
-
-    def tearDown(self):
-        """Tear down the test fixture
-        """
-        pass
-
     def test_main_runs_function(self):
         """Test running main calls function
         """
@@ -94,6 +84,75 @@ class TestExperiment(unittest.TestCase):
 
         self.assertNotEqual(len(buf.getvalue()), 0)
         self.assertRegexpMatches(buf.getvalue(), r"[Nn]ot enough arguments")
+
+    def test_main_runs_default(self):
+        """Test running main with default command
+        """
+        # Monkey patch arg parser here
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test"]
+
+        run = [False]
+
+        def custom_function():
+            """User function
+            """
+            run[0] = True
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(default=custom_function)
+
+        self.assertEqual(len(buf.getvalue()), 0)
+        self.assertTrue(run[0])
+
+    def test_main_complains_default(self):
+        """Test running main with default command taking an argument
+        """
+        # Monkey patch arg parser here
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test"]
+
+        def custom_function(_argument):
+            """User function that takes an argument
+            """
+            pass
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            self.assertRaises(
+                TypeError,
+                experiment.main,
+                kwargs={'default': custom_function})
+
+    def test_main_runs_other_function(self):
+        """Test running main with default command and other function
+        """
+        # Monkey patch arg parser here
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test",
+            "custom_function2"]
+
+        run = [False, False]
+
+        def custom_function():
+            """User function
+            """
+            run[0] = True
+
+        def custom_function2():
+            """User function2
+            """
+            run[1] = True
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(default=custom_function,
+                            commands=[custom_function2])
+
+        self.assertEqual(len(buf.getvalue()), 0)
+        self.assertFalse(run[0])
+        self.assertTrue(run[1])
 
     def test_main_does_not_run_function(self):
         """Test running main does not call unnecessary function but complains

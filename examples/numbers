@@ -25,6 +25,9 @@ def store(number):
 
 def show():
     """Show the stored numbers and compute their sum"""
+    if not 'numbers' in state:
+        print('No numbers stored yet')
+        return
     print(conf['message'] + str(state['numbers']))
     with log.timed("sum"):
         total = sum(state['numbers'])
@@ -32,4 +35,5 @@ def show():
 
 
 if __name__ == '__main__':
-    experiment.main(commands=[store, show])
+    experiment.main(default=show,
+                    commands=[store, show])

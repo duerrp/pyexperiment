@@ -22,6 +22,7 @@ try:
 except ImportError:
     AUTO_COMPLETION = False
 from contextlib import contextmanager
+from inspect import getargspec
 
 from pyexperiment import conf
 from pyexperiment import log
@@ -199,7 +200,7 @@ def activate_autocompletion():
     print(out)
 
 
-def collect_commands(commands):
+def collect_commands(default, commands):
     """Add default commands
     """
     default_commands = [help,
@@ -209,11 +210,17 @@ def collect_commands(commands):
                         save_config,
                         show_state]
 
+    if default is not None and len(getargspec(default).args) > 0:
+        raise TypeError("Main function cannot take arguments.")
+
     def show_commands():
         """Print the available commands
         """
+        cmds = commands
+        if default is not None and default not in cmds:
+            cmds = [default] + commands
         print_bold("Available commands:")
-        all_commands = commands + default_commands + [show_commands]
+        all_commands = cmds + default_commands + [show_commands]
         if AUTO_COMPLETION:
             all_commands += [activate_autocompletion]
         names = [command.__name__ for command in all_commands]
@@ -227,12 +234,15 @@ def collect_commands(commands):
     return all_commands
 
 
-def format_command_help(commands):
+def format_command_help(default, commands):
     """Format the docstrings of the commands.
     """
     string = ("available commands:\n\n" +
               "".join(["  "
-                       + "%-22s" % (command.__name__ + ':')
+                       + "%-22s" % (command.__name__
+                                    + (' (default)'
+                                       if command == default else '')
+                                    + ':')
                        + "".join(command.__doc__.replace(
                            "\n    ", " ").split(".")[0])
                        + "\n"
@@ -241,10 +251,10 @@ def format_command_help(commands):
     return string
 
 
-def setup_arg_parser(commands, description):
+def setup_arg_parser(default, commands, description):
     """Setup the argument parser for the experiment
     """
-    command_help = format_command_help(commands)
+    command_help = format_command_help(default, commands)
 
     arg_parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -252,7 +262,13 @@ def setup_arg_parser(commands, description):
         epilog=(command_help))
 
     arg_parser.add_argument('command',
-                            help='choose a command to run',
+                            help=('choose a command to run'
+                                  + (', running '
+                                     + default.__name__
+                                     + ' by default'
+                                     if (default is not None
+                                         and default in commands)
+                                     else '')),
                             type=str,
                             choices=[command.__name__
                                      for command in commands],
@@ -303,13 +319,13 @@ def setup_arg_parser(commands, description):
     return arg_parser
 
 
-def configure(commands, config_specs, description):
+def configure(default, commands, config_specs, description):
     """Load configuration from command line arguments and optionally, a
     configuration file. Possible command line arguments depend on the
     list of supplied commands, the configuration depends on the
     supplied configuration specification.
     """
-    arg_parser = setup_arg_parser(commands, description)
+    arg_parser = setup_arg_parser(default, commands, description)
     args = arg_parser.parse_args()
 
     # Handle verbosity
@@ -331,7 +347,7 @@ def configure(commands, config_specs, description):
                     [option.encode()
                      for option in DEFAULT_CONFIG_SPECS.split('\n')])
 
-    actual_command = None
+    actual_command = default
     if args.command is not None:
         for command in commands:
             if command.__name__ == args.command:
@@ -349,7 +365,8 @@ def configure(commands, config_specs, description):
     return actual_command, args.argument, args.interactive
 
 
-def main(commands=None,
+def main(default=None,
+         commands=None,
          config_spec="",
          tests=None,
          description=None):
@@ -360,11 +377,12 @@ def main(commands=None,
     log.debug("Start: '%s'", " ".join(sys.argv))
     log.debug("Time: '%s'", start_time)
 
-    commands = collect_commands(commands or [])
+    commands = collect_commands(default, commands or [])
 
     # Configure the application from the command line and get the
     # command to be run
     run_command, arguments, interactive = configure(
+        default,
         commands,
         config_spec,
         "Thanks for using %(prog)s."

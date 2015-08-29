@@ -22,10 +22,10 @@ def example_function(argument):
     return argument ** 2
 
 
-def ex_1():
+def default():
     """Example experiment that squares a number
     """
-    print_red("Experiment 1 started")
+    print_red("Experiment started")
     log.debug("Trying to square 42 ten times...")
     for _ in range(10):
         with log.timed("Squaring number"):
@@ -34,13 +34,12 @@ def ex_1():
     return result
 
 
-def ex_2(*args):
-    """Example experiment that prints a number. Enter one!
+def print_number(number):
+    """Example command that prints a number. Enter one!
     """
-    number, = args
     number = int(number)
-    print_blue("Welcome to experiment 2")
-    log.info("Experiment 2 started")
+    print_blue("Welcome to experiment")
+    log.info("Experiment started")
 
     return number
 
@@ -59,5 +58,6 @@ class ExampleTest(unittest.TestCase):
         self.assertEqual(example_function(3), 9)
 
 if __name__ == '__main__':
-    experiment.main(commands=[ex_1, ex_2],
+    experiment.main(default=default,
+                    commands=[print_number],
                     tests=[ExampleTest])
