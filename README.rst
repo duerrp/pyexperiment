@@ -30,6 +30,7 @@ computes their sum:
         if not 'numbers' in state:
             print('No numbers stored yet')
             return
+
         print(conf['message'] + str(state['numbers']))
         with log.timed("sum"):
                 total = sum(state['numbers'])
