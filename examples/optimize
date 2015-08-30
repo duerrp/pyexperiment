@@ -23,6 +23,9 @@ from datetime import datetime
 import seaborn
 from matplotlib import pyplot as plt
 
+# For python2.x compatibility
+from six.moves import range  # pylint: disable=redefined-builtin, import-error
+
 from pyexperiment import experiment
 from pyexperiment import state
 from pyexperiment import conf
