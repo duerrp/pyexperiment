@@ -94,7 +94,7 @@ def create_printer_check(color_):
             """
             getattr(printers, 'print_' + color_)(message, *args)
 
-    TestPrinters.__name__ = str('Test' + color.title())
+    TestPrinters.__name__ = str('Test' + color_.title())
     return TestPrinters
 
 for color in printers.COLORS.keys():
