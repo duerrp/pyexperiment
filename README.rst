@@ -41,9 +41,8 @@ computes their sum:
                        commands=[store, show])
 
 
-Pyexperiment's command line interface, logging, timing, persistent
-state, and user-defined configuration by file or command line
-parameters simplify experimenting::
+Pyexperiment makes it easy to experiment with this code from the
+command line::
 
    $ ./numbers store 42
    $ ./numbers store 3.14
@@ -108,13 +107,14 @@ Motivation
 ----------
 
 There is no shortage of great Python libraries for command line
-interfaces, logging, configuration file management, persistent state, or
-plotting. When writing small scripts for quick experiments though, it's
-often too much effort to configure these components, and one ends up
-rewriting the same setup code over and over again.
+interfaces, logging, configuration file management, persistent state,
+parallelism, or plotting. When writing small scripts for quick
+experiments though, it's often too much effort to configure these
+components, and one ends up rewriting the same setup code over and
+over again.
 
-Pyexperiment fixes this by providing a simple way to jump start a
-short experiment. Importing pyexperiment will give you:
+Pyexperiment fixes this by providing a simple way to jump start short
+experiments. Importing pyexperiment will give you:
 
 -  A basic *command line interface* that allows calling arbitrary
    functions (and passing arguments) from the command prompt,
@@ -129,6 +129,7 @@ short experiment. Importing pyexperiment will give you:
 -  *Persistent state* with platform independent, configurable,
    (optionally rotating) state files that are compatible with many other
    programs (based on h5py).
+-  *Parallel* execution of replicates.
 -  A sensible setup for *plotting* (based on matplotlib, and optionally
    seaborn), with configurable defaults and asynchronous plotting.
 -  Many other bits and pieces that might come in handy...
@@ -163,7 +164,7 @@ see in the `requirements.txt
 -  matplotlib
 -  lockfile
 -  toolz
--  IPython (optional, adds --interactive command)
+-  IPython (optional, allows using IPython with the --interactive command)
 -  argcomplete (optional, adds activate_autocompletion command)
 -  seaborn (optional, adds more plotting options)
 
