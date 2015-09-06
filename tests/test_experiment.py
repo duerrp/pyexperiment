@@ -14,6 +14,7 @@ import io
 import mock
 import tempfile
 import logging
+import multiprocessing
 
 from pyexperiment import experiment
 from pyexperiment.utils.stdout_redirector import stdout_redirector
@@ -22,8 +23,8 @@ from pyexperiment import conf
 from pyexperiment import Logger
 
 
-class TestExperiment(unittest.TestCase):
-    """Test the experiment module
+class TestExperimentBasic(unittest.TestCase):
+    """Test the experiment module's basic functions
     """
     def test_main_runs_function(self):
         """Test running main calls function
@@ -336,6 +337,48 @@ class TestExperiment(unittest.TestCase):
             self.assertRegexpMatches(buf.getvalue(), r"foo")
             self.assertRegexpMatches(buf.getvalue(), r"42")
 
+    def test_logger_after_exception(self):
+        """Test logger closing correctly after exception
+        """
+        log_stream = io.StringIO()
+        Logger.CONSOLE_STREAM_HANDLER = logging.StreamHandler(log_stream)
+
+        # Monkey patch log closing
+        close_old = Logger.Logger.close
+        called = [False]
+
+        def close(self):
+            """Close the logger and record it"""
+            close_old(self)
+            called[0] = True
+
+        Logger.Logger.close = close
+
+        def foo_fun():
+            """Foo function
+            """
+            raise RuntimeError
+
+        # Monkey patch arg parser
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "foo_fun"]
+
+        buf = io.StringIO()
+        try:
+            with stdout_redirector(buf):
+                experiment.main(commands=[foo_fun])
+        except RuntimeError:
+            pass
+        else:
+            raise AssertionError("RuntimeError not raised")
+        # Make sure logger is closed
+        self.assertTrue(called[0])
+        Logger.Logger.close = close_old
+
+
+class TestExperimentOverrides(unittest.TestCase):
+    """Test the experiment module's option overriding
+    """
     def test_main_overrides_option(self):
         """Test running main called with -o works as expected
         """
@@ -427,40 +470,65 @@ class TestExperiment(unittest.TestCase):
         self.assertTrue(called[0])
         self.assertEqual(conf['pyexperiment.verbosity'], 'DEBUG')
 
-    def test_logger_after_exception(self):
-        """Test logger closing correctly after exception
+    def test_main_no_processes_default(self):
+        """Test running main called without -j works as expected
         """
-        log_stream = io.StringIO()
-        Logger.CONSOLE_STREAM_HANDLER = logging.StreamHandler(log_stream)
-
-        # Monkey patch log closing
-        close_old = Logger.Logger.close
         called = [False]
-
-        def close(self):
-            """Close the logger and record it"""
-            close_old(self)
-            called[0] = True
-
-        Logger.Logger.close = close
 
         def foo_fun():
             """Foo function
             """
-            raise RuntimeError
-
+            called[0] = True
         # Monkey patch arg parser
         argparse._sys.argv = [  # pylint: disable=W0212
             "test", "foo_fun"]
 
         buf = io.StringIO()
-        try:
-            with stdout_redirector(buf):
-                experiment.main(commands=[foo_fun])
-        except RuntimeError:
-            pass
-        else:
-            raise AssertionError("RuntimeError not raised")
-        # Make sure logger is closed
+        with stdout_redirector(buf):
+            experiment.main(commands=[foo_fun])
+
         self.assertTrue(called[0])
-        Logger.Logger.close = close_old
+        self.assertEqual(conf['pyexperiment.n_processes'],
+                         multiprocessing.cpu_count())
+
+    def test_main_no_processes_simple(self):
+        """Test running main called with -j works as expected
+        """
+        called = [False]
+
+        def foo_fun():
+            """Foo function
+            """
+            called[0] = True
+        # Monkey patch arg parser
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "-j", "42", "foo_fun"]
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(commands=[foo_fun])
+
+        self.assertTrue(called[0])
+        self.assertEqual(conf['pyexperiment.n_processes'],
+                         42)
+
+    def test_main_no_processes_long(self):
+        """Test running main called with --processes works as expected
+        """
+        called = [False]
+
+        def foo_fun():
+            """Foo function
+            """
+            called[0] = True
+        # Monkey patch arg parser
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "--processes", "44", "foo_fun"]
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(commands=[foo_fun])
+
+        self.assertTrue(called[0])
+        self.assertEqual(conf['pyexperiment.n_processes'],
+                         44)

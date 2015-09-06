@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+"""Example illustrating the use of replicate
+"""
+
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+
+import numpy as np
+from datetime import datetime
+from matplotlib import pyplot as plt
+import seaborn as sns
+from time import sleep
+from functools import partial
+
+from pyexperiment import experiment
+from pyexperiment import state
+from pyexperiment import conf
+from pyexperiment.replicate import replicate
+from pyexperiment.replicate import collect_results
+from pyexperiment.utils.plot import setup_figure
+
+
+def expensive_function(tic=0):
+    """Function simulating a computation, then measuring time since start
+    """
+    sleep(0.1)
+    state['result'] = (datetime.now() - tic).total_seconds()
+
+
+def run():
+    """Check how long it takes to run the expensive function multiple times
+    """
+    tic = datetime.now()
+    replicate(partial(expensive_function, tic))
+    state.save(conf['pyexperiment.state_filename'])
+
+
+def run_mp():
+    """Check how long it takes to run the expensive function in a pool of
+    processes
+    """
+    tic = datetime.now()
+    replicate(partial(expensive_function, tic),
+              subkey_pattern='multiprocessing_replicate%03d',
+              parallel=True)
+    state.save(conf['pyexperiment.state_filename'])
+
+
+def plot():
+    """Plot the results
+    """
+    # Collect the results
+    state.load(conf['pyexperiment.state_filename'])
+
+    try:
+        results = collect_results('result')
+        results_mp = collect_results('result',
+                                     'multiprocessing_replicate%03d')
+    except KeyError as err:
+        print("Cannot load state: '%s'" % err)
+        return
+
+    # Plot the results
+    setup_figure('Times')
+    plt.subplot(211)
+    sns.barplot(np.arange(len(results)), np.array(results))
+    plt.ylabel("Execution Time")
+    plt.subplot(212)
+    sns.barplot(np.arange(len(results)), np.array(results_mp))
+    plt.xlabel("replicate")
+    plt.ylabel("Execution Time")
+    plt.show()
+
+
+def main():
+    """Run an expensive function multiple times with and without paralellism
+    """
+    run()
+    run_mp()
+    plot()
+
+
+if __name__ == '__main__':
+    experiment.main(default=main, commands=[plot, run, run_mp])

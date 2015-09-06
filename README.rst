@@ -67,6 +67,7 @@ parameters simplify experimenting::
    $ ./numbers -h
    usage: numbers [-h] [-c CONFIG] [-o key value] [-i]
                   [--verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-v]
+                  [-j PROCESSES]
                   [{store,show,help,test,show_tests,show_config,save_config,show_state,show_commands}]
                   [argument [argument ...]]
 
@@ -87,6 +88,8 @@ parameters simplify experimenting::
      --verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}
                            choose the console logger's verbosity
      -v                    shortcut for --verbosity DEBUG
+     -j PROCESSES, --processes PROCESSES
+                           set number of parallel processes used
 
    available commands:
 

@@ -23,6 +23,7 @@ except ImportError:
     AUTO_COMPLETION = False
 from contextlib import contextmanager
 from inspect import getargspec
+import multiprocessing
 
 from pyexperiment import conf
 from pyexperiment import log
@@ -46,6 +47,8 @@ DEFAULT_CONFIG_SPECS = ("[pyexperiment]\n"
                         "state_filename = "
                         "string(default=experiment_state.h5f)\n"
                         "rotate_n_state_files = integer(min=0, default=5)\n"
+                        "n_replicates = integer(min=1, default=25)\n"
+                        "n_processes = integer(min=1, default={n_processes})\n"
                         "[[plot]]\n"
                         "font_size = integer(min=1, default=14)\n"
                         "label_size = integer(min=1, default=14)\n"
@@ -56,7 +59,9 @@ DEFAULT_CONFIG_SPECS = ("[pyexperiment]\n"
                         "style = option('darkgrid','whitegrid','dark',"
                         "'white','ticks',default='darkgrid')\n"
                         "palette_name = string(default=colorblind)\n"
-                        "desat = float(min=0.0, max=1.0, default=0.6)\n")
+                        "desat = float(min=0.0, max=1.0, default=0.6)\n"
+                        "".format(
+                            n_processes=multiprocessing.cpu_count()))
 """Default specification for the experiment's configuration
 """
 
@@ -313,6 +318,13 @@ def setup_arg_parser(default, commands, description):
         action='store_true',
         help="shortcut for --verbosity DEBUG")
 
+    arg_parser.add_argument(
+        '-j', '--processes',
+        nargs=1,
+        type=int,
+        action='store',
+        help="set number of parallel processes used")
+
     if AUTO_COMPLETION:
         argcomplete.autocomplete(arg_parser)
 
@@ -339,6 +351,11 @@ def configure(default, commands, config_specs, description):
             args.option = []
         args.option.append(('pyexperiment.verbosity',
                             'DEBUG'))
+    if args.processes:
+        if args.option is None:
+            args.option = []
+        args.option.append(('pyexperiment.n_processes',
+                            str(args.processes[0])))
 
     conf.initialize(args.config,
                     [option.encode()
