@@ -109,7 +109,7 @@ class TestAsyncPlot(unittest.TestCase):
 
         Thread(target=drop_poison_pill).start()
         with mock.patch('pyexperiment.utils.plot.plt') as plt, \
-             mock.patch('pyexperiment.utils.plot.matplotlib'):
+                mock.patch('pyexperiment.utils.plot.matplotlib'):
             plot.AsyncPlot.plot_process(queue, name="test_plot")
 
         self.assertTrue(plot._SETUP_DONE)  # pylint: disable=protected-access
