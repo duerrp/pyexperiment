@@ -74,6 +74,26 @@ class TestOhmToSpec(unittest.TestCase):
             ohm_to_spec(default),
             ["[a]", "b = float(default=1.2)"])
 
+    def test_level1_spec_unordered(self):
+        """Test generating a spec with one level and wrong order
+        """
+        default = HierarchicalOrderedDict()
+        default['a.b'] = 1.2
+        default['c'] = 3.4
+        default['n.k'] = 2
+        default['d.a'] = 3
+        default['a.a'] = 1
+        self.assert_equal_encoded_list(
+            ohm_to_spec(default),
+            ["c = float(default=3.4)",
+             "[a]",
+             "a = integer(default=1)",
+             "b = float(default=1.2)",
+             "[n]",
+             "k = integer(default=2)",
+             "[d]",
+             "a = integer(default=3)"])
+
     def test_level2_spec(self):
         """Test generating a spec with two levels
         """
@@ -86,3 +106,6 @@ class TestOhmToSpec(unittest.TestCase):
              "b = float(default=1.2)",
              "[[c]]",
              "d = integer(default=3)"])
+
+if __name__ == '__main__':
+    unittest.main()

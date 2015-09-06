@@ -57,7 +57,11 @@ def ohm_to_spec_list(ohm, value_transform=lambda x: x):
     level_start = "["
     level_stop = "]"
 
-    for key, value in ohm.items():
+    sorted_items = sorted(ohm.items(),
+                          key=lambda k: len(
+                              k[0].split(ohm.SECTION_SEPARATOR)))
+
+    for key, value in sorted_items:
         split_key = key.split(ohm.SECTION_SEPARATOR)
         index = None
         if len(split_key) > 1:
@@ -79,7 +83,6 @@ def ohm_to_spec_list(ohm, value_transform=lambda x: x):
             spec += [spec_entry.encode()]
         else:
             spec.insert(index + 1, spec_entry.encode())
-
     return spec
 
 

@@ -115,32 +115,6 @@ class TestConfFile(unittest.TestCase):
         self.assertEqual(conf['a'], 12)
         self.assertEqual(conf['section_1.a'], 12)
 
-    def test_initialize_with_spec(self):
-        """Test initializing uninitialized config with a spec
-        """
-        spec = ("[section_1]\n"
-                "d = integer(min=0, default=5, max=12)")
-
-        conf['section_1.d'] = 13
-        self.assertEqual(conf['section_1.d'], 13)
-        conf.initialize(self.filename, spec=(
-            [option.encode() for option in spec.split('\n')]))
-
-        self.assertEqual(conf['section_1.d'], 5)
-
-    def test_initialize_with_file_spec(self):
-        """Test initializing uninitialized config with a file and spec
-        """
-        spec = ("[section_1]\n"
-                "a = integer(min=0, default=5, max=12)")
-
-        conf['section_1.a'] = 13
-        self.assertEqual(conf['section_1.a'], 13)
-        conf.initialize(self.filename, spec=(
-            [option.encode() for option in spec.split('\n')]))
-
-        self.assertEqual(conf['section_1.a'], 12)
-
     def test_load_conf(self):
         """Test loading a configuration
         """
@@ -277,6 +251,29 @@ class TestConfFile(unittest.TestCase):
             conf.validate_config,
             conf.base)
 
+
+class TestConfSpec(unittest.TestCase):
+    """Test the conf module with specs
+    """
+    TEST_CONFIG = ("[section_1]\n"
+                   "a = 12\n"
+                   "b = 13\n"
+                   "[section_2]\n"
+                   "c = True")
+
+    def setUp(self):
+        """Setup the test fixture
+        """
+        self.filename = tempfile.mkstemp()[1]
+        with open(self.filename, 'w') as outfile:
+            outfile.write(self.TEST_CONFIG)
+
+    def tearDown(self):
+        """Tear down the test fixture
+        """
+        conf.reset_instance()
+        os.remove(self.filename)
+
     def test_load_with_spec(self):
         """Test loading a configuration with a specification
         """
@@ -321,3 +318,64 @@ class TestConfFile(unittest.TestCase):
             expected_error,
             conf.load, self.filename, spec=(
                 [option.encode() for option in spec.split('\n')]))
+
+    def test_initialize_with_spec(self):
+        """Test initializing uninitialized config with a spec
+        """
+        spec = ("[section_1]\n"
+                "d = integer(min=0, default=5, max=12)")
+
+        conf['section_1.d'] = 13
+        self.assertEqual(conf['section_1.d'], 13)
+        conf.initialize(self.filename, spec=(
+            [option.encode() for option in spec.split('\n')]))
+
+        self.assertEqual(conf['section_1.d'], 5)
+
+    def test_initialize_with_new_spec(self):
+        """Test initializing uninitialized config with a new spec
+        """
+        spec = ("[section_1]\n"
+                "d = integer(min=0, default=5, max=12)")
+
+        conf['bla'] = 13
+        self.assertEqual(conf['bla'], 13)
+        conf.initialize(self.filename, spec=(
+            [option.encode() for option in spec.split('\n')]))
+
+        self.assertEqual(conf['section_1.d'], 5)
+        self.assertEqual(conf['bla'], 13)
+
+    def test_initialize_with_level_spec(self):
+        """Test initializing uninitialized config with a new spec
+        """
+        spec = ("[section_1]\n"
+                "d = integer(min=0, default=5, max=12)")
+
+        conf['bli.bla'] = 12
+        conf['bla'] = 13
+        self.assertEqual(conf['bli.bla'], 12)
+        self.assertEqual(conf['bla'], 13)
+        conf.initialize(self.filename, spec=(
+            [option.encode() for option in spec.split('\n')]))
+
+        self.assertEqual(conf['section_1.d'], 5)
+        self.assertEqual(conf['bli.bla'], 12)
+        self.assertEqual(conf['bla'], 13)
+
+    def test_initialize_with_file_spec(self):
+        """Test initializing uninitialized config with a file and spec
+        """
+        spec = ("[section_1]\n"
+                "a = integer(min=0, default=5, max=12)")
+
+        conf['section_1.a'] = 13
+        self.assertEqual(conf['section_1.a'], 13)
+        conf.initialize(self.filename, spec=(
+            [option.encode() for option in spec.split('\n')]))
+
+        self.assertEqual(conf['section_1.a'], 12)
+
+
+if __name__ == '__main__':
+    unittest.main()
