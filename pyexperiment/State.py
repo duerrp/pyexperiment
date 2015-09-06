@@ -9,6 +9,8 @@ format.
 Lazy loading (by default), means that values of the state are not loaded
 until they are first accessed.
 
+Note that keys for the state should not contain slashes.
+
 Written by Peter Duerr
 """
 from __future__ import print_function
@@ -21,6 +23,8 @@ if True:  # Ugly, but makes pylint happy
     from six.moves import cPickle as pickle
     from six.moves import range  # pylint: disable=redefined-builtin
     from six.moves import filter  # pylint: disable=redefined-builtin
+
+from six import string_types
 
 import numpy as np
 import h5py
@@ -133,6 +137,8 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
     def __setitem__(self, key, value):
         """Stores state with key and value
         """
+        if isinstance(key, string_types) and "/" in key:
+            raise ValueError("entries in state should not have '/' character")
         super(State, self).__setitem__(key, value)
         self.changed.add(key)
 

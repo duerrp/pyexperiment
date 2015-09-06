@@ -260,6 +260,31 @@ class TestStateIO(StateTester):
             self.assertEqual(self.dict_val, dict_val)
             self.assertEqual(self.int_val, int_val)
 
+    def test_save_load_file_keys(self):
+        """Test saving file and reloading yields identical keys
+        """
+        state['normal_key'] = 1
+        state['dashed-key'] = 3
+        state['dotted.key'] = 4
+
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.reset_instance()
+
+            state.load(temp.name, lazy=False)
+
+            # Make sure the keys are there
+            for key in ['normal_key',
+                        'dashed-key',
+                        'dotted.key']:
+                self.assertIn(key, state)
+            # Get loaded data
+
+    def test_slashed_key(self):
+        """Test using keys with slashes for state
+        """
+        self.assertRaises(ValueError, state.__setitem__, 'bla/bli', 12)
+
     def test_load_wo_filenamee(self):
         """Test loading state without passing a filename
         """
