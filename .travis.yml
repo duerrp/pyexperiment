@@ -15,8 +15,9 @@ install:
 - pip install coveralls
 # - pip install pypandoc
 script:
-- coverage run --source=pyexperiment ./run_tests
+- coverage run --source=pyexperiment -p ./run_tests
 after_success:
+- coverage combine
 - coverage report -m
 - coveralls --verbose
 # - pandoc -o README.rst README.md

@@ -11,10 +11,44 @@ from __future__ import absolute_import
 
 import unittest
 import sys
+import multiprocessing
 
 # Make sure matplotlib is using backend for headless testing
 import matplotlib
 matplotlib.use('Agg')
+
+
+def covered_process():
+    """Monkey patches the multiprocessing module to start coverage
+    """
+    try:
+        from coverage.collector import Collector
+        from coverage import coverage
+    except ImportError:
+        return None
+
+    # detect if coverage was running in forked process
+    # pylint: disable=protected-access
+    if Collector._collectors:
+        original = multiprocessing.Process._bootstrap
+
+        class ProcessWithCoverage(multiprocessing.Process):
+            """Monkey patched process
+            """
+            def _bootstrap(self):
+                cov = coverage(data_suffix=True,
+                               include="pyexperiment/*.py")
+                cov.start()
+                try:
+                    return original(self)
+                finally:
+                    cov.stop()
+                    cov.save()
+        return ProcessWithCoverage
+
+PROCESS_WITH_COVERAGE = covered_process()
+if PROCESS_WITH_COVERAGE:
+    multiprocessing.Process = PROCESS_WITH_COVERAGE
 
 def main(argv):
     """Runs all the tests
