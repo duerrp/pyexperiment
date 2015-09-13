@@ -1,0 +1,4 @@
+*.html
+*.*,cover
+docs/_*
+*.egg-info

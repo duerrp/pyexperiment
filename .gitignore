@@ -3,3 +3,4 @@
 /dist/
 /pyexperiment.egg-info/
 /docs/_autosummary/
+*.*,cover
