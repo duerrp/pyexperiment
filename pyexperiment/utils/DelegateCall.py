@@ -46,7 +46,7 @@ class DelegateCall(object):  # pylint: disable=too-few-public-methods
         processor_thread.daemon = True
         processor_thread.start()
 
-    def __call__(self, data):
+    def __call__(self, *data):
         """Send data, can be called from any process
         """
         self._queue.put_nowait(data)
@@ -62,14 +62,13 @@ class DelegateCall(object):  # pylint: disable=too-few-public-methods
         while True:
             try:
                 data = self._queue.get()
-                self.callback(data)
+                self.callback(*data)
                 self._queue.task_done()
-            except (KeyboardInterrupt, SystemExit):
-                raise
-            except EOFError:
+            except EOFError:  # pragma: no cover
+                # This is covered, but not reported
                 break
             # This should really catch every other exception!
             except Exception:  # pylint: disable=broad-except
                 traceback.print_exc(file=sys.stderr)
-            finally:
-                pass
+                # Should not get stuck here
+                self._queue.task_done()
