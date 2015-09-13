@@ -18,19 +18,21 @@ from __future__ import absolute_import
 
 import numpy as np
 from scipy.optimize import minimize
-from itertools import count as count_up
+# from itertools import count as count_up
 from datetime import datetime
+from functools import partial
 import seaborn
 from matplotlib import pyplot as plt
 
 # For python2.x compatibility
-from six.moves import range  # pylint: disable=redefined-builtin, import-error
+# from six.moves import range  # pylint: disable=redefined-builtin, import-error
 
 from pyexperiment import experiment
 from pyexperiment import state
 from pyexperiment import conf
 from pyexperiment import log
-from pyexperiment.utils.plot import AsyncPlot
+from pyexperiment.replicate import replicate, collect_results
+# from pyexperiment.utils.plot import AsyncPlot
 from pyexperiment.utils.plot import setup_figure
 
 METHODS = ['Nelder-Mead',
@@ -68,6 +70,26 @@ def objective(x):
     return sum(alpha * (x[:-1]**2 - x[1:])**2 + (1. - x[:-1])**2)
 
 
+def run_method(method):
+    """Run...
+    """
+    i = 1
+    log.debug("Running '%s', replicate %d", method, i)
+    tic = datetime.now()
+    # callback = create_plot_callback(i)
+    result = minimize(objective,
+                      2 * (np.random.rand(conf['N']) - 1.0),
+                      method=method,
+                      # callback=callback,
+                      options={'maxfev' : 100000,
+                               'maxiter' : 100000})
+    # options={'maxiter' : 100})
+    # callback(None)
+    result.used_time = (datetime.now() - tic).total_seconds()
+    # state[method].append(result)
+    state['result'] = result
+    log.debug("%s -> %f", result.message, result.fun)
+
 def single_method(method=None):
     """Minimizes the objective function using the given algorithm
     """
@@ -80,73 +102,60 @@ def single_method(method=None):
             return
 
     if conf['progress_plot']:
-        async_plotter = AsyncPlot('Progress for ' + method,
-                                  labels=('Iteration', 'Objective Value'),
-                                  y_scale='log')
+        pass
+        # async_plotter = AsyncPlot('Progress for ' + method,
+        #                           labels=('Iteration', 'Objective Value'),
+        #                           y_scale='log')
 
-        def create_plot_callback(replicate):
-            """Creates a callback that plots the objective value and a counter
-            """
-            # Create a color for this replicate's plot
-            color = seaborn.color_palette(
-                conf['pyexperiment.plot.seaborn.palette_name'],
-                conf['n_replicates'])[replicate]
-            # The x-axis is just counting the calls
-            counter = count_up()
+        # def create_plot_callback(replicate):
+        #     """Creates a callback that plots the objective value and a counter
+        #     """
+        #     # Create a color for this replicate's plot
+        #     color = seaborn.color_palette(
+        #         conf['pyexperiment.plot.seaborn.palette_name'],
+        #         conf['n_replicates'])[replicate]
+        #     # The x-axis is just counting the calls
+        #     counter = count_up()
 
-            # Make progress plot efficient by buffering data
-            x_buffer = []
-            y_buffer = []
-            last_update = [datetime.now()]
+        #     # Make progress plot efficient by buffering data
+        #     x_buffer = []
+        #     y_buffer = []
+        #     last_update = [datetime.now()]
 
-            def callback(x):
-                """Compute current objective value and plot it
-                """
-                now = datetime.now()
-                # Append to the buffer
-                if x is not None:
-                    objective_value = objective(x)
-                    x_buffer.append(next(counter))
-                    y_buffer.append(objective_value)
+        #     def callback(x):
+        #         """Compute current objective value and plot it
+        #         """
+        #         now = datetime.now()
+        #         # Append to the buffer
+        #         if x is not None:
+        #             objective_value = objective(x)
+        #             x_buffer.append(next(counter))
+        #             y_buffer.append(objective_value)
 
-                # After the last iteration, make sure the plot is complete by
-                # passing None
-                if ((x is None
-                     or (now - last_update[0]).total_seconds() > conf[
-                         'progress_plot_update_interval'])):
-                    # Buffer the buffer (otherwise the plotter will not receive
-                    # anything)
-                    x = list(x_buffer)
-                    y = list(y_buffer)
-                    # Plot
-                    async_plotter.plot(x, y, '*', color=color)
-                    # Store the time, clear the buffers
-                    last_update[0] = now
-                    x_buffer[:] = []
-                    y_buffer[:] = []
+        #         # After the last iteration, make sure the plot is complete by
+        #         # passing None
+        #         if ((x is None
+        #              or (now - last_update[0]).total_seconds() > conf[
+        #                  'progress_plot_update_interval'])):
+        #             # Buffer the buffer (otherwise the plotter will not
+        #             # receive anything)
+        #             x = list(x_buffer)
+        #             y = list(y_buffer)
+        #             # Plot
+        #             async_plotter.plot(x, y, '*', color=color)
+        #             # Store the time, clear the buffers
+        #             last_update[0] = now
+        #             x_buffer[:] = []
+        #             y_buffer[:] = []
 
-            return callback
+        #     return callback
     else:
-        create_plot_callback = lambda: None
+        # create_plot_callback = lambda: None
+        pass
 
-
-    state[method] = []
-
-    for i in range(conf['n_replicates']):
-        log.debug("Running '%s', replicate %d", method, i)
-        tic = datetime.now()
-        callback = create_plot_callback(i)
-        result = minimize(objective,
-                          2 * (np.random.rand(conf['N']) - 1.0),
-                          method=method,
-                          callback=callback,
-                          options={'maxfev' : 100000,
-                                   'maxiter' : 100000})
-                          # options={'maxiter' : 100})
-        callback(None)
-        result.used_time = (datetime.now() - tic).total_seconds()
-        state[method].append(result)
-        log.debug("%s -> %f", result.message, result.fun)
+    # for i in range(conf['n_replicates']):
+    replicate(partial(run_method, method), parallel=True)
+    state[method] = collect_results('result')
 
     return [result.fun for result in state[method]]
 

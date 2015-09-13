@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+"""Example illustrating the use of persistent memoization
+
+The first time you run this example, the greeting is computed once in the
+expensive function. Note that the second call to expensive_greet is covered by
+the memoization. Subsequent runs will load the memoized result from the state,
+and, as long as the state file is not deleted, the expensive_greet function
+does not need to be evaluated again.
+
+Written by Peter Duerr
+
+"""
+
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+
+from time import sleep
+
+from pyexperiment import experiment
+from pyexperiment import conf
+from pyexperiment.utils.persistent_memoize import persistent_memoize
+
+conf['pyexperiment.save_state'] = True
+conf['pyexperiment.load_state'] = True
+conf['pyexperiment.state_filename'] = 'memoize.h5f'
+
+
+@persistent_memoize
+def expensive_greet(gretee):
+    """Slow way to greet someone
+    """
+    print("Generate expensive greeting...")
+    sleep(1)
+    return "Hello " + gretee + "!"
+
+
+def main():
+    """Calls expensive, memoized function
+    """
+    print(expensive_greet("World"))
+    print(expensive_greet("World"))
+
+if __name__ == '__main__':
+    experiment.main(default=main)

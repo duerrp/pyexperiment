@@ -1,0 +1,35 @@
+usage: memoize [-h] [-c CONFIG] [-o key value] [-i]
+               [--verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-v]
+               [-j PROCESSES]
+               [{help,test,show_tests,show_config,save_config,show_state,show_commands}]
+               [argument [argument ...]]
+
+Thanks for using memoize.
+
+positional arguments:
+  {help,test,show_tests,show_config,save_config,show_state,show_commands}
+                        choose a command to run
+  argument              argument to the command
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c CONFIG, --config CONFIG
+                        specify a configuration file
+  -o key value, --option key value
+                        override a configuration option
+  -i, --interactive     drop to interactive prompt after COMMAND
+  --verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+                        choose the console logger's verbosity
+  -v                    shortcut for --verbosity DEBUG
+  -j PROCESSES, --processes PROCESSES
+                        set number of parallel processes used
+
+available commands:
+
+  help:                 Shows help for a specified command
+  test:                 Run tests for the experiment 
+  show_tests:           Show available tests for the experiment 
+  show_config:          Print the configuration 
+  save_config:          Save a configuration file to a filename 
+  show_state:           Shows the contents of the state loaded by the configuration or from the file specified as an argument
+  show_commands:        Print the available commands     

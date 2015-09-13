@@ -27,6 +27,7 @@ CHECKERS = [
     ['pep8', './examples/stopwatch'],
     ['pep8', './examples/numbers'],
     ['pep8', './examples/replicate'],
+    ['pep8', './examples/memoize'],
     ['pylint', './pyexperiment', '--reports=n', '--disable=I0011'],
     ['pylint', './tests', '--reports=n', '--disable=I0011',
      '--ignore-imports=y'],
@@ -41,6 +42,7 @@ CHECKERS = [
     ['pylint', './examples/numbers', '--reports=n'],
     ['pylint', './examples/optimize', '--reports=n', '--disable=I0011,E1101'],
     ['pylint', './examples/replicate', '--reports=n', '--disable=I0011,E1101'],
+    ['pylint', './examples/memoize', '--reports=n', '--disable=I0011,E1101'],
 ]
 """List of checkers to run and their arguments
 """

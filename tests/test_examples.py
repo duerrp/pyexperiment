@@ -61,6 +61,10 @@ EXAMPLES = [
     ['./examples/minimal_logging', '--verbosity', 'CRITICAL', 'run'],
     ['./examples/minimal_logging', 'timed'],
     ['./examples/minimal_logging', '--verbosity', 'DEBUG', 'timed'],
+    ['./examples/memoize', '-h'],
+    ['./examples/memoize', '--help'],
+    ['./examples/memoize', '--verbosity', 'DEBUG', '-o',
+     'pyexperiment.save_state', 'False'],
     ]
 """The command line examples to be checked for matching stdout
 """

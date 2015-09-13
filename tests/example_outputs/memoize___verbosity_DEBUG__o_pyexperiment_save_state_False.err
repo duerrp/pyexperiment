@@ -1,0 +1,6 @@
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmStart: './examples/memoize --verbosity DEBUG -o pyexperiment.save_state False'[Xm
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmTime: 'XXXX-XX-XX XX:XX:XX.XXXXXX'[Xm
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmTried to load state from 'memoize.hXf' but failed.[Xm
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmEnd: './examples/memoize --verbosity DEBUG -o pyexperiment.save_state False'[Xm
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmTime: 'XXXX-XX-XX XX:XX:XX.XXXXXX'[Xm
+[[X;XXmDEBUG[Xm   ] [X.XXXs] [XmTook: X.XXXs[Xm
