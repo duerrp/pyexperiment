@@ -694,6 +694,33 @@ class TestStateHandler(unittest.TestCase):
                 self.assertEqual(len(state), 1)
                 self.assertEqual(state['a'], 123)
 
+    def test_with_block_load_fail(self):
+        """Test with-block of the StateHandler does not destroy when failing
+        """
+        state['a'] = 123
+        with tempfile.NamedTemporaryFile() as temp:
+            state.reset_instance()
+            state['a'] = 12
+            with StateHandler(temp.name, load=True):
+                self.assertEqual(len(state), 1)
+                self.assertEqual(state['a'], 12)
+
+    def test_with_block_show(self):
+        """Test with-block of the StateHandler does not cause show to fail
+        """
+        with tempfile.NamedTemporaryFile() as temp:
+            state.reset_instance()
+            state['a'] = 12
+            with StateHandler(temp.name, load=True):
+                self.assertEqual(len(state), 1)
+                self.assertEqual(state['a'], 12)
+
+                buf = io.StringIO()
+                with stdout_redirector(buf):
+                    state.show()
+                self.assertNotEqual(len(buf.getvalue()), 0)
+                self.assertRegexpMatches(buf.getvalue(), r"a:12")
+
     def test_with_block_does_save(self):
         """Test the with-block of the StateHandler saves if required
         """

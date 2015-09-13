@@ -272,6 +272,8 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                         load_sections(value, level[key])
                     else:
                         level[key] = UNLOADED
+
+            self.base = OrderedDict()
             load_sections(h5file['state'], self.base)
 
     def load(self,
@@ -281,7 +283,6 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         """Loads state from a h5f file
         """
         # Reset state
-        self.base = OrderedDict()
         self.raise_ioerror_on_load = raise_error
         self.lazy = lazy
 
@@ -299,6 +300,7 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
             if not self.lazy:
                 for key in self.keys():
                     self.__load_from_file(key)
+            self.changed = set()
         except IOError as err:
             if self.raise_ioerror_on_load:
                 raise IOError(
@@ -309,13 +311,11 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
                     "Tried to load state from '%s' "
                     "but failed." % self.filename)
 
-        self.changed = set()
-
     def show(self):
         """Shows the state
         """
         if self.lazy:
-            self.load(lazy=False)
+            self.load(lazy=False, raise_error=False)
         super(State, self).show()
 
 
