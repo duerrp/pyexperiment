@@ -114,10 +114,10 @@ def replicate(function,
     a pool of processes.
     """
     no_replicates = no_replicates or int(conf['pyexperiment.n_replicates'])
-    no_processes = no_processes or int(conf['pyexperiment.n_processes'])
     if not parallel:
         _replicate_single_thread(function, no_replicates, subkey_pattern)
     else:
+        no_processes = no_processes or int(conf['pyexperiment.n_processes'])
         _replicate_multiprocessing(function,
                                    no_replicates=no_replicates,
                                    no_processes=no_processes,

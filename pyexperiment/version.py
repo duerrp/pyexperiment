@@ -1,4 +1,4 @@
 """Defines the version of pyexperiment
 """
 
-__version__ = '0.8.0'
+__version__ = '0.8.1'
