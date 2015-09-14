@@ -13,8 +13,13 @@ import mock
 from multiprocessing import Queue
 from threading import Thread
 from time import sleep
+from six import StringIO
+import logging
 
 from pyexperiment.utils import plot
+from pyexperiment import log
+from pyexperiment import conf
+from pyexperiment import Logger
 
 
 class TestPlot(unittest.TestCase):
@@ -25,12 +30,49 @@ class TestPlot(unittest.TestCase):
         """
         # Some tests may leave pl 'configured'
         plot._SETUP_DONE = False  # pylint: disable=protected-access
+        log.reset_instance()
+        conf.reset_instance()
 
     def test_setup_does_not_override(self):
         """Test setting up plotting
         """
         self.assertTrue(plot.setup_plotting(override_setup=False))
         self.assertFalse(plot.setup_plotting(override_setup=False))
+
+    def test_setup_without_seaborn(self):
+        """Test setup mentions missing seaborn
+        """
+        with mock.patch.dict('sys.modules', {'seaborn': None}):
+            log_stream = StringIO()
+            Logger.CONSOLE_STREAM_HANDLER = logging.StreamHandler(log_stream)
+            log.reset_instance()
+            log.initialize()
+            plot.setup_plotting()
+            self.assertRegexpMatches(log_stream.getvalue(),
+                                     r'Cannot import seaborn')
+
+    def test_setup_with_seaborn(self):
+        """Test setup configures seaborn
+        """
+        seaborn = mock.MagicMock()
+        options = {'seaborn.style': 'foo',
+                   'seaborn.palette_name': 'bar',
+                   'seaborn.desat': 12}
+        with mock.patch.dict('sys.modules', {'seaborn': seaborn}):
+            plot.setup_plotting(options=options)
+        self.assertIn(mock.call.set_style('foo'), seaborn.method_calls)
+        self.assertIn(mock.call.set_palette('bar', desat=12),
+                      seaborn.method_calls)
+
+    def test_setup_with_seaborn_off(self):
+        """Test setup configures seaborn disabled
+        """
+        seaborn = mock.MagicMock()
+        conf['pyexperiment.plot.seaborn.enable'] = False
+        with mock.patch.dict('sys.modules', {'seaborn': seaborn}):
+            plot.setup_plotting()
+        self.assertEqual([], seaborn.method_calls)
+        del conf['pyexperiment']
 
     def test_setup_does_override(self):
         """Test setting up plotting with override
@@ -110,8 +152,14 @@ class TestAsyncPlot(unittest.TestCase):
         Thread(target=drop_poison_pill).start()
         with mock.patch('pyexperiment.utils.plot.plt') as plt, \
                 mock.patch('pyexperiment.utils.plot.matplotlib'):
-            plot.AsyncPlot.plot_process(queue, name="test_plot")
+            plot.AsyncPlot.plot_process(queue,
+                                        name="test_plot",
+                                        labels=('a', 'b'))
 
         self.assertTrue(plot._SETUP_DONE)  # pylint: disable=protected-access
         self.assertIn(mock.call.figure(), plt.mock_calls)
         self.assertIn(mock.call.plot(1, 2, 'k'), plt.mock_calls)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -47,7 +47,7 @@ def setup_plotting(options=None,
         """
         prefix = 'pyexperiment.plot'
         if key in options:
-            return options['key']
+            return options[key]
         elif prefix + conf.SECTION_SEPARATOR + key in conf:
             return conf[prefix + conf.SECTION_SEPARATOR + key]
         else:
