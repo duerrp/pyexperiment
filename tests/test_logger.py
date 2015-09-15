@@ -38,6 +38,21 @@ class TestLogger(unittest.TestCase):
         log.close()
         log.reset_instance()
 
+    def test_basic_console_logging(self):
+        """Test the most basic console logging at the debug level
+        """
+        log.initialize(console_level=logging.DEBUG)
+        log.debug("Test string: %s, int: %s, float: %f",
+                  'bla',
+                  12,
+                  3.14)
+        log.close()
+
+        self.assertNotEqual(len(self.log_stream.getvalue()), 0)
+        self.assertRegexpMatches(
+            self.log_stream.getvalue(),
+            r'Test string: bla, int: 12, float: 3.14')
+
     def test_fatal_console_logging(self):
         """Test the most basic console logging at the fatal level
         """
@@ -86,7 +101,7 @@ class TestLogger(unittest.TestCase):
         """
         with tempfile.NamedTemporaryFile() as temp:
             log.initialize(filename=temp.name, no_backups=0)
-            log.fatal("Test")
+            log.fatal("Test: %f", 3.1415)
             log.close()
 
             # Make sure file exists
@@ -95,6 +110,30 @@ class TestLogger(unittest.TestCase):
             lines = temp.readlines()
             # There should be exactly one line in the file now
             self.assertEqual(len(lines), 1)
+
+            # The content should match the logged message
+            self.assertRegexpMatches(str(lines[0]), r'Test: 3.1415')
+
+    def test_file_logger_logs_exception(self):
+        """Test logging to file logs exception info
+        """
+        with tempfile.NamedTemporaryFile() as temp:
+            log.initialize(filename=temp.name, no_backups=0)
+            try:
+                raise RuntimeError()
+            except RuntimeError:
+                log.exception('Exception...')
+            log.close()
+
+            # Make sure file exists
+            self.assertTrue(os.path.isfile(temp.name))
+
+            lines = temp.readlines()
+            # There should be exactly more than one line in the file now
+            self.assertTrue(len(lines) > 1)
+
+            # The content should match the logged message
+            self.assertRegexpMatches(str(lines[0]), r'Exception')
 
     def test_timing_logger_logs(self):
         """Test timing code logs a message
@@ -137,6 +176,30 @@ class TestLogger(unittest.TestCase):
         # Something should be logged
         self.assertNotEqual(len(self.log_stream.getvalue()), 0)
 
+    def test_print_timings_complains(self):
+        """Test timing code complains if there are no timings
+        """
+        buf = io.StringIO()
+
+        # Nothing should be logged yet
+        self.assertEqual(len(self.log_stream.getvalue()), 0)
+
+        log.initialize()
+        # Still, nothing should be logged yet
+        self.assertEqual(len(self.log_stream.getvalue()), 0)
+
+        with stdout_redirector(buf):
+            log.print_timings()
+
+        # Something should be printed
+        self.assertNotEqual(len(buf.getvalue()), 0)
+        self.assertRegexpMatches(buf.getvalue(), r'No timings stored')
+
+        log.close()
+
+        # Nothing should be logged
+        self.assertEqual(len(self.log_stream.getvalue()), 0)
+
     def test_print_timings_correct(self):
         """Test timing is about right
         """
@@ -170,3 +233,7 @@ class TestLogger(unittest.TestCase):
         self.assertRegexpMatches(self.log_stream.getvalue(), r'took 0.01')
         self.assertEqual(len(re.findall(r'took 0.01',
                                         self.log_stream.getvalue())), 3)
+
+
+if __name__ == '__main__':
+    unittest.main()

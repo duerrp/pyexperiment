@@ -155,7 +155,7 @@ class MPRotLogHandler(logging.Handler):
             record.msg = record.msg % record.args
             record.args = None
         if record.exc_info:
-            self.format(record)
+            record.exc_text = self.format(record)
             record.exc_info = None
 
         return record
