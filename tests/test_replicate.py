@@ -9,17 +9,19 @@ from __future__ import absolute_import
 
 import unittest
 import numpy as np
-# import logging
-# import io
+import logging
+import io
+import multiprocessing
+import functools
 if True:  # Ugly, but makes pylint happy
     # pylint:disable=import-error
     from six.moves import range  # pylint: disable=redefined-builtin
 
 from pyexperiment import state
-# from pyexperiment import Logger
-# from pyexperiment import log
+from pyexperiment import Logger
+from pyexperiment import log
 # from pyexperiment.utils.stdout_redirector import stdout_err_redirector
-from pyexperiment.replicate import replicate, collect_results
+from pyexperiment.replicate import replicate, collect_results, TargetCreator
 from pyexperiment.replicate import SUBSTATE_KEY_PATTERN
 
 FAKE_ERROR = RuntimeError("Foo")
@@ -164,6 +166,81 @@ class TestReplicate(unittest.TestCase):
             for k, r_2 in enumerate(results):
                 if not i == k:
                     self.assertFalse((r_1 == r_2).all())
+
+
+class TestTargetCreator(unittest.TestCase):
+    """Test the target creator
+    """
+    def tearDown(self):
+        """Clean up after the test
+        """
+        log.reset_instance()
+
+    def test_basic_functionality(self):
+        """Test the basic function of the TargetCreator
+        """
+        log_stream = io.StringIO()
+        Logger.CONSOLE_STREAM_HANDLER = logging.StreamHandler(log_stream)
+        log.reset_instance()
+        log.initialize(console_level=logging.DEBUG)
+
+        queue = multiprocessing.Queue()
+        target_fun = TargetCreator(lambda: None, queue, 'bla')
+        target_fun()
+
+        # Should have logged running
+        self.assertNotEqual(len(log_stream.getvalue()), 0)
+        self.assertRegexpMatches(log_stream.getvalue(), r'Running bla')
+        self.assertTrue(queue.get())
+
+    def test_partial(self):
+        """Test the basic function of the TargetCreator on a partial target
+        """
+        log_stream = io.StringIO()
+        Logger.CONSOLE_STREAM_HANDLER = logging.StreamHandler(log_stream)
+        log.reset_instance()
+        log.initialize(console_level=logging.DEBUG)
+
+        def target(_):
+            """Target function
+            """
+            pass
+
+        queue = multiprocessing.Queue()
+        target_fun = TargetCreator(functools.partial(target, None),
+                                   queue,
+                                   'bla')
+        target_fun()
+
+        # Should have logged running
+        self.assertNotEqual(len(log_stream.getvalue()), 0)
+        self.assertRegexpMatches(log_stream.getvalue(), r'Running bla')
+        self.assertTrue(queue.get())
+
+    def test_raises_exception(self):
+        """Test the TargetCreator with a function that raises an exception
+        """
+        def target():
+            """Test function
+            """
+            raise RuntimeError("bla")
+
+        log_stream = io.StringIO()
+        Logger.CONSOLE_STREAM_HANDLER = logging.StreamHandler(log_stream)
+        log.reset_instance()
+        log.initialize(console_level=logging.DEBUG)
+
+        queue = multiprocessing.Queue()
+        target_fun = TargetCreator(target, queue, 'bla')
+        self.assertRaises(RuntimeError, target_fun)
+
+        # Should have logged running
+        self.assertNotEqual(len(log_stream.getvalue()), 0)
+        self.assertRegexpMatches(log_stream.getvalue(), r'Running bla')
+        self.assertRegexpMatches(log_stream.getvalue(),
+                                 r'Error in sub-process')
+        self.assertRegexpMatches(log_stream.getvalue(), r'RuntimeError: bla')
+        self.assertTrue(queue.get())
 
 
 if __name__ == '__main__':

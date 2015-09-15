@@ -153,7 +153,9 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
                              " to the specification: %s" %
                              configobj.flatten_errors(config, result))
         elif not result:
-            raise RuntimeError("Configuration validated to false.")
+            # This should never happen
+            raise RuntimeError(  # pragma: no cover
+                "Configuration validated to false.")
 
     def load(self,
              filename,
@@ -186,7 +188,8 @@ class Config(HierarchicalMapping,  # pylint: disable=too-many-ancestors
         """Write configuration to file
         """
         if self.base is None:
-            raise RuntimeError(
+            # This should never happen
+            raise RuntimeError(  # pragma: no cover
                 "Configuration not initialized yet.")
         else:
             with open(filename, 'wb') as outfile:

@@ -88,7 +88,7 @@ def _replicate_multiprocessing(function,
             result_threads.append(waiter)
             # Make sure the process is really running (probably not necessary)
             while not ready_queue.get():
-                pass
+                pass  # pragma: no cover
 
         # Wait for the pool, then join it
         log.debug("Closing pool")
