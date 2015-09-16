@@ -459,7 +459,7 @@ class TestStateIO(StateTester):
         state['c'] = 41
 
         with tempfile.NamedTemporaryFile() as temp, \
-                 tempfile.NamedTemporaryFile() as temp2:
+                tempfile.NamedTemporaryFile() as temp2:
             # Save original state
             state.save(temp2.name, rotate_n_state_files=1)
             state.load(temp2.name)
@@ -600,7 +600,7 @@ class TestStateIO(StateTester):
         state['a'] = 12
 
         with tempfile.NamedTemporaryFile() as temp:
-            os.chmod(temp.name,  0)
+            os.chmod(temp.name, 0)
             self.assertRaises(IOError, state.save, temp.name)
             self.assertEqual(os.stat(temp.name).st_size, 0)
 
