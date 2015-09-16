@@ -124,7 +124,8 @@ class State(Singleton,  # pylint: disable=too-many-ancestors
         except KeyError:
             if self.lazy:
                 if self.filename is None:
-                    raise
+                    raise RuntimeError(
+                        "Cannot load state lazily without filename")
                 value = self.__load_from_file(key)
             else:
                 raise

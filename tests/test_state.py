@@ -285,10 +285,20 @@ class TestStateIO(StateTester):
         """
         self.assertRaises(ValueError, state.__setitem__, 'bla/bli', 12)
 
-    def test_load_wo_filenamee(self):
+    def test_load_wo_filename(self):
         """Test loading state without passing a filename
         """
         self.assertRaises(RuntimeError, state.load)
+
+    def test_load_broken(self):
+        """Test loading a broken state lazily
+        """
+        state['a'] = 12
+        with tempfile.NamedTemporaryFile() as temp:
+            state.save(temp.name)
+            state.load(temp.name)
+            state.get_instance().filename = None
+            self.assertRaises(RuntimeError, lambda: state['a'])
 
     def test_save_load_file_lazy(self):
         """Test saving file and reloading lazily yields identical values
@@ -440,6 +450,46 @@ class TestStateIO(StateTester):
             os.remove(temp.name + ".1")
             os.remove(temp.name + ".2")
 
+    def test_save_rollover_different(self):
+        """Test saving file with one-file rollover and a different filename
+        """
+        # Write some stuff to the state
+        state['a'] = (-1) ** 2
+        state['b'] = (-1) ** 3
+        state['c'] = 41
+
+        with tempfile.NamedTemporaryFile() as temp, \
+                 tempfile.NamedTemporaryFile() as temp2:
+            # Save original state
+            state.save(temp2.name, rotate_n_state_files=1)
+            state.load(temp2.name)
+            state['a'] = (-1) ** 2
+            state.save(temp.name, rotate_n_state_files=1)
+
+            for i in range(10):
+                # Write bogus info to state
+                state['a'] = i ** 2
+                state['b'] = i ** 3
+                state['c'] = 42 + i
+
+                state.save(temp.name, rotate_n_state_files=1)
+
+                # Load last file and check contents
+                state.load(temp.name + ".1", lazy=True)
+                self.assertEqual(state['a'], (i - 1) ** 2)
+                self.assertEqual(state['b'], (i - 1) ** 3)
+                self.assertEqual(state['c'], 42 + (i - 1))
+
+                # Load current state and check contents
+                state.load(temp.name, lazy=True)
+                self.assertEqual(state['a'], i ** 2)
+                self.assertEqual(state['b'], i ** 3)
+                self.assertEqual(state['c'], 42 + i)
+
+            # Remove temp files
+            os.remove(temp.name + ".1")
+            os.remove(temp2.name + ".1")
+
     def test_need_saving(self):
         """Test the state.need_saving method
         """
@@ -543,6 +593,16 @@ class TestStateIO(StateTester):
             state.load(temp.name)
             self.assertIn('a', state)
             self.assertIn('b', state)
+
+    def test_save_raises(self):
+        """Test saving the state raises an error if it cannot save
+        """
+        state['a'] = 12
+
+        with tempfile.NamedTemporaryFile() as temp:
+            os.chmod(temp.name,  0)
+            self.assertRaises(IOError, state.save, temp.name)
+            self.assertEqual(os.stat(temp.name).st_size, 0)
 
 
 class TestStateEfficientIO(StateTester):
