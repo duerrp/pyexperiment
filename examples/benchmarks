@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+"""Benchmark some of pyexperiment's components
+"""
+
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+
+from functools import partial
+from collections import OrderedDict
+
+from pyexperiment.replicate import replicate
+from pyexperiment import log
+from pyexperiment import state
+from pyexperiment import conf
+from pyexperiment import experiment
+from pyexperiment.utils.HierarchicalMapping import HierarchicalOrderedDict
+
+conf['pyexperiment.print_timings'] = True
+conf['pyexperiment.n_replicates'] = 1000
+
+
+def test_baseline():
+    """As a baseline, do nothing
+    """
+    with log.timed("pass"):
+        pass
+
+
+def test_log():
+    """Log a message
+    """
+    with log.timed("log"):
+        log.debug("Hello World!")
+
+
+def test_map(testee, name):
+    """Test setting and getting from a map
+    """
+    with log.timed(name):
+        testee['a'] = 12
+        assert testee['a'] == 12
+        del testee['a']
+        assert 'a' not in testee
+
+
+def main():
+    """Runs the benchmarks
+    """
+    replicate(test_baseline)
+    replicate(test_log)
+    replicate(partial(test_map, {}, "dict"))
+    replicate(partial(test_map, OrderedDict(), "OrderedDict"))
+    replicate(partial(test_map,
+                      HierarchicalOrderedDict(),
+                      "HierarchicalOrderedDict"))
+    replicate(partial(test_map, state, "state"))
+    replicate(partial(test_map, conf, "conf"))
+
+
+if __name__ == '__main__':
+    experiment.main(default=main)

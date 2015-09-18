@@ -1,0 +1,8 @@
+[X;XXmTiming Summary:[Xm
+	'pass' (timed XXXX times): total = X.XXXXXXs, min = X.XXXXXXs, max = X.XXXXXXs, median = X.XXXXXXs
+	'log' (timed XXXX times): total = X.XXXXXXs, min = X.XXXXXXs, max = X.XXXXXXs, median = X.XXXXXXs
+	'dict' (timed XXXX times): total = X.XXXXXXs, min = X.XXXXXXs, max = X.XXXXXXs, median = X.XXXXXXs
+	'OrderedDict' (timed XXXX times): total = X.XXXXXXs, min = X.XXXXXXs, max = X.XXXXXXs, median = X.XXXXXXs
+	'HierarchicalOrderedDict' (timed XXXX times): total = X.XXXXXXs, min = X.XXXXXXs, max = X.XXXXXXs, median = X.XXXXXXs
+	'state' (timed XXXX times): total = X.XXXXXXs, min = X.XXXXXXs, max = X.XXXXXXs, median = X.XXXXXXs
+	'conf' (timed XXXX times): total = X.XXXXXXs, min = X.XXXXXXs, max = X.XXXXXXs, median = X.XXXXXXs
