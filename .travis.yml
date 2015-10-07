@@ -13,7 +13,7 @@ addons:
 install:
 - pip install -r requirements.txt
 - pip install coveralls
-- pip install coverage<4
+- pip install 'coverage<4'
 # - pip install pypandoc
 script:
 - coverage run --source=pyexperiment -p ./run_tests
