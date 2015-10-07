@@ -36,7 +36,8 @@ def substate_context(substate_name):
     def getsubitem(self, key):
         """Get an item
         """
-        key = substate_name + State.SECTION_SEPARATOR + key
+        if not key.startswith('__'):
+            key = substate_name + State.SECTION_SEPARATOR + key
         State.__setitem__ = original_setitem
         try:
             value = original_getitem(self, key)
@@ -49,13 +50,15 @@ def substate_context(substate_name):
     def setsubitem(self, key, value):
         """Set an item
         """
-        key = substate_name + State.SECTION_SEPARATOR + key
+        if not key.startswith('__'):
+            key = substate_name + State.SECTION_SEPARATOR + key
         original_setitem(self, key, value)
 
     def delsubitem(self, key):
         """Delete an item
         """
-        key = substate_name + State.SECTION_SEPARATOR + key
+        if not key.startswith('__'):
+            key = substate_name + State.SECTION_SEPARATOR + key
         original_delitem(self, key)
 
     def subiter(self):

@@ -52,6 +52,27 @@ class TestSubStateContext(unittest.TestCase):
         self.assertRaises(KeyError, state.__getitem__, 'a.b')
         self.assertRaises(KeyError, state.__getitem__, 'c.d.e')
 
+    def test_global_state(self):
+        """Test setting, getting global state in sub-state context
+        """
+        with substate_context('test'):
+            state['a.b'] = 123
+            state['c.d.e'] = 345
+            state['__foo'] = 42
+            state['__bar.foo'] = 43
+
+            self.assertEqual(state['a.b'], 123)
+            self.assertEqual(state['c.d.e'], 345)
+            self.assertEqual(state['__foo'], 42)
+            self.assertEqual(state['__bar.foo'], 43)
+
+        self.assertEqual(state['test.a.b'], 123)
+        self.assertEqual(state['test.c.d.e'], 345)
+        self.assertEqual(state['__foo'], 42)
+        self.assertEqual(state['__bar.foo'], 43)
+        self.assertRaises(KeyError, state.__getitem__, 'a.b')
+        self.assertRaises(KeyError, state.__getitem__, 'c.d.e')
+
     def test_get_section(self):
         """Test getting a section of the state
         """
