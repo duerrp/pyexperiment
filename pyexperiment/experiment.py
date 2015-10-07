@@ -325,21 +325,20 @@ def setup_arg_parser(default, commands, description):
         action='store',
         help="set number of parallel processes used")
 
+    arg_parser.add_argument(
+        '--print-timings',
+        action='store_true',
+        help="print logged timings")
+
     if AUTO_COMPLETION:
         argcomplete.autocomplete(arg_parser)
 
     return arg_parser
 
 
-def configure(default, commands, config_specs, description):
-    """Load configuration from command line arguments and optionally, a
-    configuration file. Possible command line arguments depend on the
-    list of supplied commands, the configuration depends on the
-    supplied configuration specification.
+def handle_shortcuts(args):
+    """Handle argument shortcuts
     """
-    arg_parser = setup_arg_parser(default, commands, description)
-    args = arg_parser.parse_args()
-
     # Handle verbosity
     if args.verbosity is not None:
         if args.option is None:
@@ -351,11 +350,31 @@ def configure(default, commands, config_specs, description):
             args.option = []
         args.option.append(('pyexperiment.verbosity',
                             'DEBUG'))
+    # Handle --processes
     if args.processes:
         if args.option is None:
             args.option = []
         args.option.append(('pyexperiment.n_processes',
                             str(args.processes[0])))
+
+    # Handle --print-timings
+    if args.print_timings:
+        if args.option is None:
+            args.option = []
+        args.option.append(('pyexperiment.print_timings',
+                            'True'))
+
+
+def configure(default, commands, config_specs, description):
+    """Load configuration from command line arguments and optionally, a
+    configuration file. Possible command line arguments depend on the
+    list of supplied commands, the configuration depends on the
+    supplied configuration specification.
+    """
+    arg_parser = setup_arg_parser(default, commands, description)
+    args = arg_parser.parse_args()
+
+    handle_shortcuts(args)
 
     conf.initialize(args.config,
                     [option.encode()

@@ -547,6 +547,25 @@ class TestExperimentLogging(unittest.TestCase):
         self.assertNotEqual(len(buf.getvalue()), 0)
         self.assertRegexpMatches(buf.getvalue(), r'bla')
 
+    def test_main_prints_timings_simple(self):
+        """Test running main logs timings as expected with --print_timings
+        """
+        argparse._sys.argv = [  # pylint: disable=W0212
+            "test", "--print-timings"]
+
+        def hello():
+            """Logs a message
+            """
+            with log.timed("bla"):
+                pass
+
+        buf = io.StringIO()
+        with stdout_redirector(buf):
+            experiment.main(default=hello)
+
+        self.assertNotEqual(len(buf.getvalue()), 0)
+        self.assertRegexpMatches(buf.getvalue(), r'bla')
+
     def test_main_logs_file(self):
         """Test running main logs as expected
         """

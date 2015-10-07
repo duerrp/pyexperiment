@@ -1,6 +1,6 @@
 usage: memoize [-h] [-c CONFIG] [-o key value] [-i]
                [--verbosity {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-v]
-               [-j PROCESSES]
+               [-j PROCESSES] [--print-timings]
                [{help,test,show_tests,show_config,save_config,show_state,show_commands}]
                [argument [argument ...]]
 
@@ -23,6 +23,7 @@ optional arguments:
   -v                    shortcut for --verbosity DEBUG
   -j PROCESSES, --processes PROCESSES
                         set number of parallel processes used
+  --print-timings       print logged timings
 
 available commands:
 
