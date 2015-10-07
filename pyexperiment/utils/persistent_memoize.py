@@ -39,6 +39,7 @@ class PersistentCache(object):  # pylint: disable=too-few-public-methods
         """Set cache entry
         """
         state[self.key][key] = value
+        state.changed.add(self.key)
 
     def __iter__(self):
         """Iterator over the cache

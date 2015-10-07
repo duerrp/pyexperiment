@@ -219,6 +219,18 @@ class TestPersistentMemoize(unittest.TestCase):
             state.load(temp.name, lazy=True)
             environment(expected_calls=2)
 
+    def test_triggers_state_changed(self):
+        """Test if memoization triggers state change
+        """
+        with tempfile.NamedTemporaryFile() as temp:
+            cache = PersistentCache('bla')
+            state.save(temp.name)
+            state.reset_instance()
+            state.load(temp.name, lazy=True)
+            self.assertFalse(state.changed)
+            cache[1] = 42
+            self.assertTrue(state.changed)
+
 
 if __name__ == '__main__':
     unittest.main()
