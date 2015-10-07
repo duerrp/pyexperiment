@@ -1,63 +1,96 @@
 #!/usr/bin/env python
-"""A simple example on how to use pyexperiment.
+"""Demonstrates some of pyexperiment's features
 
 Written by Peter Duerr
 """
+
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import division
+from __future__ import absolute_import
+
+# Basic imports
 import unittest
+import numpy as np
+import matplotlib.pyplot as plt
 
-from pyexperiment import experiment
-from pyexperiment import log
-from pyexperiment.utils.printers import print_red  # pylint: disable=E0611
-from pyexperiment.utils.printers import print_blue  # pylint: disable=E0611
+# Pyexperiment
+from pyexperiment import experiment, log, state, conf
+from pyexperiment.utils.persistent_memoize import persistent_memoize
+from pyexperiment.utils.plot import setup_figure
+from pyexperiment.replicate import replicate, collect_results
 
-# Python 2.x compatibility
-from six.moves import range  # pylint: disable=redefined-builtin, import-error
+# Configuration defaults
+conf['scale'] = 1  # Defines configuration item 'scale' with default value 1
+conf['pyexperiment.load_state'] = True  # Load state by default
+conf['pyexperiment.save_state'] = True  # Save state by default
+conf['pyexperiment.n_replicates'] = 1000  # Run 1000 replicates by default
 
 
-def example_function(argument):
-    """An example function
+@persistent_memoize  # Memoize calls to square to disk
+def square(argument):
+    """Squares a number
     """
-    log.debug("Call example function with argument: %s",
-              argument)
-    return argument ** 2
+    # Log message under the 'debug' level
+    log.debug("Computing square of: %s", argument)
+    return float(argument)**2
 
 
-def default():
-    """Example experiment that squares a number
+def square_random():
+    """Squares a random number and store the result in the state
     """
-    print_red("Experiment started")
-    log.debug("Trying to square 42 ten times...")
-    for _ in range(10):
-        with log.timed("Squaring number"):
-            result = example_function(42)
-
-    return result
+    # Measure the timing for later analysis
+    with log.timed("Squaring Random Number"):
+        number = np.random.normal(scale=conf['scale'])
+        # Store the result in the state for later analysis
+        state['result'] = square(number)
 
 
-def print_number(number):
-    """Example command that prints a number. Enter one!
+def run():
+    """Square numbers drawn from a normal distribution and compute mean and std
     """
-    number = int(number)
-    print_blue("Welcome to experiment")
-    log.info("Experiment started")
+    # Runs n_replicate times, storing the results in named sub-states
+    replicate(square_random)
 
-    return number
+    with log.timed("Computing Statistics"):
+        # Collect the states with key 'result' from all replicates' sub-states
+        results = collect_results('result')
+        # Compute mean and std
+        mean, std = np.mean(results), np.std(results)
+
+    print("Mean: %s, Std: %s" % (mean, std))
+
+
+def plot():
+    """Plots the results (if there are any)
+    """
+    try:
+        results = collect_results('result')
+    except KeyError:
+        # No results in the state
+        print("Run the experiment first!")
+    else:
+        # Setup a nice plotting environment and open a new figure
+        setup_figure("Results")
+        plt.hist(results, bins=25)
+        plt.show()
 
 
 class ExampleTest(unittest.TestCase):
     """Test case for the example experiment
     """
-    def test_foo(self):
-        """Test something
+    def test_squaring(self):
+        """Test squaring numbers works as expected
         """
-        self.assertEqual(example_function(2), 4)
+        self.assertEqual(square(2), 4)
+        self.assertEqual(square(-3), 9)
 
-    def test_bar(self):
-        """Test something else
-        """
-        self.assertEqual(example_function(3), 9)
 
 if __name__ == '__main__':
-    experiment.main(default=default,
-                    commands=[print_number],
-                    tests=[ExampleTest])
+    # Setup the experiment
+    experiment.main(default=run,  # Runs if there are no other arguments
+                    commands=[square, run, plot],  # Call as sub-commands
+                    tests=[ExampleTest],  # Run by the 'test' sub-command
+                    description=(  # Additional help text
+                        "Pyexperiment usage example... "
+                        "have a look at the source!"))
