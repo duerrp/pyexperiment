@@ -25,7 +25,7 @@ def store(number):
 
 def show():
     """Show the stored numbers and compute their sum"""
-    if not 'numbers' in state:
+    if 'numbers' not in state:
         print('No numbers stored yet')
         return
 

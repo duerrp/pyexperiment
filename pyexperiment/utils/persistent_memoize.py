@@ -27,7 +27,7 @@ class PersistentCache(object):  # pylint: disable=too-few-public-methods
         """Initializer
         """
         self.key = self.KEY_PREFIX + str(key)
-        if not self.key in state:
+        if self.key not in state:
             state[self.key] = {}
 
     def __getitem__(self, key):
