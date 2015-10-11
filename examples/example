@@ -71,7 +71,7 @@ def plot():
         print("Run the experiment first!")
     else:
         # Setup a nice plotting environment and open a new figure
-        setup_figure("Results")
+        setup_figure("Results", figsize=(12, 9))
         plt.hist(results, bins=25)
         plt.show()
 

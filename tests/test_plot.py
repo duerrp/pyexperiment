@@ -92,6 +92,14 @@ class TestPlot(unittest.TestCase):
         _fig = plot.setup_figure()
         self.assertFalse(plot.setup_plotting(override_setup=False))
 
+    def test_setup_fig_setup_figsize(self):
+        """Test setting up a figure sets up figure with size
+        """
+        with mock.patch('pyexperiment.utils.plot.plt') as plt:
+            _fig = plot.setup_figure(figsize=(2, 3))
+
+        self.assertIn(mock.call.figure(figsize=(2, 3)), plt.mock_calls)
+
 
 class TestAsyncPlot(unittest.TestCase):
     """Test the AsyncPlot
@@ -157,7 +165,7 @@ class TestAsyncPlot(unittest.TestCase):
                                         labels=('a', 'b'))
 
         self.assertTrue(plot._SETUP_DONE)  # pylint: disable=protected-access
-        self.assertIn(mock.call.figure(), plt.mock_calls)
+        self.assertIn(mock.call.figure(figsize=None), plt.mock_calls)
         self.assertIn(mock.call.plot(1, 2, 'k'), plt.mock_calls)
 
 
