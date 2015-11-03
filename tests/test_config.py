@@ -74,11 +74,46 @@ class TestConf(unittest.TestCase):
         self.assertRaises(KeyError, conf.get, 'a')
 
     def test_initialize(self):
-        """Test initializing uninitialized config
+        """Test initializing uninitialized config with an integer
         """
         conf['a'] = 12
         conf.initialize()
         self.assertEqual(conf['a'], 12)
+
+    def test_init_float(self):
+        """Test initializing uninitialized config with a float
+        """
+        conf['a'] = 12.34
+        conf.initialize()
+        self.assertEqual(conf['a'], 12.34)
+
+    def test_init_string(self):
+        """Test initializing uninitialized config with a string
+        """
+        conf['a'] = 'foo'
+        conf.initialize()
+        self.assertEqual(conf['a'], 'foo')
+
+    def test_init_boolean(self):
+        """Test initializing uninitialized config with a boolean
+        """
+        conf['a'] = False
+        conf.initialize()
+        self.assertEqual(conf['a'], False)
+
+    def test_init_list(self):
+        """Test initializing uninitialized config with a list
+        """
+        conf['a'] = [1, 2, 3, 4]
+        conf.initialize()
+        self.assertEqual(conf['a'], [1, 2, 3, 4])
+
+    def test_init_tuple(self):
+        """Test initializing uninitialized config with a tuple
+        """
+        conf['a'] = (1, 2, 3, 4)
+        conf.initialize()
+        self.assertEqual(conf['a'], (1, 2, 3, 4))
 
 
 class TestConfFile(unittest.TestCase):

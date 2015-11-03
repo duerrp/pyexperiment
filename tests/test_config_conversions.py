@@ -89,10 +89,10 @@ class TestOhmToSpec(unittest.TestCase):
              "[a]",
              "a = integer(default=1)",
              "b = float(default=1.2)",
-             "[n]",
-             "k = integer(default=2)",
              "[d]",
-             "a = integer(default=3)"])
+             "a = integer(default=3)",
+             "[n]",
+             "k = integer(default=2)"])
 
     def test_level2_spec(self):
         """Test generating a spec with two levels
