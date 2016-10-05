@@ -153,7 +153,8 @@ class AsyncPlot(object):
 
             # Check if poison pill (None) arrived or the figure was closed
             if None in data or not plt.fignum_exists(fig.number):
-                # If yes, leave the process
+                # If yes, close the figure and leave the process
+                plt.close(fig)
                 break
             else:
                 # Plot the data, then wait 15ms for the plot to update
