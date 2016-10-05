@@ -57,7 +57,7 @@ setup(
         'matplotlib',
         'mock',
         'lockfile',
-        'toolz'
+        'toolz<0.8.0'
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",
