@@ -192,7 +192,7 @@ License
 The pyexperiment package is licensed under an MIT licence (see the
 `LICENSE <https://github.com/duerrp/pyexperiment/blob/master/LICENSE>`__).
 
-.. |Development Status| image:: https://pypip.in/status/pyexperiment/badge.svg
+.. |Development Status| image:: https://img.shields.io/pypi/status/pyexperiment.svg
    :target: https://pypi.python.org/pypi/pyexperiment/
 .. |Version| image:: https://img.shields.io/pypi/v/pyexperiment.svg
    :target: https://pypi.python.org/pypi/pyexperiment/
