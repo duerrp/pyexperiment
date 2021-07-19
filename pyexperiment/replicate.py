@@ -1,6 +1,6 @@
 """Repliate allows running a target function multiple times.
 
-The number of replicates is defined by a confguration value and replicate can
+The number of replicates is defined by a configuration value and replicate can
 be run with or without multiprocessing.
 
 Written by Peter Duerr
